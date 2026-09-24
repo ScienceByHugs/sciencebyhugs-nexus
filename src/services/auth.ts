@@ -36,10 +36,11 @@ export async function signOut() {
 }
 
 
+const NEXUS_RECOVERY_URL = 'https://sciencebyhugs.github.io/sciencebyhugs-nexus/?mode=recovery'
+
 export async function requestPasswordReset(email: string) {
-  const redirectTo = `${window.location.origin}${window.location.pathname}?mode=recovery`
   const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-    redirectTo,
+    redirectTo: NEXUS_RECOVERY_URL,
   })
   if (error) throw error
 }
