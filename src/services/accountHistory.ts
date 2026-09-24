@@ -18,6 +18,16 @@ export type NexusInvoiceSummary = {
   created_at: string
 }
 
+export type NexusPaymentSummary = {
+  id: string
+  provider: string | null
+  amount: number
+  status: string
+  submitted_at: string | null
+  verified_at: string | null
+  paid_at: string | null
+}
+
 export type NexusOrderHistory = {
   id: string
   order_number: string | null
@@ -28,15 +38,18 @@ export type NexusOrderHistory = {
   tax_total: number
   total: number
   payment_status: string | null
+  payment_method: string | null
+  paid_at: string | null
   created_at: string
   items: NexusHistoryItem[]
   invoice: NexusInvoiceSummary | null
+  payment: NexusPaymentSummary | null
 }
 
 export async function getMyOrderHistory(customerId: string): Promise<NexusOrderHistory[]> {
   const { data: orders, error: ordersError } = await supabase
     .from('orders')
-    .select('id,order_number,status,subtotal,discount_total,shipping_total,tax_total,total,payment_status,created_at')
+    .select('id,order_number,status,subtotal,discount_total,shipping_total,tax_total,total,payment_status,payment_method,paid_at,created_at')
     .eq('customer_id', customerId)
     .order('created_at', { ascending: false })
 
@@ -45,25 +58,34 @@ export async function getMyOrderHistory(customerId: string): Promise<NexusOrderH
 
   const orderIds = orders.map(order => order.id)
 
-  const [{ data: items, error: itemsError }, { data: invoices, error: invoicesError }] =
-    await Promise.all([
-      supabase
-        .from('order_items')
-        .select('id,order_id,product_name,quantity,unit_price,line_total')
-        .in('order_id', orderIds)
-        .order('created_at', { ascending: true }),
-      supabase
-        .from('invoices')
-        .select('id,order_id,invoice_number,status,pdf_status,send_status,sent_at,created_at')
-        .in('order_id', orderIds)
-        .order('created_at', { ascending: false }),
-    ])
+  const [
+    { data: items, error: itemsError },
+    { data: invoices, error: invoicesError },
+    { data: payments, error: paymentsError },
+  ] = await Promise.all([
+    supabase
+      .from('order_items')
+      .select('id,order_id,product_name,quantity,unit_price,line_total')
+      .in('order_id', orderIds)
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('invoices')
+      .select('id,order_id,invoice_number,status,pdf_status,send_status,sent_at,created_at')
+      .in('order_id', orderIds)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('payments')
+      .select('id,order_id,provider,amount,status,submitted_at,verified_at,paid_at')
+      .in('order_id', orderIds),
+  ])
 
   if (itemsError) throw itemsError
   if (invoicesError) throw invoicesError
+  if (paymentsError) throw paymentsError
 
   return orders.map(order => {
     const invoice = invoices?.find(candidate => candidate.order_id === order.id) || null
+    const payment = payments?.find(candidate => candidate.order_id === order.id) || null
 
     return {
       ...order,
@@ -90,6 +112,17 @@ export async function getMyOrderHistory(customerId: string): Promise<NexusOrderH
             send_status: invoice.send_status,
             sent_at: invoice.sent_at,
             created_at: invoice.created_at,
+          }
+        : null,
+      payment: payment
+        ? {
+            id: payment.id,
+            provider: payment.provider,
+            amount: Number(payment.amount || 0),
+            status: payment.status,
+            submitted_at: payment.submitted_at,
+            verified_at: payment.verified_at,
+            paid_at: payment.paid_at,
           }
         : null,
     }
