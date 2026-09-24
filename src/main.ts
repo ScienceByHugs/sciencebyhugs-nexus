@@ -370,6 +370,9 @@ const productDialog = document.querySelector<HTMLDialogElement>('#productDialog'
 const dialogContent = document.querySelector<HTMLDivElement>('#dialogContent')!
 const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
 const accountDialog = document.querySelector<HTMLDialogElement>('#accountDialog')!
+const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
+const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
+const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
 const cartButton = document.querySelector<HTMLButtonElement>('#cartButton')!
 const cartCount = document.querySelector<HTMLSpanElement>('#cartCount')!
@@ -380,6 +383,23 @@ const loginEmail = document.querySelector<HTMLInputElement>('#loginEmail')!
 const loginPassword = document.querySelector<HTMLInputElement>('#loginPassword')!
 const loginSubmit = document.querySelector<HTMLButtonElement>('#loginSubmit')!
 const loginMessage = document.querySelector<HTMLDivElement>('#loginMessage')!
+const forgotPasswordButton = document.querySelector<HTMLButtonElement>('#forgotPasswordButton')!
+const forgotPasswordForm = document.querySelector<HTMLFormElement>('#forgotPasswordForm')!
+const forgotPasswordEmail = document.querySelector<HTMLInputElement>('#forgotPasswordEmail')!
+const forgotPasswordSubmit = document.querySelector<HTMLButtonElement>('#forgotPasswordSubmit')!
+const forgotPasswordBack = document.querySelector<HTMLButtonElement>('#forgotPasswordBack')!
+const forgotPasswordMessage = document.querySelector<HTMLDivElement>('#forgotPasswordMessage')!
+const recoveryPasswordForm = document.querySelector<HTMLFormElement>('#recoveryPasswordForm')!
+const recoveryPassword = document.querySelector<HTMLInputElement>('#recoveryPassword')!
+const recoveryPasswordConfirm = document.querySelector<HTMLInputElement>('#recoveryPasswordConfirm')!
+const recoveryPasswordSubmit = document.querySelector<HTMLButtonElement>('#recoveryPasswordSubmit')!
+const recoveryPasswordMessage = document.querySelector<HTMLDivElement>('#recoveryPasswordMessage')!
+const changePasswordForm = document.querySelector<HTMLFormElement>('#changePasswordForm')!
+const currentPassword = document.querySelector<HTMLInputElement>('#currentPassword')!
+const newPassword = document.querySelector<HTMLInputElement>('#newPassword')!
+const confirmNewPassword = document.querySelector<HTMLInputElement>('#confirmNewPassword')!
+const changePasswordSubmit = document.querySelector<HTMLButtonElement>('#changePasswordSubmit')!
+const changePasswordMessage = document.querySelector<HTMLDivElement>('#changePasswordMessage')!
 const cartEmpty = document.querySelector<HTMLDivElement>('#cartEmpty')!
 const cartContent = document.querySelector<HTMLDivElement>('#cartContent')!
 const cartItems = document.querySelector<HTMLDivElement>('#cartItems')!
@@ -419,6 +439,58 @@ function showToast(message: string) {
   toast.textContent = message
   toast.classList.add('show')
   window.setTimeout(() => toast.classList.remove('show'), 1800)
+}
+
+
+function showLoginView() {
+  loginForm.hidden = false
+  forgotPasswordForm.hidden = true
+  recoveryPasswordForm.hidden = true
+}
+
+function showForgotPasswordView() {
+  loginForm.hidden = true
+  forgotPasswordForm.hidden = false
+  recoveryPasswordForm.hidden = true
+  forgotPasswordEmail.value = loginEmail.value.trim()
+  forgotPasswordMessage.textContent = ''
+}
+
+function showRecoveryPasswordView() {
+  loginForm.hidden = true
+  forgotPasswordForm.hidden = true
+  recoveryPasswordForm.hidden = false
+  signedOutView.hidden = false
+  signedInView.hidden = true
+  recoveryPasswordMessage.textContent = ''
+  if (!accountDialog.open) accountDialog.showModal()
+}
+
+function openMenuInfo(kind: 'referral' | 'support' | 'policies') {
+  const copy = {
+    referral: {
+      eyebrow: 'REFERRAL LAB',
+      title: 'Refer a Friend',
+      body: 'Your referral dashboard will live here with your personal referral code, reward progress, and earned benefits.',
+    },
+    support: {
+      eyebrow: 'NEXUS SUPPORT',
+      title: 'How can we help?',
+      body: 'Support will connect account, order, invoice, and payment help directly to your signed-in Nexus profile.',
+    },
+    policies: {
+      eyebrow: 'POLICY LIBRARY',
+      title: 'Science By HUGs Policies',
+      body: 'Terms, privacy, shipping, returns/reships, and research-use policies will be organized here in one customer-facing library.',
+    },
+  }[kind]
+
+  menuInfoPanel.innerHTML = `
+    <span class="eyebrow">${copy.eyebrow}</span>
+    <h3>${copy.title}</h3>
+    <p>${copy.body}</p>
+  `
+  menuInfoPanel.hidden = false
 }
 
 function categories() {
