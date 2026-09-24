@@ -26,6 +26,12 @@ import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHis
 import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
 import { getZelleConfig, submitZellePayment } from './services/zelle'
 import { getInvoicePdfLink } from './services/invoicePdf'
+import {
+  buildReferralLink,
+  claimReferral,
+  getReferralDashboard,
+  type ReferralDashboard,
+} from './services/referrals'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -38,6 +44,12 @@ let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
 let recoveryMode = new URLSearchParams(window.location.search).get('mode') === 'recovery'
+let referralDashboard: ReferralDashboard | null = null
+
+const referralCodeFromUrl = new URLSearchParams(window.location.search).get('ref')?.trim()
+if (referralCodeFromUrl) {
+  window.localStorage.setItem('sbh_pending_referral', referralCodeFromUrl.toUpperCase())
+}
 
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
@@ -467,13 +479,189 @@ function showRecoveryPasswordView() {
   if (!accountDialog.open) accountDialog.showModal()
 }
 
+async function claimPendingReferral() {
+  if (!currentProfile) return
+
+  const pending = window.localStorage.getItem('sbh_pending_referral')?.trim()
+  if (!pending) return
+
+  try {
+    const result = await claimReferral(pending)
+    if (
+      result?.claimed ||
+      result?.alreadyAttributed ||
+      result?.reason === 'self_referral' ||
+      result?.reason === 'invalid_code'
+    ) {
+      window.localStorage.removeItem('sbh_pending_referral')
+    }
+
+    if (result?.claimed) {
+      showToast('Referral connected')
+    }
+  } catch (error) {
+    console.info('Referral attribution will retry later', error)
+  }
+}
+
+function referralDate(value: string | null) {
+  if (!value) return ''
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value))
+}
+
+async function renderReferralDashboard() {
+  menuInfoPanel.hidden = false
+
+  if (!currentProfile) {
+    menuInfoPanel.innerHTML = `
+      <span class="eyebrow">REFERRAL LAB</span>
+      <h3>Refer a Friend</h3>
+      <p>Sign in to get your personal referral link and track your rewards.</p>
+      <button id="referralSignInButton" class="auth-primary referral-action" type="button">Sign In</button>
+    `
+
+    document.querySelector<HTMLButtonElement>('#referralSignInButton')?.addEventListener('click', () => {
+      menuDialog.close()
+      accountDialog.showModal()
+    })
+    return
+  }
+
+  menuInfoPanel.innerHTML = `
+    <div class="referral-loading">
+      <div class="loader"></div>
+      <p>Loading referral lab…</p>
+    </div>
+  `
+
+  try {
+    referralDashboard = await getReferralDashboard()
+  } catch (error) {
+    menuInfoPanel.innerHTML = `
+      <span class="eyebrow">REFERRAL LAB</span>
+      <h3>Refer a Friend</h3>
+      <p>${escapeHtml(error instanceof Error ? error.message : 'Referral rewards could not be loaded.')}</p>
+    `
+    return
+  }
+
+  const data = referralDashboard
+  const link = buildReferralLink(data.referralCode)
+  const progress = Math.min(100, (data.qualifiedReferrals / 20) * 100)
+  const nextMilestone = data.milestones.find(item => data.qualifiedReferrals < item.count)
+  const referrals = data.referrals.slice(0, 6).map(referral => `
+    <div class="referral-row">
+      <div>
+        <strong>${escapeHtml(referral.name)}</strong>
+        <small>${escapeHtml(referralDate(referral.referredAt))}</small>
+      </div>
+      <span class="referral-status ${referral.qualifiedAt ? 'qualified' : ''}">
+        ${referral.qualifiedAt ? 'Qualified' : 'Pending'}
+      </span>
+    </div>
+  `).join('')
+
+  const milestones = data.milestones.map(milestone => {
+    const unlocked = data.qualifiedReferrals >= milestone.count
+    return `
+      <div class="referral-milestone ${unlocked ? 'unlocked' : ''}">
+        <span>${unlocked ? '✓' : milestone.count}</span>
+        <div>
+          <strong>${escapeHtml(milestone.label)}</strong>
+          <small>${milestone.count === 1 ? 'Each qualified referral earns a 10% reward.' : `${milestone.count} qualified referrals`}</small>
+        </div>
+      </div>
+    `
+  }).join('')
+
+  menuInfoPanel.innerHTML = `
+    <div class="referral-dashboard">
+      <div class="referral-hero">
+        <span class="eyebrow">REFERRAL LAB</span>
+        <h3>Refer a Friend</h3>
+        <p>Share your Nexus link. A referral qualifies after your friend completes a verified purchase.</p>
+      </div>
+
+      <div class="referral-code-card">
+        <span>Your referral code</span>
+        <strong>${escapeHtml(data.referralCode)}</strong>
+        <div class="referral-link">${escapeHtml(link)}</div>
+        <div class="referral-actions">
+          <button id="copyReferralButton" class="auth-primary" type="button">Copy Link</button>
+          <button id="shareReferralButton" class="auth-secondary" type="button">Share</button>
+        </div>
+      </div>
+
+      <div class="referral-stats">
+        <div><span>Qualified</span><strong>${data.qualifiedReferrals}</strong></div>
+        <div><span>Pending</span><strong>${data.pendingReferrals}</strong></div>
+        <div><span>10% Rewards</span><strong>${data.qualifiedReferrals}</strong></div>
+      </div>
+
+      <div class="referral-progress-shell">
+        <div class="referral-progress-copy">
+          <span>Principal Scientist Progress</span>
+          <strong>${data.qualifiedReferrals} / 20</strong>
+        </div>
+        <div class="referral-progress"><i style="width:${progress}%"></i></div>
+        <small>${nextMilestone ? `${nextMilestone.count - data.qualifiedReferrals} more qualified referral${nextMilestone.count - data.qualifiedReferrals === 1 ? '' : 's'} to ${escapeHtml(nextMilestone.label)}.` : 'All referral milestones unlocked.'}</small>
+      </div>
+
+      <div class="referral-milestones">
+        <span class="eyebrow">REWARD MILESTONES</span>
+        ${milestones}
+      </div>
+
+      <div class="referral-activity">
+        <span class="eyebrow">RECENT REFERRALS</span>
+        ${referrals || '<div class="referral-empty">No referrals yet. Share your link to start the experiment.</div>'}
+      </div>
+    </div>
+  `
+
+  document.querySelector<HTMLButtonElement>('#copyReferralButton')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(link)
+      showToast('Referral link copied')
+    } catch {
+      showToast('Could not copy the referral link')
+    }
+  })
+
+  document.querySelector<HTMLButtonElement>('#shareReferralButton')?.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Science By HUGs Nexus',
+          text: 'Join me on Science By HUGs Nexus.',
+          url: link,
+        })
+      } catch {
+        // Native share was cancelled.
+      }
+      return
+    }
+
+    try {
+      await navigator.clipboard.writeText(link)
+      showToast('Referral link copied')
+    } catch {
+      showToast('Could not share the referral link')
+    }
+  })
+}
+
 function openMenuInfo(kind: 'referral' | 'support' | 'policies') {
+  if (kind === 'referral') {
+    void renderReferralDashboard()
+    return
+  }
+
   const copy = {
-    referral: {
-      eyebrow: 'REFERRAL LAB',
-      title: 'Refer a Friend',
-      body: 'Your referral dashboard will live here with your personal referral code, reward progress, and earned benefits.',
-    },
     support: {
       eyebrow: 'NEXUS SUPPORT',
       title: 'How can we help?',
@@ -493,7 +681,6 @@ function openMenuInfo(kind: 'referral' | 'support' | 'policies') {
   `
   menuInfoPanel.hidden = false
 }
-
 function categories() {
   return ['All', ...new Set(products.map(p => p.product_categories?.name).filter(Boolean) as string[])]
 }
@@ -1452,6 +1639,7 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || '—'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
 
+  await claimPendingReferral()
   await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
