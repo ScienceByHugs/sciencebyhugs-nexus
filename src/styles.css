@@ -1392,3 +1392,98 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     margin-bottom:76px;
   }
 }
+
+
+/* Nexus support page */
+.support-page{display:grid;gap:14px}
+.support-hero{
+  padding:4px 2px 8px;
+}
+.support-hero h3{
+  margin:7px 0 7px;
+  font-size:1.5rem;
+  letter-spacing:-.03em;
+}
+.support-hero p{
+  margin:0;
+  color:var(--muted);
+  font-size:.78rem;
+  line-height:1.55;
+}
+.support-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.support-action-card{
+  min-width:0;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(11,16,32,.76);
+  color:var(--text);
+  text-decoration:none;
+  transition:border-color .16s ease,background .16s ease,transform .16s ease;
+}
+.support-action-card:hover{
+  border-color:rgba(127,219,255,.4);
+  background:rgba(47,128,237,.09);
+  transform:translateY(-1px);
+}
+.support-action-icon{
+  flex:0 0 auto;
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(127,219,255,.18);
+  border-radius:12px;
+  background:rgba(47,128,237,.08);
+  color:var(--blue2);
+  font-size:1.1rem;
+  font-weight:900;
+}
+.support-action-card span{
+  display:block;
+  color:var(--blue2);
+  font-size:.58rem;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.support-action-card strong{
+  display:block;
+  margin-top:4px;
+  overflow-wrap:anywhere;
+  font-size:.78rem;
+}
+.support-action-card small{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:.66rem;
+  line-height:1.4;
+}
+.support-info-card{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(5,10,20,.58);
+}
+.support-info-card>strong{
+  display:block;
+  margin-top:6px;
+  font-size:.88rem;
+}
+.support-info-card p{
+  margin:7px 0 0;
+  color:var(--muted);
+  font-size:.72rem;
+  line-height:1.55;
+}
+@media(max-width:600px){
+  .support-grid{grid-template-columns:1fr}
+  .support-action-card{padding:14px}
+}
