@@ -65,7 +65,7 @@ if (incomingReferralCode) {
 }
 
 const nexusLogoUrl = `${import.meta.env.BASE_URL}nexus-logo.svg`
-const defaultProductImageUrl = `${import.meta.env.BASE_URL}default-product-vial.webp`
+const defaultProductImageUrl = `${import.meta.env.BASE_URL}default-product-vial.webp?v=2`
 
 const escapeHtml = (value: unknown) =>
   String(value ?? '').replace(/[&<>"']/g, char => ({
