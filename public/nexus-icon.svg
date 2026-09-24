@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Nexus">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#050816"/><stop offset="1" stop-color="#0b1020"/></linearGradient>
+  <linearGradient id="blue" x1="0" x2="1"><stop stop-color="#7fdbff"/><stop offset=".5" stop-color="#2f80ed"/><stop offset="1" stop-color="#1363df"/></linearGradient>
+  <linearGradient id="silver" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#fff"/><stop offset=".55" stop-color="#aebfd3"/><stop offset="1" stop-color="#f7faff"/></linearGradient>
+  <filter id="g"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect x="8" y="8" width="240" height="240" rx="52" fill="url(#bg)" stroke="#1363df" stroke-width="4"/>
+<g fill="none" stroke-linecap="round">
+  <ellipse cx="128" cy="112" rx="88" ry="38" stroke="url(#blue)" stroke-width="8" transform="rotate(-27 128 112)"/>
+  <ellipse cx="128" cy="112" rx="88" ry="38" stroke="url(#silver)" stroke-width="7" transform="rotate(30 128 112)"/>
+</g>
+<g filter="url(#g)">
+  <circle cx="70" cy="61" r="10" fill="#7fdbff"/>
+  <circle cx="192" cy="76" r="9" fill="#2f80ed"/>
+  <circle cx="166" cy="176" r="9" fill="#7fdbff"/>
+</g>
+<path d="M83 176V72h20l59 68V72h22v104h-20l-59-67v67z" fill="url(#silver)"/>
+<path d="M118 115l20-24 22 25-20 24z" fill="url(#blue)"/>
+</svg>
