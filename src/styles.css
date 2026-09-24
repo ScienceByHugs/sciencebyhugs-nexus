@@ -513,3 +513,64 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .history-card-top{display:grid}
   .history-status{width:max-content}
 }
+
+
+/* Nexus payment status */
+.history-status.submitted{
+  color:#FFCC7A;
+  border-color:rgba(255,204,122,.28);
+  background:rgba(255,204,122,.06);
+}
+.history-status.paid{
+  color:#72E0A3;
+  border-color:rgba(114,224,163,.28);
+  background:rgba(114,224,163,.07);
+}
+.history-payment{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid rgba(127,219,255,.13);
+  border-radius:13px;
+  background:rgba(5,10,20,.48);
+}
+.history-payment>div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.history-payment span{
+  color:var(--muted);
+  font-size:.72rem;
+}
+.history-payment strong{
+  color:#BFEAFF;
+  font-size:.74rem;
+  text-align:right;
+}
+.history-payment small{
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:.66rem;
+  text-align:right;
+}
+.history-payment.submitted{
+  border-color:rgba(255,204,122,.19);
+  background:rgba(255,204,122,.035);
+}
+.history-payment.submitted strong{color:#FFCC7A}
+.history-payment.paid{
+  border-color:rgba(114,224,163,.2);
+  background:rgba(114,224,163,.04);
+}
+.history-payment.paid strong{color:#72E0A3}
+@media(max-width:600px){
+  .history-payment>div{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:5px;
+  }
+  .history-payment strong,
+  .history-payment small{text-align:left}
+}
