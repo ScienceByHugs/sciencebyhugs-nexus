@@ -64,7 +64,8 @@ if (incomingReferralCode) {
   window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
 }
 
-const brandMarkUrl = `${import.meta.env.BASE_URL}brand-mark.svg`
+const nexusLogoUrl = `${import.meta.env.BASE_URL}nexus-logo.svg`
+const defaultProductImageUrl = `${import.meta.env.BASE_URL}default-product-vial.webp`
 
 const escapeHtml = (value: unknown) =>
   String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -92,11 +93,7 @@ app.innerHTML = `
 
   <header class="topbar">
     <a class="brand" href="#" aria-label="Science By HUGs Nexus home">
-      <img src="${brandMarkUrl}" alt="" />
-      <div>
-        <span>SCIENCE BY HUGs</span>
-        <strong>NEXUS</strong>
-      </div>
+      <img class="nexus-header-logo" src="${nexusLogoUrl}" alt="Nexus — Science By HUGs" />
     </a>
 
     <div class="top-actions">
@@ -938,7 +935,7 @@ function renderProducts() {
         <div class="product-image">
           ${product.image_url
             ? `<img src="${escapeHtml(product.image_url)}" alt="" loading="lazy" />`
-            : '<img src="${brandMarkUrl}" alt="" class="fallback-mark" />'}
+            : `<img src="${defaultProductImageUrl}" alt="Science By HUGs research vial" loading="lazy" class="default-product-image" />`}
           ${product.featured ? '<span class="featured">FEATURED</span>' : ''}
         </div>
         <div class="product-body">
@@ -991,7 +988,7 @@ function openProduct(id: string) {
     <div class="dialog-image">
       ${product.image_url
         ? `<img src="${escapeHtml(product.image_url)}" alt="" />`
-        : '<img src="${brandMarkUrl}" alt="" class="fallback-mark" />'}
+        : `<img src="${defaultProductImageUrl}" alt="Science By HUGs research vial" class="default-product-image" />`}
     </div>
     <span class="category">${escapeHtml(category)}</span>
     <h2>${escapeHtml(product.name)}</h2>
