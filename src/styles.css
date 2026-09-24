@@ -1524,14 +1524,16 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 }
 
 
+
+
 /* Standalone Referral Lab */
 .referral-dialog{
   width:min(720px,calc(100% - 24px));
   max-height:min(90vh,900px);
-  overflow:auto;
+  overflow:hidden;
   border:1px solid rgba(127,219,255,.2);
   border-radius:28px;
-  padding:26px;
+  padding:0;
   background:#080E1B;
   color:var(--text);
   box-shadow:0 30px 100px rgba(0,0,0,.65);
@@ -1540,11 +1542,45 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   background:rgba(1,4,12,.84);
   backdrop-filter:blur(10px);
 }
-.referral-dialog-content{min-height:180px}
-.referral-dialog .referral-dashboard{gap:16px}
-.referral-dialog .referral-hero{
-  padding-right:48px;
+.referral-dialog-header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,14,27,.96);
+  backdrop-filter:blur(18px);
 }
+.referral-dialog-header>div{min-width:0}
+.referral-dialog-header strong{
+  display:block;
+  margin-top:3px;
+  font-size:1rem;
+  letter-spacing:-.02em;
+}
+.referral-close-button{
+  flex:0 0 auto;
+  width:40px;
+  height:40px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:rgba(5,8,22,.82);
+  color:#fff;
+  font-size:1.45rem;
+  line-height:1;
+}
+.referral-dialog-content{
+  max-height:calc(min(90vh,900px) - 77px);
+  overflow:auto;
+  padding:20px;
+  overscroll-behavior:contain;
+}
+.referral-dialog .referral-dashboard{gap:16px}
+.referral-dialog .referral-hero{padding:2px 2px 4px}
 .referral-dialog .referral-hero h3{
   font-size:clamp(1.75rem,5vw,2.25rem);
 }
@@ -1553,28 +1589,14 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     radial-gradient(circle at 90% 10%,rgba(127,219,255,.09),transparent 12rem),
     rgba(11,16,32,.78);
 }
-.referral-dialog .referral-code-card>strong{
-  font-size:1.5rem;
-}
+.referral-dialog .referral-code-card>strong{font-size:1.5rem}
 .referral-dialog .referral-actions .auth-primary,
-.referral-dialog .referral-actions .auth-secondary{
-  min-height:46px;
-}
+.referral-dialog .referral-actions .auth-secondary,
 .referral-dialog .referral-track-form .auth-primary{
   min-height:48px;
 }
-.referral-dialog .referral-earned-rewards,
-.referral-dialog .referral-progress-card,
-.referral-dialog .referral-milestones,
-.referral-dialog .referral-track-form,
-.referral-dialog .referral-history{
-  scroll-margin-top:12px;
-}
-
 @media(min-width:700px){
-  .referral-dialog .referral-dashboard{
-    grid-template-columns:1fr 1fr;
-  }
+  .referral-dialog .referral-dashboard{grid-template-columns:1fr 1fr}
   .referral-dialog .referral-hero,
   .referral-dialog .referral-code-card,
   .referral-dialog .referral-stats,
@@ -1583,55 +1605,64 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     grid-column:1/-1;
   }
   .referral-dialog .referral-earned-rewards,
-  .referral-dialog .referral-track-form{
-    align-self:start;
-  }
-  .referral-dialog .referral-history{
-    grid-column:1/-1;
-  }
+  .referral-dialog .referral-track-form{align-self:start}
+  .referral-dialog .referral-history{grid-column:1/-1}
 }
-
 @media(max-width:600px){
   .referral-dialog{
-    width:calc(100% - 10px);
-    height:calc(100dvh - 82px);
-    max-height:calc(100dvh - 82px);
-    margin:5px auto 77px;
-    padding:18px 14px 24px;
-    border-radius:24px 24px 18px 18px;
-    overscroll-behavior:contain;
+    width:100vw;
+    max-width:none;
+    height:100dvh;
+    max-height:100dvh;
+    margin:0;
+    border:0;
+    border-radius:0;
   }
-  .referral-dialog .dialog-close{
-    position:sticky;
-    top:0;
-    float:right;
-    margin:-2px -1px 2px 8px;
-    backdrop-filter:blur(14px);
+  .referral-dialog-header{
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
   }
+  .referral-dialog-header .eyebrow{font-size:.6rem}
+  .referral-dialog-header strong{font-size:1.02rem}
+  .referral-close-button{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+  }
+  .referral-dialog-content{
+    max-height:none;
+    height:calc(100dvh - 75px - env(safe-area-inset-top));
+    padding:16px 14px calc(98px + env(safe-area-inset-bottom));
+  }
+  .referral-dialog .referral-dashboard{gap:12px}
   .referral-dialog .referral-hero{
-    padding:3px 4px 0;
+    padding:4px 2px 2px;
   }
+  .referral-dialog .referral-hero .eyebrow{display:none}
   .referral-dialog .referral-hero h3{
-    margin-top:5px;
-    font-size:1.75rem;
-    line-height:1.05;
+    margin:0 0 6px;
+    font-size:1.9rem;
+    line-height:1;
   }
   .referral-dialog .referral-hero p{
-    font-size:.78rem;
+    font-size:.8rem;
+    line-height:1.5;
   }
   .referral-dialog .referral-code-card,
   .referral-dialog .referral-progress-card,
   .referral-dialog .referral-track-form,
   .referral-dialog .referral-history,
-  .referral-dialog .referral-milestones,
   .referral-dialog .referral-earned-rewards{
     padding:14px;
-    border-radius:15px;
+    border-radius:16px;
+  }
+  .referral-dialog .referral-code-card>strong{
+    font-size:1.35rem;
   }
   .referral-dialog .referral-link{
-    max-height:58px;
+    max-height:52px;
     overflow:auto;
-    font-size:.64rem;
+    padding:9px 10px;
+    font-size:.63rem;
   }
   .referral-dialog .referral-actions{
     grid-template-columns:1fr 1fr;
@@ -1639,46 +1670,102 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   }
   .referral-dialog .referral-actions .auth-primary,
   .referral-dialog .referral-actions .auth-secondary{
-    min-height:46px;
+    min-height:48px;
     margin:0;
+    border-radius:13px;
   }
   .referral-dialog .referral-stats{
-    position:sticky;
-    top:0;
-    z-index:2;
+    position:static;
     grid-template-columns:repeat(3,1fr);
-    padding:5px 0;
-    background:linear-gradient(180deg,#080E1B 74%,transparent);
+    gap:8px;
+    padding:0;
+    background:none;
   }
   .referral-dialog .referral-stats>div{
-    padding:11px 6px;
-    border-radius:12px;
+    padding:11px 5px;
+    border-radius:13px;
   }
   .referral-dialog .referral-stats span{
-    font-size:.58rem;
+    font-size:.56rem;
     text-transform:uppercase;
-    letter-spacing:.06em;
+    letter-spacing:.05em;
   }
   .referral-dialog .referral-stats strong{
-    font-size:1.12rem;
+    margin-top:4px;
+    font-size:1.18rem;
+  }
+  .referral-dialog .referral-earned-rewards{
+    order:4;
+  }
+  .referral-dialog .referral-progress-card{
+    order:3;
+  }
+  .referral-dialog .referral-milestones{
+    order:5;
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding:0 1px 5px;
+    border:0;
+    background:transparent;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+  }
+  .referral-dialog .referral-milestones::-webkit-scrollbar{display:none}
+  .referral-dialog .referral-milestones .referral-section-title{
+    flex:0 0 100%;
+    margin:0 0 -1px;
   }
   .referral-dialog .referral-milestone{
-    grid-template-columns:34px minmax(0,1fr) auto;
-    padding:10px;
+    flex:0 0 82%;
+    min-height:92px;
+    scroll-snap-align:start;
+    grid-template-columns:38px minmax(0,1fr) auto;
+    padding:13px;
+    border-radius:15px;
   }
   .referral-dialog .referral-milestone-count{
-    width:32px;
-    height:32px;
+    width:36px;
+    height:36px;
   }
+  .referral-dialog .referral-milestone strong{font-size:.79rem}
+  .referral-dialog .referral-milestone span{font-size:.68rem}
+  .referral-dialog .referral-track-form{
+    order:6;
+    gap:11px;
+  }
+  .referral-dialog .referral-track-form label{font-size:.72rem}
   .referral-dialog .referral-track-form input{
-    height:48px;
+    height:50px;
+    border-radius:13px;
+    padding:0 13px;
     font-size:16px;
   }
   .referral-dialog .referral-consent{
-    padding:11px;
-    font-size:.68rem!important;
+    padding:12px;
+    border-radius:13px;
+    font-size:.69rem!important;
+  }
+  .referral-dialog .referral-track-form .auth-primary{
+    min-height:50px;
+    border-radius:13px;
+  }
+  .referral-dialog .referral-history{
+    order:7;
+    gap:9px;
   }
   .referral-dialog .referral-row{
-    padding:12px 10px;
+    padding:12px;
+    border-radius:13px;
+  }
+  .referral-dialog .referral-row strong{font-size:.78rem}
+  .referral-dialog .referral-row small{font-size:.66rem}
+  .referral-dialog .referral-state{
+    padding:6px 8px;
+    font-size:.57rem;
+  }
+  .referral-dialog .referral-section-title{
+    font-size:.78rem;
+    margin-bottom:10px;
   }
 }
