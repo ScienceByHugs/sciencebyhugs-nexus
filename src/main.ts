@@ -57,7 +57,7 @@ app.innerHTML = `
 
   <header class="topbar">
     <a class="brand" href="#" aria-label="Science By HUGs Nexus home">
-      <img src="/brand-mark.svg" alt="" />
+      <img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" />
       <div>
         <span>SCIENCE BY HUGs</span>
         <strong>NEXUS</strong>
@@ -804,7 +804,7 @@ function renderProducts() {
         <div class="product-image">
           ${product.image_url
             ? `<img src="${escapeHtml(product.image_url)}" alt="" loading="lazy" />`
-            : '<img src="/brand-mark.svg" alt="" class="fallback-mark" />'}
+            : '<img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" class="fallback-mark" />'}
           ${product.featured ? '<span class="featured">FEATURED</span>' : ''}
         </div>
         <div class="product-body">
@@ -857,7 +857,7 @@ function openProduct(id: string) {
     <div class="dialog-image">
       ${product.image_url
         ? `<img src="${escapeHtml(product.image_url)}" alt="" />`
-        : '<img src="/brand-mark.svg" alt="" class="fallback-mark" />'}
+        : '<img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" class="fallback-mark" />'}
     </div>
     <span class="category">${escapeHtml(category)}</span>
     <h2>${escapeHtml(product.name)}</h2>
