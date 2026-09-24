@@ -189,7 +189,10 @@ app.innerHTML = `
   </dialog>
 
   <dialog id="supportDialog" class="support-dialog">
-    <button id="closeSupportDialog" class="dialog-close" aria-label="Close">×</button>
+    <div class="subpage-header">
+      <button id="backSupportToMenu" class="subpage-back-button" type="button">← Back to Menu</button>
+      <button id="closeSupportDialog" class="referral-close-button" aria-label="Close">×</button>
+    </div>
     <div class="support-page">
       <div class="support-hero">
         <span class="eyebrow">NEXUS SUPPORT</span>
@@ -229,9 +232,12 @@ app.innerHTML = `
 
   <dialog id="policyDialog" class="policy-dialog">
     <div class="policy-dialog-header">
-      <div>
-        <span class="eyebrow">POLICY LIBRARY</span>
-        <strong>Science By HUGs Policies</strong>
+      <div class="subpage-header-main">
+        <button id="backPolicyToMenu" class="subpage-back-button" type="button">← Back to Menu</button>
+        <div>
+          <span class="eyebrow">POLICY LIBRARY</span>
+          <strong>Science By HUGs Policies</strong>
+        </div>
       </div>
       <button id="closePolicyDialog" class="referral-close-button" aria-label="Close">×</button>
     </div>
@@ -256,9 +262,12 @@ app.innerHTML = `
 
   <dialog id="referralDialog" class="referral-dialog">
     <div class="referral-dialog-header">
-      <div>
-        <span class="eyebrow">REFERRAL LAB</span>
-        <strong>Refer a Friend</strong>
+      <div class="subpage-header-main">
+        <button id="backReferralToMenu" class="subpage-back-button" type="button">← Back to Menu</button>
+        <div>
+          <span class="eyebrow">REFERRAL LAB</span>
+          <strong>Refer a Friend</strong>
+        </div>
       </div>
       <button id="closeReferralDialog" class="referral-close-button" aria-label="Close">×</button>
     </div>
@@ -1852,6 +1861,11 @@ accountDialog.addEventListener('click', event => {
 menuDialog.addEventListener('click', event => {
   if (event.target === menuDialog) menuDialog.close()
 })
+function returnToMenu(dialog: HTMLDialogElement) {
+  dialog.close()
+  if (!menuDialog.open) menuDialog.showModal()
+}
+
 supportDialog.addEventListener('click', event => {
   if (event.target === supportDialog) supportDialog.close()
 })
@@ -1869,9 +1883,12 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+document.querySelector<HTMLButtonElement>('#backSupportToMenu')!.addEventListener('click', () => returnToMenu(supportDialog))
 document.querySelector<HTMLButtonElement>('#closePolicyDialog')!.addEventListener('click', () => policyDialog.close())
+document.querySelector<HTMLButtonElement>('#backPolicyToMenu')!.addEventListener('click', () => returnToMenu(policyDialog))
 
 document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
+document.querySelector<HTMLButtonElement>('#backReferralToMenu')!.addEventListener('click', () => returnToMenu(referralDialog))
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
