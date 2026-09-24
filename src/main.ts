@@ -106,6 +106,26 @@ app.innerHTML = `
     </section>
   </main>
 
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button id="mobileHomeButton" class="mobile-nav-item active" type="button">
+      <span class="mobile-nav-icon">⌂</span>
+      <span>Home</span>
+    </button>
+    <button id="mobileAccountButton" class="mobile-nav-item" type="button">
+      <span class="mobile-nav-icon">◉</span>
+      <span>Account</span>
+    </button>
+    <button id="mobileSupportButton" class="mobile-nav-item" type="button">
+      <span class="mobile-nav-icon">?</span>
+      <span>Support</span>
+    </button>
+    <button id="mobileCartButton" class="mobile-nav-item" type="button">
+      <span class="mobile-nav-icon">◇</span>
+      <span>Cart</span>
+      <b id="mobileCartCount">0</b>
+    </button>
+  </nav>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 
@@ -392,6 +412,11 @@ const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
 const cartButton = document.querySelector<HTMLButtonElement>('#cartButton')!
 const cartCount = document.querySelector<HTMLSpanElement>('#cartCount')!
+const mobileCartCount = document.querySelector<HTMLElement>('#mobileCartCount')!
+const mobileHomeButton = document.querySelector<HTMLButtonElement>('#mobileHomeButton')!
+const mobileAccountButton = document.querySelector<HTMLButtonElement>('#mobileAccountButton')!
+const mobileSupportButton = document.querySelector<HTMLButtonElement>('#mobileSupportButton')!
+const mobileCartButton = document.querySelector<HTMLButtonElement>('#mobileCartButton')!
 const signedOutView = document.querySelector<HTMLDivElement>('#signedOutView')!
 const signedInView = document.querySelector<HTMLDivElement>('#signedInView')!
 const loginForm = document.querySelector<HTMLFormElement>('#loginForm')!
@@ -886,7 +911,10 @@ function isFoundingMember() {
 }
 
 function updateCartUI() {
-  cartCount.textContent = String(cartQuantity(cart))
+  const quantity = cartQuantity(cart)
+  cartCount.textContent = String(quantity)
+  mobileCartCount.textContent = String(quantity)
+  mobileCartCount.hidden = quantity === 0
 
   if (!cart.length) {
     cartEmpty.hidden = false
@@ -1769,8 +1797,55 @@ menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(but
 })
 
 accountButton.addEventListener('click', () => {
+  openAccountDialog()
+})
+
+function openCartDialog() {
+  invoiceSuccess.hidden = true
+  payNowSuccess.hidden = true
+  cartEmpty.hidden = cart.length > 0
+  cartContent.hidden = cart.length === 0
+  cartDialog.showModal()
+}
+
+function openAccountDialog() {
   if (!recoveryMode) showLoginView()
   accountDialog.showModal()
+}
+
+function setMobileNavActive(active: 'home' | 'account' | 'support' | 'cart') {
+  const items = [
+    [mobileHomeButton, 'home'],
+    [mobileAccountButton, 'account'],
+    [mobileSupportButton, 'support'],
+    [mobileCartButton, 'cart'],
+  ] as const
+
+  items.forEach(([button, key]) => {
+    button.classList.toggle('active', key === active)
+  })
+}
+
+mobileHomeButton.addEventListener('click', () => {
+  setMobileNavActive('home')
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
+
+mobileAccountButton.addEventListener('click', () => {
+  setMobileNavActive('account')
+  openAccountDialog()
+})
+
+mobileSupportButton.addEventListener('click', () => {
+  setMobileNavActive('support')
+  menuInfoPanel.hidden = false
+  openMenuInfo('support')
+  if (!menuDialog.open) menuDialog.showModal()
+})
+
+mobileCartButton.addEventListener('click', () => {
+  setMobileNavActive('cart')
+  openCartDialog()
 })
 
 cartButton.addEventListener('click', () => {
