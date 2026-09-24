@@ -7,11 +7,11 @@ export default defineConfig({
   base,
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       workbox: {
         cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
+        clientsClaim: false,
+        skipWaiting: false,
         navigateFallbackDenylist: [/\.vcf$/i],
       },
       includeAssets: ['brand-mark.svg', 'science-by-hugs-contact.vcf'],
