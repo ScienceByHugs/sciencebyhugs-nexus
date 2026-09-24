@@ -2,6 +2,7 @@ import './styles.css'
 import { registerSW } from 'virtual:pwa-register'
 import { fetchCatalog, type CatalogProduct } from './services/catalog'
 import {
+  claimExistingProfile,
   getCurrentUser,
   getMyProfile,
   onAuthChange,
@@ -56,7 +57,9 @@ let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
-let recoveryMode = new URLSearchParams(window.location.search).get('mode') === 'recovery'
+const initialMode = new URLSearchParams(window.location.search).get('mode')
+let recoveryMode = initialMode === 'recovery'
+let inviteMode = initialMode === 'invite'
 let referralDashboard: ReferralDashboard | null = null
 
 const incomingReferralCode = new URLSearchParams(window.location.search).get('ref')
@@ -444,8 +447,9 @@ app.innerHTML = `
       </form>
 
       <form id="recoveryPasswordForm" class="auth-form recovery-form" hidden>
-        <span class="eyebrow">SECURE RECOVERY</span>
-        <h3>Choose a new password.</h3>
+        <span id="passwordSetupEyebrow" class="eyebrow">SECURE RECOVERY</span>
+        <h3 id="passwordSetupTitle">Choose a new password.</h3>
+        <p id="passwordSetupCopy" class="account-copy">Create a secure password for your Science By HUGs account.</p>
         <label>
           New password
           <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="10" required />
@@ -617,6 +621,24 @@ function showRecoveryPasswordView() {
   signedOutView.hidden = false
   signedInView.hidden = true
   recoveryPasswordMessage.textContent = ''
+
+  const eyebrow = document.querySelector<HTMLElement>('#passwordSetupEyebrow')
+  const title = document.querySelector<HTMLElement>('#passwordSetupTitle')
+  const copy = document.querySelector<HTMLElement>('#passwordSetupCopy')
+  const submit = document.querySelector<HTMLButtonElement>('#recoveryPasswordSubmit')
+
+  if (inviteMode) {
+    if (eyebrow) eyebrow.textContent = 'ACCOUNT ACTIVATION'
+    if (title) title.textContent = 'Create your password.'
+    if (copy) copy.textContent = 'Your invitation is verified. Create a password to activate your Nexus account and connect your existing customer profile.'
+    if (submit) submit.textContent = 'Activate My Account'
+  } else {
+    if (eyebrow) eyebrow.textContent = 'SECURE RECOVERY'
+    if (title) title.textContent = 'Choose a new password.'
+    if (copy) copy.textContent = 'Create a secure password for your Science By HUGs account.'
+    if (submit) submit.textContent = 'Set New Password'
+  }
+
   if (!accountDialog.open) accountDialog.showModal()
 }
 
@@ -1813,7 +1835,7 @@ async function refreshOrderHistory() {
 async function refreshAccount() {
   const user = await getCurrentUser()
 
-  if (recoveryMode) {
+  if (recoveryMode || inviteMode) {
     currentProfile = null
     showRecoveryPasswordView()
     updateCheckoutCustomer()
@@ -2134,22 +2156,35 @@ recoveryPasswordForm.addEventListener('submit', async event => {
   recoveryPasswordSubmit.textContent = 'Updating…'
 
   try {
+    const wasInvite = inviteMode
     await updatePassword(recoveryPassword.value)
+
+    if (wasInvite) {
+      recoveryPasswordMessage.textContent = 'Connecting your customer profile…'
+      const claim = await claimExistingProfile()
+      if (!claim?.profile) {
+        throw new Error('Your password was created, but Nexus could not connect your customer profile. Please contact support.')
+      }
+    }
+
     recoveryPassword.value = ''
     recoveryPasswordConfirm.value = ''
     recoveryMode = false
+    inviteMode = false
+
     const cleanUrl = new URL(window.location.href)
     cleanUrl.searchParams.delete('mode')
     window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search + cleanUrl.hash)
+
     await refreshAccount()
-    showToast('Password updated successfully')
+    showToast(wasInvite ? 'Nexus account activated' : 'Password updated successfully')
     if (accountDialog.open) accountDialog.close()
   } catch (error) {
     recoveryPasswordMessage.textContent =
       error instanceof Error ? error.message : 'Could not update the password.'
   } finally {
     recoveryPasswordSubmit.disabled = false
-    recoveryPasswordSubmit.textContent = 'Set New Password'
+    recoveryPasswordSubmit.textContent = inviteMode ? 'Activate My Account' : 'Set New Password'
   }
 })
 
@@ -2228,6 +2263,12 @@ searchInput.addEventListener('input', () => {
 onAuthChange((event) => {
   if (event === 'PASSWORD_RECOVERY') {
     recoveryMode = true
+    inviteMode = false
+    showRecoveryPasswordView()
+    return
+  }
+
+  if (inviteMode) {
     showRecoveryPasswordView()
     return
   }
