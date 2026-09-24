@@ -19,6 +19,7 @@ import {
 } from './services/cart'
 import { requestInvoice } from './services/invoiceRequests'
 import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
+import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -623,9 +624,115 @@ function renderAccountHistory() {
             <small>Verified ${escapeHtml(historyDate(order.payment?.verified_at || order.paid_at || order.created_at))}</small>
           ` : ''}
         </div>
+
+        ${invoiceSent && !paymentVerified ? `
+          <div class="history-paypal-shell">
+            <div>
+              <span class="eyebrow">PAY SECURELY</span>
+              <strong>PayPal Sandbox</strong>
+              <small>No live money is moved while Sandbox mode is enabled.</small>
+            </div>
+            <paypal-button
+              class="nexus-paypal-button"
+              data-order-id="${escapeHtml(order.id)}"
+              hidden
+            ></paypal-button>
+            <div class="paypal-message" data-paypal-message="${escapeHtml(order.id)}"></div>
+          </div>
+        ` : ''}
       </article>
     `
   }).join('')
+
+  void setupPayPalCheckout()
+}
+
+async function setupPayPalCheckout() {
+  const buttons = [
+    ...document.querySelectorAll<HTMLElement>('.nexus-paypal-button'),
+  ]
+
+  if (!buttons.length) return
+
+  try {
+    const sdk = await getPayPalSdk()
+    const methods = await sdk.findEligibleMethods({ currencyCode: 'USD' })
+
+    if (!methods.isEligible('paypal')) {
+      buttons.forEach(button => {
+        const orderId = button.dataset.orderId || ''
+        const message = document.querySelector<HTMLElement>(
+          `[data-paypal-message="${CSS.escape(orderId)}"]`,
+        )
+        if (message) message.textContent = 'PayPal is not available for this session.'
+      })
+      return
+    }
+
+    buttons.forEach(button => {
+      const orderId = button.dataset.orderId
+      if (!orderId) return
+
+      const message = document.querySelector<HTMLElement>(
+        `[data-paypal-message="${CSS.escape(orderId)}"]`,
+      )
+
+      const session = sdk.createPayPalOneTimePaymentSession({
+        onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
+          if (message) message.textContent = 'Finalizing PayPal payment…'
+
+          try {
+            await capturePayPalOrder(orderId, paypalOrderId)
+            if (message) message.textContent = 'Payment completed.'
+            showToast('PayPal payment completed')
+            await refreshOrderHistory()
+          } catch (error) {
+            if (message) {
+              message.textContent =
+                error instanceof Error ? error.message : 'PayPal capture failed.'
+            }
+          }
+        },
+        onCancel: () => {
+          if (message) message.textContent = 'PayPal checkout was cancelled.'
+        },
+        onError: (error: unknown) => {
+          console.error('PayPal checkout error', error)
+          if (message) message.textContent = 'PayPal checkout could not be completed.'
+        },
+      })
+
+      button.hidden = false
+      button.addEventListener('click', async () => {
+        if (message) message.textContent = 'Opening PayPal Sandbox…'
+
+        try {
+          const paypalOrder = await createPayPalOrder(orderId)
+          await session.start(
+            { presentationMode: 'auto' },
+            Promise.resolve({ orderId: paypalOrder.orderId }),
+          )
+        } catch (error) {
+          if (message) {
+            message.textContent =
+              error instanceof Error ? error.message : 'Could not start PayPal checkout.'
+          }
+        }
+      }, { once: true })
+    })
+  } catch (error) {
+    console.error('PayPal setup unavailable', error)
+
+    buttons.forEach(button => {
+      const orderId = button.dataset.orderId || ''
+      const message = document.querySelector<HTMLElement>(
+        `[data-paypal-message="${CSS.escape(orderId)}"]`,
+      )
+      if (message) {
+        message.textContent = 'PayPal Sandbox setup is not finished yet.'
+      }
+    })
+  }
 }
 
 async function refreshOrderHistory() {
