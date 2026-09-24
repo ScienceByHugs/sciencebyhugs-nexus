@@ -12,8 +12,9 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+        navigateFallbackDenylist: [/\.vcf$/i],
       },
-      includeAssets: ['brand-mark.svg'],
+      includeAssets: ['brand-mark.svg', 'science-by-hugs-contact.vcf'],
       manifest: {
         name: 'Science By HUGs Nexus',
         short_name: 'Nexus',
