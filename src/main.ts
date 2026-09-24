@@ -1,4 +1,5 @@
 import './styles.css'
+import { registerSW } from 'virtual:pwa-register'
 import { fetchCatalog, type CatalogProduct } from './services/catalog'
 import {
   getCurrentUser,
@@ -33,6 +34,20 @@ import {
   submitReferral,
   type ReferralDashboard,
 } from './services/referrals'
+
+const updateServiceWorker = registerSW({
+  immediate: true,
+  onRegisteredSW(_swUrl, registration) {
+    if (!registration) return
+    void registration.update()
+    window.setInterval(() => {
+      void registration.update()
+    }, 60 * 60 * 1000)
+  },
+  onNeedRefresh() {
+    void updateServiceWorker(true)
+  },
+})
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -756,13 +771,53 @@ async function openReferralDashboard() {
   })
 }
 
-function openMenuInfo(kind: 'support' | 'policies') {
+function openSupportPage() {
+  menuInfoPanel.hidden = false
+  const contactCardUrl = `${import.meta.env.BASE_URL}science-by-hugs-contact.vcf`
+
+  menuInfoPanel.innerHTML = `
+    <div class="support-page">
+      <div class="support-hero">
+        <span class="eyebrow">NEXUS SUPPORT</span>
+        <h3>How can we help?</h3>
+        <p>Reach Science By HUGs support or save our contact card directly to your phone.</p>
+      </div>
+
+      <div class="support-grid">
+        <a class="support-action-card" href="mailto:support@sciencebyhugs.com">
+          <div class="support-action-icon">✉</div>
+          <div>
+            <span>EMAIL SUPPORT</span>
+            <strong>support@sciencebyhugs.com</strong>
+            <small>Open your email app with our support address ready.</small>
+          </div>
+        </a>
+
+        <a
+          class="support-action-card"
+          href="${escapeHtml(contactCardUrl)}"
+          download="Science-By-HUGs.vcf"
+        >
+          <div class="support-action-icon">＋</div>
+          <div>
+            <span>SAVE CONTACT</span>
+            <strong>Download Our Contact</strong>
+            <small>Works with iPhone, Android, and most contact apps.</small>
+          </div>
+        </a>
+      </div>
+
+      <div class="support-info-card">
+        <span class="eyebrow">SCIENCE BY HUGs</span>
+        <strong>Customer Support</strong>
+        <p>For account, order, invoice, payment, or general questions, email our support team and include your customer ID or order number when available.</p>
+      </div>
+    </div>
+  `
+}
+
+function openMenuInfo(kind: 'policies') {
   const copy = {
-    support: {
-      eyebrow: 'NEXUS SUPPORT',
-      title: 'How can we help?',
-      body: 'Support will connect account, order, invoice, and payment help directly to your signed-in Nexus profile.',
-    },
     policies: {
       eyebrow: 'POLICY LIBRARY',
       title: 'Science By HUGs Policies',
@@ -1790,7 +1845,12 @@ menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(but
       return
     }
 
-    if (target === 'support' || target === 'policies') {
+    if (target === 'support') {
+      openSupportPage()
+      return
+    }
+
+    if (target === 'policies') {
       openMenuInfo(target)
     }
   })
@@ -1838,8 +1898,7 @@ mobileAccountButton.addEventListener('click', () => {
 
 mobileSupportButton.addEventListener('click', () => {
   setMobileNavActive('support')
-  menuInfoPanel.hidden = false
-  openMenuInfo('support')
+  openSupportPage()
   if (!menuDialog.open) menuDialog.showModal()
 })
 
