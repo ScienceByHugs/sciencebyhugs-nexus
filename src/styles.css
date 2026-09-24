@@ -1769,3 +1769,157 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     margin-bottom:10px;
   }
 }
+
+
+/* Referral responsive sizing pass */
+@media(max-width:600px){
+  .referral-dialog-content{
+    width:100%;
+    max-width:100vw;
+    padding-left:clamp(10px,3.5vw,14px);
+    padding-right:clamp(10px,3.5vw,14px);
+  }
+
+  .referral-dialog .referral-dashboard,
+  .referral-dialog .referral-hero,
+  .referral-dialog .referral-code-card,
+  .referral-dialog .referral-stats,
+  .referral-dialog .referral-earned-rewards,
+  .referral-dialog .referral-progress-card,
+  .referral-dialog .referral-milestones,
+  .referral-dialog .referral-track-form,
+  .referral-dialog .referral-history{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+
+  .referral-dialog .referral-code-card,
+  .referral-dialog .referral-progress-card,
+  .referral-dialog .referral-track-form,
+  .referral-dialog .referral-history,
+  .referral-dialog .referral-earned-rewards{
+    padding:clamp(11px,3vw,14px);
+  }
+
+  .referral-dialog .referral-link{
+    width:100%;
+    max-width:100%;
+    white-space:normal;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+  }
+
+  .referral-dialog .referral-actions{
+    width:100%;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .referral-dialog .referral-actions button{
+    width:100%;
+    min-width:0;
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .referral-dialog .referral-stats{
+    width:100%;
+    gap:clamp(5px,2vw,8px);
+  }
+
+  .referral-dialog .referral-stats>div{
+    min-width:0;
+    padding-left:4px;
+    padding-right:4px;
+  }
+
+  .referral-dialog .referral-stats span{
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .referral-dialog .referral-milestones{
+    width:100%;
+    max-width:100%;
+    padding-right:0;
+  }
+
+  .referral-dialog .referral-milestone{
+    flex:0 0 min(82vw,300px);
+    max-width:calc(100vw - 36px);
+    min-width:0;
+  }
+
+  .referral-dialog .referral-track-form input,
+  .referral-dialog .referral-track-form button,
+  .referral-dialog .referral-consent{
+    max-width:100%;
+  }
+}
+
+@media(max-width:390px){
+  .referral-dialog-header{
+    padding-left:12px;
+    padding-right:12px;
+  }
+
+  .referral-dialog-content{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .referral-dialog .referral-hero h3{
+    font-size:1.65rem;
+  }
+
+  .referral-dialog .referral-code-card>strong{
+    font-size:1.15rem;
+    letter-spacing:.03em;
+    overflow-wrap:anywhere;
+  }
+
+  .referral-dialog .referral-actions{
+    grid-template-columns:1fr;
+  }
+
+  .referral-dialog .referral-stats span{
+    font-size:.5rem;
+  }
+
+  .referral-dialog .referral-stats strong{
+    font-size:1.02rem;
+  }
+
+  .referral-dialog .referral-milestone{
+    flex-basis:calc(100vw - 32px);
+    max-width:calc(100vw - 32px);
+  }
+
+  .referral-dialog .referral-row{
+    align-items:flex-start;
+  }
+
+  .referral-dialog .referral-state{
+    flex:0 0 auto;
+  }
+}
+
+@media(max-width:350px){
+  .referral-dialog-content{
+    padding-left:8px;
+    padding-right:8px;
+  }
+
+  .referral-dialog .referral-code-card,
+  .referral-dialog .referral-progress-card,
+  .referral-dialog .referral-track-form,
+  .referral-dialog .referral-history,
+  .referral-dialog .referral-earned-rewards{
+    padding:10px;
+  }
+
+  .referral-dialog .referral-milestone{
+    flex-basis:calc(100vw - 24px);
+    max-width:calc(100vw - 24px);
+  }
+}
