@@ -838,53 +838,9 @@ function openSupportDialog() {
   supportDialog.showModal()
 }
 
-async function downloadSupportContact() {
+function downloadSupportContact() {
   const contactCardUrl = `${import.meta.env.BASE_URL}science-by-hugs-contact.vcf`
-  downloadContactButton.disabled = true
-
-  try {
-    const response = await fetch(contactCardUrl, { cache: 'no-store' })
-    if (!response.ok) throw new Error('Contact card could not be loaded.')
-
-    const text = await response.text()
-    if (!text.trim().startsWith('BEGIN:VCARD')) {
-      throw new Error('Contact card response was not a valid vCard.')
-    }
-
-    const file = new File([text], 'Science-By-HUGs.vcf', { type: 'text/vcard' })
-    const shareData = { files: [file], title: 'Science By HUGs Contact' }
-
-    if (
-      typeof navigator.share === 'function' &&
-      typeof navigator.canShare === 'function' &&
-      navigator.canShare(shareData)
-    ) {
-      try {
-        await navigator.share(shareData)
-        return
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return
-        console.info('Native vCard share unavailable; using browser fallback.', error)
-      }
-    }
-
-    const blob = new Blob([text], { type: 'text/vcard;charset=utf-8' })
-    const objectUrl = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = objectUrl
-    link.download = 'Science-By-HUGs.vcf'
-    link.target = '_blank'
-    link.rel = 'noopener'
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 15000)
-  } catch (error) {
-    console.error('Contact card download failed', error)
-    showToast('Could not open contact card')
-  } finally {
-    downloadContactButton.disabled = false
-  }
+  window.location.href = contactCardUrl
 }
 
 function openMenuInfo(kind: 'policies') {
