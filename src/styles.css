@@ -767,3 +767,124 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   border-color:rgba(127,219,255,.42);
 }
 .history-pdf-button:disabled{opacity:.55;cursor:wait}
+
+
+/* Nexus navigation + account security */
+.menu-dialog{
+  width:min(680px,calc(100% - 28px));
+  max-height:min(90vh,880px);
+  overflow:auto;
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:28px;
+  padding:28px;
+  background:#080E1B;
+  color:var(--text);
+  box-shadow:0 30px 100px rgba(0,0,0,.65);
+}
+.menu-dialog::backdrop{
+  background:rgba(1,4,12,.8);
+  backdrop-filter:blur(10px);
+}
+.menu-head h2{
+  margin:7px 0 6px;
+  font-size:clamp(1.9rem,5vw,2.6rem);
+  letter-spacing:-.04em;
+}
+.menu-head p{
+  margin:0 44px 22px 0;
+  color:var(--muted);
+  line-height:1.55;
+}
+.menu-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+.menu-card{
+  min-height:130px;
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(11,16,32,.78);
+  color:var(--text);
+  text-align:left;
+}
+.menu-card:hover{
+  border-color:rgba(127,219,255,.4);
+  background:rgba(47,128,237,.1);
+}
+.menu-card span{
+  display:block;
+  margin-bottom:8px;
+  color:var(--blue2);
+  font-size:.62rem;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+.menu-card strong{
+  display:block;
+  font-size:1rem;
+}
+.menu-card small{
+  display:block;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:.72rem;
+  line-height:1.45;
+}
+.menu-info-panel{
+  margin-top:14px;
+  padding:18px;
+  border:1px solid rgba(127,219,255,.18);
+  border-radius:18px;
+  background:rgba(47,128,237,.045);
+}
+.menu-info-panel h3{
+  margin:6px 0 7px;
+  font-size:1.25rem;
+}
+.menu-info-panel p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+  font-size:.78rem;
+}
+.auth-link{
+  border:0;
+  background:transparent;
+  color:#9DDCFF;
+  padding:2px;
+  font-size:.76rem;
+  font-weight:850;
+  text-align:center;
+}
+.auth-link:hover{color:#fff}
+.recovery-form h3{
+  margin:4px 0 0;
+  font-size:1.4rem;
+}
+.account-security-shell{
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid var(--line);
+}
+.compact-auth-form{
+  grid-template-columns:1fr 1fr;
+}
+.compact-auth-form label:first-child{
+  grid-column:1/-1;
+}
+.compact-auth-form .auth-primary,
+.compact-auth-form .auth-message{
+  grid-column:1/-1;
+}
+.menu-button{min-width:64px}
+@media(max-width:600px){
+  .menu-dialog{padding:22px 16px;border-radius:22px}
+  .menu-grid{grid-template-columns:1fr}
+  .menu-card{min-height:105px}
+  .compact-auth-form{grid-template-columns:1fr}
+  .compact-auth-form label,
+  .compact-auth-form .auth-primary,
+  .compact-auth-form .auth-message{grid-column:1}
+}
