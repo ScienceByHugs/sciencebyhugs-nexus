@@ -65,7 +65,7 @@ export async function getPayPalSdk() {
 
     return window.paypal.createInstance({
       clientId: config.clientId,
-      components: ['paypal-payments'],
+      components: ['paypal-payments', 'venmo-payments'],
       pageType: 'checkout',
     })
   })()
@@ -78,9 +78,12 @@ export async function getPayPalSdk() {
   }
 }
 
-export async function createPayPalOrder(orderId: string) {
+export async function createPayPalOrder(
+  orderId: string,
+  paymentMethod: 'PayPal' | 'Venmo' = 'PayPal',
+) {
   const { data, error } = await supabase.functions.invoke('paypal-create-order', {
-    body: { orderId },
+    body: { orderId, paymentMethod },
   })
 
   if (error) throw error
@@ -95,9 +98,13 @@ export async function createPayPalOrder(orderId: string) {
   }
 }
 
-export async function capturePayPalOrder(orderId: string, paypalOrderId: string) {
+export async function capturePayPalOrder(
+  orderId: string,
+  paypalOrderId: string,
+  paymentMethod: 'PayPal' | 'Venmo' = 'PayPal',
+) {
   const { data, error } = await supabase.functions.invoke('paypal-capture-order', {
-    body: { orderId, paypalOrderId },
+    body: { orderId, paypalOrderId, paymentMethod },
   })
 
   if (error) throw error
