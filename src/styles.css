@@ -585,3 +585,39 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   border-color:rgba(255,157,157,.28);
   background:rgba(255,157,157,.06);
 }
+
+
+/* PayPal Sandbox checkout */
+.history-paypal-shell{
+  margin-top:12px;
+  padding:14px;
+  border:1px solid rgba(127,219,255,.16);
+  border-radius:15px;
+  background:rgba(47,128,237,.045);
+}
+.history-paypal-shell>div:first-child{
+  margin-bottom:11px;
+}
+.history-paypal-shell>div:first-child>strong{
+  display:block;
+  margin-top:5px;
+  font-size:.88rem;
+}
+.history-paypal-shell>div:first-child>small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.68rem;
+  line-height:1.45;
+}
+.nexus-paypal-button{
+  display:block;
+  width:100%;
+}
+.paypal-message{
+  min-height:17px;
+  margin-top:8px;
+  color:#BFEAFF;
+  font-size:.7rem;
+  line-height:1.4;
+}
