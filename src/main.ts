@@ -1096,6 +1096,10 @@ function updateCheckoutCustomer() {
   updateRequestButton()
 }
 
+function currentAccountIsActive() {
+  return String(currentProfile?.account_status || '').trim().toLowerCase() === 'active'
+}
+
 function updateRequestButton() {
   if (!cart.length) {
     payNowButton.disabled = true
@@ -1110,6 +1114,14 @@ function updateRequestButton() {
     requestInvoiceButton.disabled = false
     payNowButton.textContent = 'Sign In to Pay'
     requestInvoiceButton.textContent = 'Sign In to Request Invoice'
+    return
+  }
+
+  if (!currentAccountIsActive()) {
+    payNowButton.textContent = 'Account Suspended'
+    requestInvoiceButton.textContent = 'Account Suspended'
+    payNowButton.disabled = true
+    requestInvoiceButton.disabled = true
     return
   }
 
@@ -2002,6 +2014,11 @@ payNowButton.addEventListener('click', async () => {
     return
   }
 
+  if (!currentAccountIsActive()) {
+    showToast('This account is suspended. Contact support for assistance.')
+    return
+  }
+
   if (!policyAcknowledgment.checked) {
     showToast('Please acknowledge the policies first.')
     return
@@ -2024,6 +2041,11 @@ requestInvoiceButton.addEventListener('click', async () => {
   if (!currentProfile) {
     cartDialog.close()
     accountDialog.showModal()
+    return
+  }
+
+  if (!currentAccountIsActive()) {
+    showToast('This account is suspended. Contact support for assistance.')
     return
   }
 
