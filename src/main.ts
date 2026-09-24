@@ -27,6 +27,7 @@ import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHis
 import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
 import { getZelleConfig, submitZellePayment } from './services/zelle'
 import { getInvoicePdfLink } from './services/invoicePdf'
+import { nexusPolicies } from './policies'
 import {
   buildReferralLink,
   claimReferral,
@@ -832,18 +833,38 @@ function openSupportDialog() {
 
 
 function openMenuInfo(kind: 'policies') {
-  const copy = {
-    policies: {
-      eyebrow: 'POLICY LIBRARY',
-      title: 'Science By HUGs Policies',
-      body: 'Terms, privacy, shipping, returns/reships, and research-use policies will be organized here in one customer-facing library.',
-    },
-  }[kind]
+  if (kind !== 'policies') return
+
+  const policyCards = nexusPolicies.map(policy => `
+    <details class="policy-card">
+      <summary>
+        <div>
+          <span class="policy-kicker">LEGAL POLICY</span>
+          <strong>${escapeHtml(policy.title)}</strong>
+          <small>Effective ${escapeHtml(policy.effectiveDate)}</small>
+        </div>
+        <span class="policy-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="policy-content">${escapeHtml(policy.text)}</div>
+    </details>
+  `).join('')
 
   menuInfoPanel.innerHTML = `
-    <span class="eyebrow">${copy.eyebrow}</span>
-    <h3>${copy.title}</h3>
-    <p>${copy.body}</p>
+    <div class="policy-library-head">
+      <span class="eyebrow">POLICY LIBRARY</span>
+      <h3>Science By HUGs Policies</h3>
+      <p>Review the policies that apply to orders, research-use products, privacy, refunds, shipping, and delivery.</p>
+    </div>
+
+    <div class="policy-library">
+      ${policyCards}
+    </div>
+
+    <div class="policy-legal-contact">
+      <span class="eyebrow">LEGAL CONTACT</span>
+      <strong>Questions about these policies?</strong>
+      <a href="mailto:legal@sciencebyhugs.com">legal@sciencebyhugs.com</a>
+    </div>
   `
   menuInfoPanel.hidden = false
 }
