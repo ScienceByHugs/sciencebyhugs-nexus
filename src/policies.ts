@@ -1,0 +1,443 @@
+export type NexusPolicy = {
+  id: string
+  title: string
+  effectiveDate: string
+  text: string
+}
+
+export const nexusPolicies: NexusPolicy[] = [
+  {
+    id: 'terms',
+    title: 'Terms & Conditions',
+    effectiveDate: 'September 18, 2026',
+    text: `SCIENCE BY HUGS
+Terms & Conditions
+Effective Date: September 18, 2026
+Business Name: Science By HUGs
+Business Location: Las Vegas, Nevada
+
+1. ACCEPTANCE OF TERMS
+By accessing, browsing, ordering from, or otherwise interacting with Science By HUGs ("Science By HUGs," "we," "us," or "our"), you acknowledge that you have read, understood, and agreed to these Terms & Conditions.
+
+If you do not agree to these Terms & Conditions, you may not place an order with Science By HUGs.
+
+2. PRODUCTS
+Science By HUGs sells research-grade and research-use-only peptide products intended solely for legitimate laboratory, analytical, educational, or other lawful research purposes.
+
+All products are sold strictly for research purposes and are not sold as drugs, medications, dietary supplements, medical treatments, or veterinary products.
+
+3. RESEARCH USE ONLY
+Science By HUGs products are not intended for human consumption, human administration, veterinary use, diagnosis, treatment, mitigation, cure, or prevention of any disease, illness, condition, or injury.
+
+Customers are solely responsible for ensuring that their purchase and intended research activities comply with all applicable federal, state, and local laws, regulations, and institutional requirements.
+
+Science By HUGs does not provide medical advice, treatment recommendations, dosing instructions, administration instructions, or instructions for using research products in humans or animals.
+
+4. PRODUCT INFORMATION
+Product names, descriptions, specifications, photographs, and other information are provided for legitimate research purposes.
+
+Science By HUGs does not represent that any product is safe, effective, approved, or suitable for use in humans or animals.
+
+Customers are responsible for independently determining whether a product is appropriate and lawful for their intended research application.
+
+5. PURCHASING ELIGIBILITY
+By placing an order, the customer represents that:
+• They are legally permitted to purchase the products.
+• They will use the products only for lawful research purposes.
+• They will not use the products in humans or animals.
+• They will not resell or redistribute products in violation of applicable law.
+• They will comply with all applicable federal, state, and local laws and regulations.
+
+Science By HUGs reserves the right to refuse, cancel, or decline any order at its discretion when there is reason to believe an order may violate these Terms & Conditions or applicable law.
+
+6. PAYMENTS
+Science By HUGs currently accepts payment through approved payment methods communicated to customers at the time of purchase, which may include Zelle, PayPal, and Venmo.
+
+An order is not considered confirmed until payment has been received and accepted by Science By HUGs.
+
+Customers are responsible for providing accurate payment and contact information.
+
+7. ORDER ACCEPTANCE
+Submitting an order does not guarantee acceptance.
+
+Science By HUGs reserves the right to cancel or decline an order before fulfillment, including when:
+• Product availability changes;
+• Payment cannot be verified;
+• Customer information is incomplete or inaccurate;
+• The requested transaction appears inconsistent with research-only requirements;
+• The transaction may violate applicable law; or
+• Science By HUGs otherwise determines that fulfillment is inappropriate.
+
+If Science By HUGs cancels an order for which payment has already been received, any refund will be handled in accordance with applicable law and the applicable Refund Policy.
+
+8. RETURNS, REFUNDS, AND RESHIPMENTS
+Science By HUGs does not accept returns based solely on customer preference, change of mind, improper storage, mishandling, or customer negligence.
+
+Refunds or replacement shipments may be provided when a product is confirmed to have been damaged prior to or during delivery, subject to the requirements of the Science By HUGs Return & Refund Policy.
+
+Customers must promptly notify Science By HUGs of any suspected damage and provide the requested photographs, order information, and other documentation.
+
+Nothing in this policy is intended to eliminate any refund or cancellation rights that cannot legally be waived.
+
+9. SHIPPING
+Science By HUGs currently ships only within the Las Vegas, Nevada service area.
+
+Customers are responsible for providing accurate delivery information.
+
+Science By HUGs is not responsible for delays, failed delivery, or loss resulting from an incorrect address, failure to receive a delivery, or other circumstances caused by the customer.
+
+Shipping and delivery terms are further described in the Science By HUGs Shipping & Delivery Policy.
+
+10. LIMITATION OF LIABILITY
+To the maximum extent permitted by applicable law, Science By HUGs shall not be liable for indirect, incidental, consequential, special, or punitive damages arising from the purchase, possession, storage, handling, transportation, or use of any product.
+
+Nothing in these Terms & Conditions excludes or limits liability that cannot legally be excluded or limited.
+
+11. CUSTOMER RESPONSIBILITY
+Customers are responsible for determining the legality of purchasing, possessing, transporting, storing, and using any product in their jurisdiction and research environment.
+
+Customers are also responsible for maintaining appropriate laboratory practices, safety procedures, storage conditions, handling procedures, and documentation appropriate to their research activities.
+
+12. INTELLECTUAL PROPERTY
+All Science By HUGs names, logos, graphics, written content, website content, application content, product descriptions, photographs, and other original materials are the property of Science By HUGs or are used with permission.
+
+No portion of Science By HUGs materials may be copied, reproduced, modified, distributed, or commercially exploited without prior written permission.
+
+13. PRIVACY
+Customer information is handled in accordance with the Science By HUGs Privacy Policy.
+
+14. CHANGES TO THESE TERMS
+Science By HUGs may update these Terms & Conditions from time to time.
+
+Updated terms will become effective when posted or otherwise communicated, unless a different effective date is stated.
+
+15. GOVERNING LAW
+These Terms & Conditions shall be governed by the laws applicable in the State of Nevada, without regard to conflict-of-law principles, except where applicable law requires otherwise.
+
+16. SEVERABILITY
+If any provision of these Terms & Conditions is determined to be invalid or unenforceable, the remaining provisions shall remain in effect to the fullest extent permitted by law.
+
+17. CONTACT
+Questions regarding these Terms & Conditions may be directed to Science By HUGs through the official customer-support contact information provided by Science By HUGs.
+
+Science By HUGs
+Las Vegas, Nevada`,
+  },
+  {
+    id: 'research-use',
+    title: 'Research Use Only Policy',
+    effectiveDate: 'September 18, 2026',
+    text: `SCIENCE BY HUGS
+Research Use Only Policy
+Effective Date: September 18, 2026
+
+Science By HUGs provides research-grade and research-use-only peptide products for legitimate research applications.
+
+NOT FOR HUMAN OR VETERINARY USE
+Science By HUGs products are strictly intended for lawful research purposes and are not intended for human consumption, human administration, veterinary use, diagnosis, treatment, mitigation, cure, or prevention of disease or any medical condition.
+
+Science By HUGs does not sell products as medications, medical treatments, dietary supplements, or veterinary products.
+
+CUSTOMER RESPONSIBILITY
+By purchasing a Science By HUGs product, the customer acknowledges that the product is being purchased solely for legitimate research purposes and agrees to comply with all applicable laws, regulations, institutional requirements, and laboratory safety requirements.
+
+Customers must not use Science By HUGs products in humans or animals.
+
+Science By HUGs reserves the right to refuse or cancel an order when the circumstances indicate that the product may be intended for an unauthorized use.
+
+NO MEDICAL ADVICE
+Science By HUGs does not provide medical advice, diagnosis, treatment recommendations, dosing recommendations, administration instructions, or medical supervision.
+
+Nothing provided by Science By HUGs should be interpreted as a recommendation to use a research product in a human or animal.
+
+NO REPRESENTATIONS REGARDING HUMAN USE
+Science By HUGs makes no representation that its products are safe, effective, approved, or suitable for human or veterinary use.
+
+Customers should not rely upon Science By HUGs product information as medical or veterinary advice.
+
+IMPORTANT REGULATORY NOTICE
+The designation "research use only" does not by itself determine how a product is regulated. Science By HUGs will not knowingly market or represent products for uses inconsistent with applicable law.
+
+If a customer has questions regarding the legality or appropriate use of a product within a particular research setting, the customer should consult an appropriately qualified legal, regulatory, laboratory, or institutional professional.
+
+Science By HUGs
+Las Vegas, Nevada`,
+  },
+  {
+    id: 'returns',
+    title: 'Return & Refund Policy',
+    effectiveDate: 'September 18, 2026',
+    text: `SCIENCE BY HUGS
+Return & Refund Policy
+Effective Date: September 18, 2026
+
+Science By HUGs takes product quality and customer satisfaction seriously. Because our products are research-use-only materials, we maintain a limited return and refund policy.
+
+1. GENERAL POLICY
+All sales are considered final except where a product is confirmed to have been damaged prior to or during delivery, or where a refund is otherwise required by applicable law.
+
+We do not accept returns or provide refunds solely because a customer:
+• Changed their mind;
+• Ordered the wrong product;
+• Ordered the wrong quantity;
+• No longer wants the product;
+• Improperly stored the product;
+• Mishandled the product;
+• Failed to receive the delivery;
+• Provided an incorrect delivery address; or
+• Otherwise caused or contributed to the issue through negligence or misuse.
+
+2. DAMAGED PRODUCTS
+If a product arrives damaged, the customer must contact Science By HUGs as soon as reasonably possible after receiving the order.
+
+Customers may be asked to provide:
+• Order information;
+• Photographs of the damaged product;
+• Photographs of the packaging;
+• A description of the damage; and
+• Any other information reasonably necessary to evaluate the claim.
+
+Science By HUGs will review the claim and determine whether the product qualifies for a replacement shipment or refund.
+
+3. REPLACEMENT OR REFUND
+If Science By HUGs confirms that a product was damaged prior to or during delivery, Science By HUGs may, at its discretion and subject to applicable law:
+• Replace the affected product; or
+• Refund the amount paid for the affected product.
+
+A replacement or refund will not be provided for damage caused after delivery through improper storage, mishandling, contamination, alteration, or other customer negligence.
+
+4. INCORRECT ORDERS
+If Science By HUGs sends an item that differs from the item ordered, the customer should contact Science By HUGs promptly so the issue can be reviewed and corrected.
+
+5. NON-DELIVERY AND SHIPPING DELAYS
+Nothing in this policy limits rights or remedies that may apply under federal or state law if Science By HUGs fails to fulfill an order or cannot ship within an applicable promised timeframe.
+
+6. REFUND PROCESSING
+When a refund is approved, Science By HUGs will communicate the refund amount and expected processing timeframe to the customer.
+
+7. NO AUTOMATIC REFUNDS
+Submitting a refund request does not automatically qualify an order for a refund or replacement. Each damage claim may be reviewed individually.
+
+8. CONTACT
+Customers requesting assistance with a damaged or incorrect order should contact Science By HUGs using the official customer-support contact information provided by Science By HUGs.
+
+Science By HUGs
+Las Vegas, Nevada`,
+  },
+  {
+    id: 'privacy',
+    title: 'Privacy Policy',
+    effectiveDate: 'September 18, 2026',
+    text: `SCIENCE BY HUGS
+Privacy Policy
+Effective Date: September 18, 2026
+Business Name: Science By HUGs
+Business Location: Las Vegas, Nevada
+
+1. INTRODUCTION
+Science By HUGs ("Science By HUGs," "we," "us," or "our") respects the privacy of our customers and is committed to handling personal information responsibly.
+
+This Privacy Policy explains what information we collect, how we use it, the services and platforms through which information may be processed, and the choices available to customers.
+
+By using our website, application, ordering system, or communicating with Science By HUGs, you acknowledge the practices described in this Privacy Policy.
+
+2. INFORMATION WE COLLECT
+Depending on how you interact with Science By HUGs, we may collect:
+• Name
+• Phone number
+• Email address
+• Delivery or shipping information
+• Order and purchase information
+• Payment-related information necessary to identify or reconcile a transaction
+• Communications between you and Science By HUGs
+• Information you voluntarily provide when requesting customer support
+• Website or application information, including cookies or similar technologies where used
+
+Science By HUGs does not intentionally request sensitive personal information unless it is reasonably necessary for a specific business purpose.
+
+3. HOW WE USE INFORMATION
+We may use collected information to:
+• Process and manage orders;
+• Confirm payments;
+• Arrange delivery;
+• Communicate with customers about orders;
+• Provide customer support;
+• Respond to questions and requests;
+• Maintain business and transaction records;
+• Prevent fraud, misuse, or unauthorized transactions;
+• Improve our website, application, ordering process, and customer experience;
+• Maintain business operations; and
+• Comply with applicable legal or regulatory requirements.
+
+4. THIRD-PARTY SERVICES AND PLATFORMS
+Science By HUGs uses third-party services and platforms to operate portions of its business.
+
+These may include:
+• Google Sheets — business, order, and operational recordkeeping;
+• GitHub — website/application hosting, development, or related technical operations;
+• PayPal — payment processing;
+• Zelle — payment processing;
+• Venmo — payment processing; and
+• Telephone/mobile service providers — customer communications and business phone operations.
+
+Information may be transmitted to or stored within these services when necessary to provide the applicable business function.
+
+Each third-party provider may have its own privacy practices, terms, security measures, and policies. Customers should review the applicable provider's policies for additional information.
+
+5. PAYMENT INFORMATION
+Science By HUGs uses third-party payment services including PayPal, Zelle, and Venmo.
+
+Science By HUGs does not intentionally store customers' complete payment-card numbers, bank-account credentials, passwords, or payment-provider login credentials.
+
+Payment providers may independently collect and process information necessary to authorize and complete transactions in accordance with their own policies.
+
+6. CUSTOMER COMMUNICATIONS
+Science By HUGs may use customer-provided phone numbers and email addresses to communicate regarding:
+• Orders;
+• Payments;
+• Delivery;
+• Customer support;
+• Product or order issues;
+• Account or service matters; and
+• Other communications reasonably related to an existing customer relationship.
+
+If Science By HUGs sends promotional or marketing communications, any applicable consent and opt-out requirements will be followed.
+
+Customers may request that Science By HUGs stop non-essential communications by contacting the business.
+
+7. COOKIES AND WEBSITE/APPLICATION DATA
+Science By HUGs may use cookies, local storage, analytics tools, or similar technologies to operate, secure, maintain, and improve its website or application.
+
+These technologies may collect information such as browser type, device information, general usage activity, pages or features accessed, and technical information needed to operate the service.
+
+The specific information collected may depend on the technology and third-party services used by the website or application.
+
+8. INFORMATION SHARING
+Science By HUGs does not sell customer personal information.
+
+We may disclose or provide access to information when reasonably necessary to:
+• Process or fulfill an order;
+• Process or reconcile a payment;
+• Arrange delivery;
+• Provide customer support;
+• Operate the website or application;
+• Maintain business records;
+• Protect Science By HUGs, its customers, or others from fraud, abuse, or unauthorized activity;
+• Comply with a legal obligation, court order, subpoena, or governmental request; or
+• Complete a business transaction such as a merger, acquisition, restructuring, or sale of assets.
+
+9. DATA SECURITY
+Science By HUGs takes reasonable measures appropriate to the size and nature of the business to protect customer information from unauthorized access, misuse, alteration, or disclosure.
+
+However, no electronic storage system, transmission method, website, application, or third-party service can be guaranteed to be completely secure.
+
+Customers should avoid sending passwords, financial credentials, or other highly sensitive information through ordinary email, text messages, or other unsecured communications.
+
+10. DATA RETENTION
+Science By HUGs may retain customer and transaction information for as long as reasonably necessary for business operations, customer service, accounting, recordkeeping, fraud prevention, legal compliance, dispute resolution, or other legitimate business purposes.
+
+Information may be retained longer where required by applicable law.
+
+11. CUSTOMER PRIVACY REQUESTS
+Customers may contact Science By HUGs to ask questions about the personal information maintained about them or to request appropriate corrections where applicable.
+
+Depending on the nature of the request and applicable law, Science By HUGs may need to verify the identity of the person making the request.
+
+Some information may need to be retained for legitimate business, legal, accounting, security, or regulatory purposes.
+
+12. CHILDREN'S PRIVACY
+Science By HUGs products and services are not directed toward children.
+
+We do not knowingly collect personal information from children in violation of applicable law.
+
+13. THIRD-PARTY LINKS AND SERVICES
+The Science By HUGs website or application may contain or interact with third-party services or links.
+
+Science By HUGs is not responsible for the privacy practices, content, security, or policies of third-party websites or services.
+
+Customers should review the privacy policies of third parties before providing information to them.
+
+14. CHANGES TO THIS PRIVACY POLICY
+Science By HUGs may update this Privacy Policy from time to time as its business, technology, services, or legal obligations change.
+
+The updated policy will be posted or otherwise communicated with an updated effective date when appropriate.
+
+15. CONTACT
+Questions, privacy requests, or concerns regarding this Privacy Policy may be directed to Science By HUGs using the official customer-support contact information provided by the business.
+
+Science By HUGs
+Las Vegas, Nevada`,
+  },
+  {
+    id: 'shipping',
+    title: 'Shipping & Delivery Policy',
+    effectiveDate: 'September 24, 2026',
+    text: `SCIENCE BY HUGS
+Shipping & Delivery Policy
+Effective Date: September 24, 2026
+Business Name: Science By HUGs
+Business Location: Las Vegas, Nevada
+
+1. SERVICE AREA
+Science By HUGs currently provides shipping and delivery only within the Las Vegas, Nevada service area.
+
+Orders outside the available service area may be declined or cancelled.
+
+2. DELIVERY INFORMATION
+Customers are responsible for providing complete and accurate delivery information when placing an order.
+
+Science By HUGs is not responsible for delays, failed delivery, or loss resulting from an incorrect or incomplete address, failure to receive a delivery, or other circumstances caused by the customer.
+
+3. ORDER PROCESSING
+Orders are processed after payment has been received and accepted by Science By HUGs.
+
+Estimated delivery dates or delivery windows are provided for convenience and are not guaranteed unless Science By HUGs expressly states otherwise.
+
+4. SHIPPING AND DELIVERY FEES
+Applicable shipping or delivery fees will be communicated to the customer before an order is completed.
+
+Membership benefits, promotions, or referral rewards may reduce or eliminate eligible shipping fees when applicable.
+
+5. DELIVERY DELAYS
+Science By HUGs will make reasonable efforts to fulfill accepted orders within the estimated delivery timeframe.
+
+Delivery may be delayed by product availability, weather, transportation conditions, operational issues, customer availability, incorrect delivery information, or other circumstances outside the reasonable control of Science By HUGs.
+
+If Science By HUGs becomes aware of a material delay, reasonable efforts will be made to communicate updated delivery information to the customer.
+
+6. FAILED OR MISSED DELIVERY
+Customers are responsible for being available to receive an order when required and for providing a location where delivery can reasonably be completed.
+
+Science By HUGs is not responsible for a failed delivery caused by customer unavailability, inaccessible delivery locations, incorrect instructions, or inaccurate contact or delivery information.
+
+Any additional delivery costs caused by a customer-requested redelivery may be the customer's responsibility to the extent permitted by applicable law.
+
+7. DAMAGED PRODUCTS
+If an order arrives damaged, the customer should contact Science By HUGs as soon as reasonably possible.
+
+Customers may be asked to provide order information, photographs of the damaged product and packaging, and other information reasonably necessary to evaluate the claim.
+
+Approved damaged-product claims will be handled in accordance with the Science By HUGs Return & Refund Policy.
+
+8. INCORRECT ORDERS
+If Science By HUGs delivers an item that differs from the item ordered, the customer should promptly contact Science By HUGs so the issue can be reviewed and corrected.
+
+9. NON-DELIVERY
+Nothing in this policy limits rights or remedies that may apply under federal or state law if Science By HUGs fails to fulfill an accepted order or cannot deliver within an applicable promised timeframe.
+
+10. CUSTOMER RESPONSIBILITY
+Customers are responsible for promptly reviewing delivery information, maintaining accurate contact information, and notifying Science By HUGs of any delivery issue as soon as reasonably possible.
+
+11. CHANGES TO THIS POLICY
+Science By HUGs may update this Shipping & Delivery Policy from time to time.
+
+Updated terms will become effective when posted or otherwise communicated, unless a different effective date is stated.
+
+12. CONTACT
+Questions regarding shipping, delivery, or this policy may be directed to:
+
+Science By HUGs
+Las Vegas, Nevada
+legal@sciencebyhugs.com`,
+  },
+]
