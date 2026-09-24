@@ -18,6 +18,14 @@ export type ReferralEntry = {
   rewardValue: number | null
 }
 
+export type ReferralReward = {
+  id: string
+  title: string
+  value: number
+  description: string | null
+  createdAt: string
+}
+
 export type ReferralDashboard = {
   success: true
   referralCode: string
@@ -25,6 +33,19 @@ export type ReferralDashboard = {
   pendingCount: number
   totalCount: number
   membership: string | null
+  freeShippingActive: boolean
+  availablePercentageRewards: ReferralReward[]
+  rewards: Array<{
+    id: string
+    reward_type: string
+    reward_value: number | null
+    title: string
+    description: string | null
+    status: string
+    milestone_threshold: number | null
+    created_at: string
+    redeemed_at: string | null
+  }>
   milestones: ReferralMilestone[]
   nextMilestone: ReferralMilestone | null
   referrals: ReferralEntry[]
