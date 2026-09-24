@@ -519,6 +519,7 @@ function friendlyOrderStatus(status: string) {
     invoice_requested: 'Awaiting approval',
     invoice_ready: 'Invoice ready',
     invoice_sent: 'Invoice sent',
+    processing: 'Processing',
     pending: 'Pending',
     paid: 'Paid',
     completed: 'Completed',
@@ -541,14 +542,36 @@ function renderAccountHistory() {
 
   accountHistoryList.innerHTML = accountHistory.map(order => {
     const invoiceLabel = order.invoice?.invoice_number || order.order_number || 'Pending'
-    const status = friendlyOrderStatus(order.status)
     const invoiceSent = order.invoice?.send_status === 'sent'
+    const paymentVerified =
+      order.payment?.status === 'verified' ||
+      order.payment_status === 'paid'
+    const paymentSubmitted =
+      order.payment?.status === 'submitted' &&
+      !paymentVerified
+
+    const status =
+      paymentVerified
+        ? 'Paid · Processing'
+        : paymentSubmitted
+          ? 'Payment submitted'
+          : friendlyOrderStatus(order.status)
+
     const items = order.items.map(item => `
       <div class="history-line">
         <span>${escapeHtml(item.product_name)} <small>× ${item.quantity}</small></span>
         <strong>${money(item.line_total)}</strong>
       </div>
     `).join('')
+
+    const paymentText =
+      paymentVerified
+        ? `Paid${order.payment?.provider ? ` via ${order.payment.provider}` : ''}`
+        : paymentSubmitted
+          ? `Submitted${order.payment?.provider ? ` via ${order.payment.provider}` : ''} · awaiting verification`
+          : invoiceSent
+            ? 'Waiting for payment'
+            : 'Payment opens after invoice delivery'
 
     return `
       <article class="history-card">
@@ -557,13 +580,18 @@ function renderAccountHistory() {
             <span class="history-number">${escapeHtml(invoiceLabel)}</span>
             <small>${escapeHtml(historyDate(order.created_at))}</small>
           </div>
-          <span class="history-status ${invoiceSent ? 'sent' : ''}">${escapeHtml(status)}</span>
+          <span class="history-status ${paymentVerified ? 'paid' : paymentSubmitted ? 'submitted' : invoiceSent ? 'sent' : ''}">
+            ${escapeHtml(status)}
+          </span>
         </div>
+
         <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
+
         <div class="history-total">
           <span>Total</span>
           <strong>${money(order.total)}</strong>
         </div>
+
         ${order.invoice ? `
           <div class="history-invoice">
             <span>Invoice status</span>
@@ -576,6 +604,16 @@ function renderAccountHistory() {
             )}</strong>
           </div>
         ` : ''}
+
+        <div class="history-payment ${paymentVerified ? 'paid' : paymentSubmitted ? 'submitted' : ''}">
+          <div>
+            <span>Payment status</span>
+            <strong>${escapeHtml(paymentText)}</strong>
+          </div>
+          ${paymentVerified && (order.payment?.verified_at || order.paid_at) ? `
+            <small>Verified ${escapeHtml(historyDate(order.payment?.verified_at || order.paid_at || order.created_at))}</small>
+          ` : ''}
+        </div>
       </article>
     `
   }).join('')
