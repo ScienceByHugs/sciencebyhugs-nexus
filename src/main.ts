@@ -840,7 +840,15 @@ function openSupportDialog() {
 
 function downloadSupportContact() {
   const contactCardUrl = `${import.meta.env.BASE_URL}science-by-hugs-contact.vcf`
-  window.location.href = contactCardUrl
+
+  const link = document.createElement('a')
+  link.href = contactCardUrl
+  link.target = '_blank'
+  link.rel = 'noopener'
+  link.setAttribute('type', 'text/vcard')
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
 }
 
 function openMenuInfo(kind: 'policies') {
