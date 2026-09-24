@@ -2100,3 +2100,49 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     padding:15px 16px;
   }
 }
+
+
+/* Nexus subpage back navigation */
+.subpage-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:-2px 0 18px;
+}
+.subpage-header-main{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.subpage-header-main>div{
+  min-width:0;
+}
+.subpage-back-button{
+  flex:0 0 auto;
+  min-height:40px;
+  padding:0 13px;
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:12px;
+  background:rgba(5,8,22,.82);
+  color:#dff4ff;
+  font:inherit;
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+.subpage-back-button:hover{
+  border-color:rgba(127,219,255,.42);
+  background:rgba(47,128,237,.1);
+}
+@media(max-width:600px){
+  .subpage-header-main{
+    gap:9px;
+  }
+  .subpage-back-button{
+    min-height:38px;
+    padding:0 10px;
+    font-size:.68rem;
+  }
+}
