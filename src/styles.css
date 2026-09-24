@@ -1522,3 +1522,163 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     border-radius:22px;
   }
 }
+
+
+/* Standalone Referral Lab */
+.referral-dialog{
+  width:min(720px,calc(100% - 24px));
+  max-height:min(90vh,900px);
+  overflow:auto;
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:28px;
+  padding:26px;
+  background:#080E1B;
+  color:var(--text);
+  box-shadow:0 30px 100px rgba(0,0,0,.65);
+}
+.referral-dialog::backdrop{
+  background:rgba(1,4,12,.84);
+  backdrop-filter:blur(10px);
+}
+.referral-dialog-content{min-height:180px}
+.referral-dialog .referral-dashboard{gap:16px}
+.referral-dialog .referral-hero{
+  padding-right:48px;
+}
+.referral-dialog .referral-hero h3{
+  font-size:clamp(1.75rem,5vw,2.25rem);
+}
+.referral-dialog .referral-code-card{
+  background:
+    radial-gradient(circle at 90% 10%,rgba(127,219,255,.09),transparent 12rem),
+    rgba(11,16,32,.78);
+}
+.referral-dialog .referral-code-card>strong{
+  font-size:1.5rem;
+}
+.referral-dialog .referral-actions .auth-primary,
+.referral-dialog .referral-actions .auth-secondary{
+  min-height:46px;
+}
+.referral-dialog .referral-track-form .auth-primary{
+  min-height:48px;
+}
+.referral-dialog .referral-earned-rewards,
+.referral-dialog .referral-progress-card,
+.referral-dialog .referral-milestones,
+.referral-dialog .referral-track-form,
+.referral-dialog .referral-history{
+  scroll-margin-top:12px;
+}
+
+@media(min-width:700px){
+  .referral-dialog .referral-dashboard{
+    grid-template-columns:1fr 1fr;
+  }
+  .referral-dialog .referral-hero,
+  .referral-dialog .referral-code-card,
+  .referral-dialog .referral-stats,
+  .referral-dialog .referral-progress-card,
+  .referral-dialog .referral-milestones{
+    grid-column:1/-1;
+  }
+  .referral-dialog .referral-earned-rewards,
+  .referral-dialog .referral-track-form{
+    align-self:start;
+  }
+  .referral-dialog .referral-history{
+    grid-column:1/-1;
+  }
+}
+
+@media(max-width:600px){
+  .referral-dialog{
+    width:calc(100% - 10px);
+    height:calc(100dvh - 82px);
+    max-height:calc(100dvh - 82px);
+    margin:5px auto 77px;
+    padding:18px 14px 24px;
+    border-radius:24px 24px 18px 18px;
+    overscroll-behavior:contain;
+  }
+  .referral-dialog .dialog-close{
+    position:sticky;
+    top:0;
+    float:right;
+    margin:-2px -1px 2px 8px;
+    backdrop-filter:blur(14px);
+  }
+  .referral-dialog .referral-hero{
+    padding:3px 4px 0;
+  }
+  .referral-dialog .referral-hero h3{
+    margin-top:5px;
+    font-size:1.75rem;
+    line-height:1.05;
+  }
+  .referral-dialog .referral-hero p{
+    font-size:.78rem;
+  }
+  .referral-dialog .referral-code-card,
+  .referral-dialog .referral-progress-card,
+  .referral-dialog .referral-track-form,
+  .referral-dialog .referral-history,
+  .referral-dialog .referral-milestones,
+  .referral-dialog .referral-earned-rewards{
+    padding:14px;
+    border-radius:15px;
+  }
+  .referral-dialog .referral-link{
+    max-height:58px;
+    overflow:auto;
+    font-size:.64rem;
+  }
+  .referral-dialog .referral-actions{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .referral-dialog .referral-actions .auth-primary,
+  .referral-dialog .referral-actions .auth-secondary{
+    min-height:46px;
+    margin:0;
+  }
+  .referral-dialog .referral-stats{
+    position:sticky;
+    top:0;
+    z-index:2;
+    grid-template-columns:repeat(3,1fr);
+    padding:5px 0;
+    background:linear-gradient(180deg,#080E1B 74%,transparent);
+  }
+  .referral-dialog .referral-stats>div{
+    padding:11px 6px;
+    border-radius:12px;
+  }
+  .referral-dialog .referral-stats span{
+    font-size:.58rem;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .referral-dialog .referral-stats strong{
+    font-size:1.12rem;
+  }
+  .referral-dialog .referral-milestone{
+    grid-template-columns:34px minmax(0,1fr) auto;
+    padding:10px;
+  }
+  .referral-dialog .referral-milestone-count{
+    width:32px;
+    height:32px;
+  }
+  .referral-dialog .referral-track-form input{
+    height:48px;
+    font-size:16px;
+  }
+  .referral-dialog .referral-consent{
+    padding:11px;
+    font-size:.68rem!important;
+  }
+  .referral-dialog .referral-row{
+    padding:12px 10px;
+  }
+}
