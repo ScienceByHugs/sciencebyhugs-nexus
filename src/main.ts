@@ -171,6 +171,43 @@ app.innerHTML = `
     <section id="menuInfoPanel" class="menu-info-panel" hidden></section>
   </dialog>
 
+  <dialog id="supportDialog" class="support-dialog">
+    <button id="closeSupportDialog" class="dialog-close" aria-label="Close">×</button>
+    <div class="support-page">
+      <div class="support-hero">
+        <span class="eyebrow">NEXUS SUPPORT</span>
+        <h2>How can we help?</h2>
+        <p>Reach Science By HUGs support or save our contact card directly to your phone.</p>
+      </div>
+
+      <div class="support-grid">
+        <a class="support-action-card" href="mailto:support@sciencebyhugs.com">
+          <div class="support-action-icon">✉</div>
+          <div>
+            <span>EMAIL SUPPORT</span>
+            <strong>support@sciencebyhugs.com</strong>
+            <small>Open your email app with our support address ready.</small>
+          </div>
+        </a>
+
+        <button id="downloadContactButton" class="support-action-card support-action-button" type="button">
+          <div class="support-action-icon">＋</div>
+          <div>
+            <span>SAVE CONTACT</span>
+            <strong>Download Our Contact</strong>
+            <small>Save our official Science By HUGs vCard on iPhone or Android.</small>
+          </div>
+        </button>
+      </div>
+
+      <div class="support-info-card">
+        <span class="eyebrow">SCIENCE BY HUGs</span>
+        <strong>Customer Support</strong>
+        <p>For account, order, invoice, payment, or general questions, include your customer ID or order number when available.</p>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="productDialog" class="product-dialog">
     <button id="closeDialog" class="dialog-close" aria-label="Close">×</button>
     <div id="dialogContent"></div>
@@ -422,6 +459,8 @@ const dialogContent = document.querySelector<HTMLDivElement>('#dialogContent')!
 const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
 const accountDialog = document.querySelector<HTMLDialogElement>('#accountDialog')!
 const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
+const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
+const downloadContactButton = document.querySelector<HTMLButtonElement>('#downloadContactButton')!
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
 const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
@@ -771,49 +810,40 @@ async function openReferralDashboard() {
   })
 }
 
-function openSupportPage() {
-  menuInfoPanel.hidden = false
+function openSupportDialog() {
+  if (menuDialog.open) menuDialog.close()
+  supportDialog.showModal()
+}
+
+async function downloadSupportContact() {
   const contactCardUrl = `${import.meta.env.BASE_URL}science-by-hugs-contact.vcf`
+  downloadContactButton.disabled = true
 
-  menuInfoPanel.innerHTML = `
-    <div class="support-page">
-      <div class="support-hero">
-        <span class="eyebrow">NEXUS SUPPORT</span>
-        <h3>How can we help?</h3>
-        <p>Reach Science By HUGs support or save our contact card directly to your phone.</p>
-      </div>
+  try {
+    const response = await fetch(contactCardUrl, { cache: 'no-store' })
+    if (!response.ok) throw new Error('Contact card could not be loaded.')
 
-      <div class="support-grid">
-        <a class="support-action-card" href="mailto:support@sciencebyhugs.com">
-          <div class="support-action-icon">✉</div>
-          <div>
-            <span>EMAIL SUPPORT</span>
-            <strong>support@sciencebyhugs.com</strong>
-            <small>Open your email app with our support address ready.</small>
-          </div>
-        </a>
+    const text = await response.text()
+    if (!text.trim().startsWith('BEGIN:VCARD')) {
+      throw new Error('Contact card response was not a valid vCard.')
+    }
 
-        <a
-          class="support-action-card"
-          href="${escapeHtml(contactCardUrl)}"
-          download="Science-By-HUGs.vcf"
-        >
-          <div class="support-action-icon">＋</div>
-          <div>
-            <span>SAVE CONTACT</span>
-            <strong>Download Our Contact</strong>
-            <small>Works with iPhone, Android, and most contact apps.</small>
-          </div>
-        </a>
-      </div>
-
-      <div class="support-info-card">
-        <span class="eyebrow">SCIENCE BY HUGs</span>
-        <strong>Customer Support</strong>
-        <p>For account, order, invoice, payment, or general questions, email our support team and include your customer ID or order number when available.</p>
-      </div>
-    </div>
-  `
+    const blob = new Blob([text], { type: 'text/vcard;charset=utf-8' })
+    const objectUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = objectUrl
+    link.download = 'Science-By-HUGs.vcf'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+    showToast('Contact card downloaded')
+  } catch (error) {
+    console.error('Contact card download failed', error)
+    showToast('Could not download contact card')
+  } finally {
+    downloadContactButton.disabled = false
+  }
 }
 
 function openMenuInfo(kind: 'policies') {
@@ -1809,6 +1839,9 @@ accountDialog.addEventListener('click', event => {
 menuDialog.addEventListener('click', event => {
   if (event.target === menuDialog) menuDialog.close()
 })
+supportDialog.addEventListener('click', event => {
+  if (event.target === supportDialog) supportDialog.close()
+})
 
 document.querySelector<HTMLButtonElement>('#closeDialog')!.addEventListener('click', () => productDialog.close())
 document.querySelector<HTMLButtonElement>('#closeCartDialog')!.addEventListener('click', () => cartDialog.close())
@@ -1816,6 +1849,10 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
   if (!recoveryMode) accountDialog.close()
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
+document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+downloadContactButton.addEventListener('click', () => {
+  void downloadSupportContact()
+})
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
@@ -1846,7 +1883,7 @@ menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(but
     }
 
     if (target === 'support') {
-      openSupportPage()
+      openSupportDialog()
       return
     }
 
@@ -1898,8 +1935,7 @@ mobileAccountButton.addEventListener('click', () => {
 
 mobileSupportButton.addEventListener('click', () => {
   setMobileNavActive('support')
-  openSupportPage()
-  if (!menuDialog.open) menuDialog.showModal()
+  openSupportDialog()
 })
 
 mobileCartButton.addEventListener('click', () => {
