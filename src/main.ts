@@ -209,7 +209,13 @@ app.innerHTML = `
   </dialog>
 
   <dialog id="referralDialog" class="referral-dialog">
-    <button id="closeReferralDialog" class="dialog-close" aria-label="Close">×</button>
+    <div class="referral-dialog-header">
+      <div>
+        <span class="eyebrow">REFERRAL LAB</span>
+        <strong>Refer a Friend</strong>
+      </div>
+      <button id="closeReferralDialog" class="referral-close-button" aria-label="Close">×</button>
+    </div>
     <div id="referralDialogContent" class="referral-dialog-content"></div>
   </dialog>
 
