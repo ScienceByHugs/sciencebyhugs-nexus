@@ -41,10 +41,19 @@ export async function getReferralDashboard(): Promise<ReferralDashboard> {
   return data as ReferralDashboard
 }
 
-export async function submitReferral(name: string, email: string) {
+export async function submitReferral(
+  name: string,
+  email: string,
+  consentConfirmed: boolean,
+) {
   const { data, error } = await supabase.functions.invoke('referral-submit', {
     method: 'POST',
-    body: { name, email },
+    body: {
+      name,
+      email,
+      consentConfirmed,
+      consentVersion: 'referral-contact-consent-v1',
+    },
   })
 
   if (error) throw new Error(data?.error || error.message || 'Could not save referral.')
