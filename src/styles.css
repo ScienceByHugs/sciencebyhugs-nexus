@@ -31,3 +31,29 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 .product-dialog{width:min(620px,calc(100% - 28px));border:1px solid rgba(127,219,255,.2);border-radius:28px;padding:20px;background:#080E1B;color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.65)}.product-dialog::backdrop{background:rgba(1,4,12,.78);backdrop-filter:blur(10px)}.dialog-close{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:rgba(5,8,22,.8);color:#fff;font-size:1.5rem;z-index:2}.dialog-image{height:280px;border-radius:20px;background:#050816;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:20px}.dialog-image img:not(.fallback-mark){width:100%;height:100%;object-fit:cover}.dialog-image .fallback-mark{width:34%;opacity:.38}.product-dialog h2{font-size:2rem;letter-spacing:-.04em;margin:7px 0 6px}.dialog-price{font-size:1.4rem;font-weight:900;color:var(--blue2)}.dialog-description{color:var(--muted);line-height:1.65}.research-notice{margin-top:20px;padding:14px;border:1px solid var(--line);border-radius:16px;background:rgba(47,128,237,.06);color:#9EB0C8;font-size:.78rem;line-height:1.5}
 @media(max-width:880px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.shell{width:min(100% - 24px,1180px);padding-top:35px}.topbar{padding:12px 14px}.system-status{font-size:.58rem}.grid{grid-template-columns:1fr 1fr;gap:10px}.product-body{padding:13px}.product-image{aspect-ratio:1/1}.hero{padding-top:4vh}.product-body h3{font-size:.95rem}.product-footer{align-items:flex-start;flex-direction:column;gap:8px}.section-heading{align-items:center}.dialog-image{height:230px}}@media(max-width:390px){.grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+
+.top-actions{display:flex;align-items:center;gap:12px}
+.account-button{border:1px solid rgba(127,219,255,.22);background:rgba(11,16,32,.78);color:#F7FAFF;border-radius:999px;padding:9px 14px;font-size:.72rem;font-weight:800}
+.account-button:hover{border-color:rgba(127,219,255,.45);background:rgba(47,128,237,.12)}
+.account-dialog{width:min(520px,calc(100% - 28px));border:1px solid rgba(127,219,255,.2);border-radius:28px;padding:28px;background:#080E1B;color:var(--text);box-shadow:0 30px 100px rgba(0,0,0,.65)}
+.account-dialog::backdrop{background:rgba(1,4,12,.78);backdrop-filter:blur(10px)}
+.account-dialog h2{font-size:2.1rem;letter-spacing:-.04em;margin:8px 0 6px}
+.account-copy{color:var(--muted);line-height:1.55;margin:0 0 22px}
+.auth-form{display:grid;gap:15px}
+.auth-form label{display:grid;gap:7px;color:#A8B6CA;font-size:.75rem;font-weight:800}
+.auth-form input{width:100%;height:50px;border-radius:14px;border:1px solid var(--line);background:#050A14;color:var(--text);padding:0 14px;outline:none}
+.auth-form input:focus{border-color:rgba(127,219,255,.55);box-shadow:0 0 0 3px rgba(47,128,237,.1)}
+.auth-primary,.auth-secondary{width:100%;min-height:50px;border-radius:14px;font-weight:900}
+.auth-primary{border:0;background:linear-gradient(135deg,#2F80ED,#7FDBFF);color:#04101E}
+.auth-primary:disabled{opacity:.55;cursor:wait}
+.auth-secondary{margin-top:18px;border:1px solid var(--line);background:#0B1020;color:#fff}
+.auth-message{min-height:18px;color:#FFB15C;font-size:.78rem;line-height:1.4}
+.activation-note{margin-top:20px;padding:15px;border-radius:16px;border:1px solid var(--line);background:rgba(47,128,237,.05)}
+.activation-note strong{font-size:.82rem}
+.activation-note p{margin:6px 0 0;color:var(--muted);font-size:.76rem;line-height:1.5}
+.account-data{display:grid;gap:10px;margin-top:20px}
+.account-data>div{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px;border:1px solid var(--line);border-radius:14px;background:#0B1020}
+.account-data span{color:var(--muted);font-size:.76rem}
+.account-data strong{font-size:.82rem;text-align:right}
+@media(max-width:600px){.system-status{display:none}.top-actions{gap:7px}.account-button{padding:8px 11px}}
