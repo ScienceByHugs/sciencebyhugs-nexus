@@ -208,6 +208,11 @@ app.innerHTML = `
     </div>
   </dialog>
 
+  <dialog id="referralDialog" class="referral-dialog">
+    <button id="closeReferralDialog" class="dialog-close" aria-label="Close">×</button>
+    <div id="referralDialogContent" class="referral-dialog-content"></div>
+  </dialog>
+
   <dialog id="productDialog" class="product-dialog">
     <button id="closeDialog" class="dialog-close" aria-label="Close">×</button>
     <div id="dialogContent"></div>
@@ -460,6 +465,8 @@ const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
 const accountDialog = document.querySelector<HTMLDialogElement>('#accountDialog')!
 const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
 const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
+const referralDialog = document.querySelector<HTMLDialogElement>('#referralDialog')!
+const referralDialogContent = document.querySelector<HTMLDivElement>('#referralDialogContent')!
 const downloadContactButton = document.querySelector<HTMLButtonElement>('#downloadContactButton')!
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
 const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
@@ -586,23 +593,24 @@ function referralStatusLabel(status: string) {
 }
 
 async function openReferralDashboard() {
-  menuInfoPanel.hidden = false
+  if (menuDialog.open) menuDialog.close()
+  if (!referralDialog.open) referralDialog.showModal()
 
   if (!currentProfile) {
-    menuInfoPanel.innerHTML = `
+    referralDialogContent.innerHTML = `
       <span class="eyebrow">REFERRAL LAB</span>
       <h3>Refer a Friend</h3>
       <p>Sign in to access your personal referral code, rewards, and referral progress.</p>
       <button id="referralSignInButton" class="auth-primary referral-action" type="button">Sign In</button>
     `
     document.querySelector<HTMLButtonElement>('#referralSignInButton')?.addEventListener('click', () => {
-      menuDialog.close()
+      referralDialog.close()
       accountDialog.showModal()
     })
     return
   }
 
-  menuInfoPanel.innerHTML = `
+  referralDialogContent.innerHTML = `
     <div class="referral-loading">
       <div class="loader"></div>
       <p>Loading your referral lab…</p>
@@ -612,7 +620,7 @@ async function openReferralDashboard() {
   try {
     referralDashboard = await getReferralDashboard()
   } catch (error) {
-    menuInfoPanel.innerHTML = `
+    referralDialogContent.innerHTML = `
       <span class="eyebrow">REFERRAL LAB</span>
       <h3>Referral dashboard unavailable.</h3>
       <p>${escapeHtml(error instanceof Error ? error.message : 'Please try again.')}</p>
@@ -663,7 +671,7 @@ async function openReferralDashboard() {
       `).join('')
     : '<div class="referral-empty">No percentage rewards available right now.</div>'
 
-  menuInfoPanel.innerHTML = `
+  referralDialogContent.innerHTML = `
     <div class="referral-dashboard">
       <div class="referral-hero">
         <span class="eyebrow">REFERRAL LAB</span>
@@ -1842,6 +1850,9 @@ menuDialog.addEventListener('click', event => {
 supportDialog.addEventListener('click', event => {
   if (event.target === supportDialog) supportDialog.close()
 })
+referralDialog.addEventListener('click', event => {
+  if (event.target === referralDialog) referralDialog.close()
+})
 
 document.querySelector<HTMLButtonElement>('#closeDialog')!.addEventListener('click', () => productDialog.close())
 document.querySelector<HTMLButtonElement>('#closeCartDialog')!.addEventListener('click', () => cartDialog.close())
@@ -1850,6 +1861,7 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
 downloadContactButton.addEventListener('click', () => {
   void downloadSupportContact()
 })
