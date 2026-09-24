@@ -37,6 +37,7 @@ let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
+let recoveryMode = new URLSearchParams(window.location.search).get('mode') === 'recovery'
 
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
@@ -1410,6 +1411,14 @@ async function refreshOrderHistory() {
 async function refreshAccount() {
   const user = await getCurrentUser()
 
+  if (recoveryMode) {
+    currentProfile = null
+    showRecoveryPasswordView()
+    updateCheckoutCustomer()
+    updateCartUI()
+    return
+  }
+
   if (!user) {
     currentProfile = null
     accountButton.textContent = 'Account'
@@ -1455,16 +1464,53 @@ cartDialog.addEventListener('click', event => {
   if (event.target === cartDialog) cartDialog.close()
 })
 accountDialog.addEventListener('click', event => {
-  if (event.target === accountDialog) accountDialog.close()
+  if (event.target === accountDialog && !recoveryMode) accountDialog.close()
+})
+menuDialog.addEventListener('click', event => {
+  if (event.target === menuDialog) menuDialog.close()
 })
 
 document.querySelector<HTMLButtonElement>('#closeDialog')!.addEventListener('click', () => productDialog.close())
 document.querySelector<HTMLButtonElement>('#closeCartDialog')!.addEventListener('click', () => cartDialog.close())
-document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListener('click', () => accountDialog.close())
+document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListener('click', () => {
+  if (!recoveryMode) accountDialog.close()
+})
+document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
-accountButton.addEventListener('click', () => accountDialog.showModal())
+menuButton.addEventListener('click', () => {
+  menuInfoPanel.hidden = true
+  menuDialog.showModal()
+})
+
+menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(button => {
+  button.addEventListener('click', () => {
+    const target = button.dataset.menuTarget
+
+    if (target === 'catalog') {
+      menuDialog.close()
+      document.querySelector('.catalog-shell')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+
+    if (target === 'account') {
+      menuDialog.close()
+      accountDialog.showModal()
+      return
+    }
+
+    if (target === 'referral' || target === 'support' || target === 'policies') {
+      openMenuInfo(target)
+    }
+  })
+})
+
+accountButton.addEventListener('click', () => {
+  if (!recoveryMode) showLoginView()
+  accountDialog.showModal()
+})
+
 cartButton.addEventListener('click', () => {
   invoiceSuccess.hidden = true
   payNowSuccess.hidden = true
@@ -1555,6 +1601,107 @@ requestInvoiceButton.addEventListener('click', async () => {
   }
 })
 
+
+forgotPasswordButton.addEventListener('click', () => {
+  showForgotPasswordView()
+})
+
+forgotPasswordBack.addEventListener('click', () => {
+  showLoginView()
+})
+
+forgotPasswordForm.addEventListener('submit', async event => {
+  event.preventDefault()
+  forgotPasswordMessage.textContent = ''
+  forgotPasswordSubmit.disabled = true
+  forgotPasswordSubmit.textContent = 'Sending…'
+
+  try {
+    await requestPasswordReset(forgotPasswordEmail.value)
+    forgotPasswordMessage.textContent =
+      'If that email is connected to a Nexus account, a secure reset link has been sent.'
+    forgotPasswordSubmit.textContent = 'Email Sent'
+  } catch (error) {
+    forgotPasswordMessage.textContent =
+      error instanceof Error ? error.message : 'Could not send the reset email.'
+    forgotPasswordSubmit.disabled = false
+    forgotPasswordSubmit.textContent = 'Send Reset Email'
+  }
+})
+
+recoveryPasswordForm.addEventListener('submit', async event => {
+  event.preventDefault()
+  recoveryPasswordMessage.textContent = ''
+
+  if (recoveryPassword.value.length < 10) {
+    recoveryPasswordMessage.textContent = 'Use at least 10 characters.'
+    return
+  }
+
+  if (recoveryPassword.value !== recoveryPasswordConfirm.value) {
+    recoveryPasswordMessage.textContent = 'The new passwords do not match.'
+    return
+  }
+
+  recoveryPasswordSubmit.disabled = true
+  recoveryPasswordSubmit.textContent = 'Updating…'
+
+  try {
+    await updatePassword(recoveryPassword.value)
+    recoveryPassword.value = ''
+    recoveryPasswordConfirm.value = ''
+    recoveryMode = false
+    window.history.replaceState({}, document.title, window.location.pathname)
+    await refreshAccount()
+    showToast('Password updated successfully')
+    if (accountDialog.open) accountDialog.close()
+  } catch (error) {
+    recoveryPasswordMessage.textContent =
+      error instanceof Error ? error.message : 'Could not update the password.'
+  } finally {
+    recoveryPasswordSubmit.disabled = false
+    recoveryPasswordSubmit.textContent = 'Set New Password'
+  }
+})
+
+changePasswordForm.addEventListener('submit', async event => {
+  event.preventDefault()
+  changePasswordMessage.textContent = ''
+
+  if (newPassword.value.length < 10) {
+    changePasswordMessage.textContent = 'Use at least 10 characters for the new password.'
+    return
+  }
+
+  if (newPassword.value !== confirmNewPassword.value) {
+    changePasswordMessage.textContent = 'The new passwords do not match.'
+    return
+  }
+
+  if (currentPassword.value === newPassword.value) {
+    changePasswordMessage.textContent = 'Choose a new password that is different from your current password.'
+    return
+  }
+
+  changePasswordSubmit.disabled = true
+  changePasswordSubmit.textContent = 'Changing…'
+
+  try {
+    await changePassword(currentPassword.value, newPassword.value)
+    currentPassword.value = ''
+    newPassword.value = ''
+    confirmNewPassword.value = ''
+    changePasswordMessage.textContent = 'Password changed successfully.'
+    showToast('Password changed')
+  } catch (error) {
+    changePasswordMessage.textContent =
+      error instanceof Error ? error.message : 'Could not change the password.'
+  } finally {
+    changePasswordSubmit.disabled = false
+    changePasswordSubmit.textContent = 'Change Password'
+  }
+})
+
 document.querySelector<HTMLButtonElement>('#logoutButton')!.addEventListener('click', async () => {
   await signOut()
   await refreshAccount()
@@ -1589,8 +1736,16 @@ searchInput.addEventListener('input', () => {
   renderProducts()
 })
 
-onAuthChange(() => {
-  void refreshAccount()
+onAuthChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    recoveryMode = true
+    showRecoveryPasswordView()
+    return
+  }
+
+  if (!recoveryMode) {
+    void refreshAccount()
+  }
 })
 
 async function loadCatalog() {
