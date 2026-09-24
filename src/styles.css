@@ -574,3 +574,14 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .history-payment strong,
   .history-payment small{text-align:left}
 }
+
+.history-status.delayed{
+  color:#FFCC7A;
+  border-color:rgba(255,204,122,.28);
+  background:rgba(255,204,122,.06);
+}
+.history-status.cancelled{
+  color:#FF9D9D;
+  border-color:rgba(255,157,157,.28);
+  background:rgba(255,157,157,.06);
+}
