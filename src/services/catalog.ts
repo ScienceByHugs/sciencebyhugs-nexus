@@ -1,4 +1,4 @@
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '../config'
+import { supabase } from './supabase'
 
 export type CatalogProduct = {
   id: string
@@ -14,32 +14,12 @@ export type CatalogProduct = {
 }
 
 export async function fetchCatalog(): Promise<CatalogProduct[]> {
-  const fields = [
-    'id',
-    'name',
-    'product_type',
-    'price',
-    'description',
-    'image_url',
-    'storefront_status',
-    'featured',
-    'shipping_from',
-    'product_categories(name)',
-  ].join(',')
+  const { data, error } = await supabase
+    .from('products')
+    .select('id,name,product_type,price,description,image_url,storefront_status,featured,shipping_from,product_categories(name)')
+    .eq('active', true)
+    .order('name')
 
-  const url =
-    `${SUPABASE_URL}/rest/v1/products?select=${encodeURIComponent(fields)}&active=eq.true&order=name.asc`
-
-  const response = await fetch(url, {
-    headers: {
-      apikey: SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
-    },
-  })
-
-  if (!response.ok) {
-    throw new Error(`Catalog request failed (${response.status})`)
-  }
-
-  return response.json()
+  if (error) throw error
+  return (data ?? []) as CatalogProduct[]
 }
