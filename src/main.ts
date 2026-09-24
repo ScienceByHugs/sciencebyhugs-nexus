@@ -18,6 +18,7 @@ import {
   type CartItem,
 } from './services/cart'
 import { requestInvoice } from './services/invoiceRequests'
+import { createCheckoutOrder, type CheckoutOrderResult } from './services/checkout'
 import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
 import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
 import { getZelleConfig, submitZellePayment } from './services/zelle'
@@ -31,6 +32,7 @@ let query = ''
 let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
+let activeCheckoutOrder: CheckoutOrderResult | null = null
 
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
@@ -96,7 +98,7 @@ app.innerHTML = `
     <div class="cart-heading">
       <span class="eyebrow">NEXUS CHECKOUT</span>
       <h2>Your research cart.</h2>
-      <p>Review your items and request an invoice without re-entering your customer information.</p>
+      <p>Review your items, acknowledge the policies, then pay now or request an invoice by email.</p>
     </div>
 
     <div id="cartEmpty" class="cart-empty">
@@ -119,9 +121,9 @@ app.innerHTML = `
       </section>
 
       <section id="customerPreview" class="checkout-panel customer-preview">
-        <div class="checkout-title">Invoice Customer</div>
+        <div class="checkout-title">Checkout Customer</div>
         <div id="customerSignedOut" class="customer-signed-out">
-          <p>Sign in before requesting an invoice. Nexus will fill your customer information automatically.</p>
+          <p>Sign in before checking out. Nexus will fill your customer information automatically.</p>
           <button id="cartSignInButton" class="auth-secondary" type="button">Sign In</button>
         </div>
 
@@ -142,7 +144,7 @@ app.innerHTML = `
           </label>
 
           <label class="checkout-field">
-            Notes for this invoice
+            Notes for this order
             <textarea id="customerNotes" rows="3" maxlength="500" placeholder="Optional"></textarea>
           </label>
         </div>
@@ -157,9 +159,43 @@ app.innerHTML = `
         </label>
       </section>
 
-      <button id="requestInvoiceButton" class="request-invoice-button" type="button">
-        Request Invoice
-      </button>
+      <section class="checkout-choice">
+        <button id="payNowButton" class="request-invoice-button" type="button">
+          Pay Now
+        </button>
+        <button id="requestInvoiceButton" class="auth-secondary checkout-invoice-button" type="button">
+          Request Invoice by Email
+        </button>
+        <p>Pay now with PayPal, Venmo, or Zelle — or request an invoice and pay later.</p>
+      </section>
+
+      <section id="cartPayPanel" class="cart-pay-panel" hidden>
+        <div class="checkout-title">Choose Payment Method</div>
+        <p class="cart-pay-copy">Your final total is revalidated securely before a payment order is created.</p>
+        <div class="nexus-wallet-buttons">
+          <paypal-button id="cartPayPalButton" class="nexus-paypal-button" hidden></paypal-button>
+          <venmo-button id="cartVenmoButton" class="nexus-venmo-button" type="pay" hidden></venmo-button>
+          <button id="cartZelleStartButton" class="zelle-submit-button" type="button" hidden>Pay with Zelle</button>
+        </div>
+        <div id="cartPayMessage" class="paypal-message" aria-live="polite"></div>
+
+        <div id="cartZellePanel" class="zelle-shell" hidden>
+          <div class="zelle-head">
+            <strong>Pay with Zelle</strong>
+            <small>Send the exact server-verified total, then report the payment below.</small>
+          </div>
+          <div id="cartZelleDetails" class="zelle-details"></div>
+          <label class="zelle-confirmation-label">
+            Confirmation / reference
+            <input id="cartZelleConfirmation" class="zelle-confirmation" type="text" maxlength="120" placeholder="Optional">
+          </label>
+          <button id="cartZelleSubmitButton" class="zelle-submit-button" type="button">
+            I Sent the Zelle Payment
+          </button>
+          <div id="cartZelleMessage" class="zelle-message"></div>
+        </div>
+      </section>
+
       <div id="invoiceRequestMessage" class="invoice-request-message" aria-live="polite"></div>
     </div>
 
@@ -173,6 +209,18 @@ app.innerHTML = `
         <strong id="successInvoiceNumber">—</strong>
       </div>
       <button id="successCloseButton" class="auth-primary" type="button">Return to Nexus</button>
+    </div>
+
+    <div id="payNowSuccess" class="invoice-success" hidden>
+      <div class="success-orbit">✓</div>
+      <span class="eyebrow">CHECKOUT RECEIVED</span>
+      <h2 id="payNowSuccessTitle">Payment received.</h2>
+      <p id="payNowSuccessCopy">Your order has been sent to Science By HUGs Core.</p>
+      <div class="success-number">
+        <span>Order</span>
+        <strong id="payNowOrderNumber">—</strong>
+      </div>
+      <button id="payNowSuccessCloseButton" class="auth-primary" type="button">Return to Nexus</button>
     </div>
   </dialog>
 
@@ -258,9 +306,21 @@ const customerSignedIn = document.querySelector<HTMLDivElement>('#customerSigned
 const policyAcknowledgment = document.querySelector<HTMLInputElement>('#policyAcknowledgment')!
 const contactMethod = document.querySelector<HTMLSelectElement>('#contactMethod')!
 const customerNotes = document.querySelector<HTMLTextAreaElement>('#customerNotes')!
+const payNowButton = document.querySelector<HTMLButtonElement>('#payNowButton')!
 const requestInvoiceButton = document.querySelector<HTMLButtonElement>('#requestInvoiceButton')!
+const cartPayPanel = document.querySelector<HTMLElement>('#cartPayPanel')!
+const cartPayPalButton = document.querySelector<HTMLElement>('#cartPayPalButton')!
+const cartVenmoButton = document.querySelector<HTMLElement>('#cartVenmoButton')!
+const cartZelleStartButton = document.querySelector<HTMLButtonElement>('#cartZelleStartButton')!
+const cartZellePanel = document.querySelector<HTMLElement>('#cartZellePanel')!
+const cartZelleDetails = document.querySelector<HTMLElement>('#cartZelleDetails')!
+const cartZelleConfirmation = document.querySelector<HTMLInputElement>('#cartZelleConfirmation')!
+const cartZelleSubmitButton = document.querySelector<HTMLButtonElement>('#cartZelleSubmitButton')!
+const cartZelleMessage = document.querySelector<HTMLElement>('#cartZelleMessage')!
+const cartPayMessage = document.querySelector<HTMLElement>('#cartPayMessage')!
 const invoiceRequestMessage = document.querySelector<HTMLDivElement>('#invoiceRequestMessage')!
 const invoiceSuccess = document.querySelector<HTMLDivElement>('#invoiceSuccess')!
+const payNowSuccess = document.querySelector<HTMLDivElement>('#payNowSuccess')!
 const toast = document.querySelector<HTMLDivElement>('#toast')!
 const accountHistoryList = document.querySelector<HTMLDivElement>('#accountHistory')!
 const refreshHistoryButton = document.querySelector<HTMLButtonElement>('#refreshHistoryButton')!
@@ -493,19 +553,244 @@ function updateCheckoutCustomer() {
 
 function updateRequestButton() {
   if (!cart.length) {
+    payNowButton.disabled = true
     requestInvoiceButton.disabled = true
-    requestInvoiceButton.textContent = 'Request Invoice'
+    payNowButton.textContent = 'Pay Now'
+    requestInvoiceButton.textContent = 'Request Invoice by Email'
     return
   }
 
   if (!currentProfile) {
+    payNowButton.disabled = false
     requestInvoiceButton.disabled = false
+    payNowButton.textContent = 'Sign In to Pay'
     requestInvoiceButton.textContent = 'Sign In to Request Invoice'
     return
   }
 
-  requestInvoiceButton.textContent = 'Request Invoice'
-  requestInvoiceButton.disabled = !policyAcknowledgment.checked
+  const locked = Boolean(activeCheckoutOrder)
+  payNowButton.textContent = locked ? 'Pay Now Order Started' : 'Pay Now'
+  requestInvoiceButton.textContent = locked ? 'Pay Now Order Started' : 'Request Invoice by Email'
+  payNowButton.disabled = !policyAcknowledgment.checked || locked
+  requestInvoiceButton.disabled = !policyAcknowledgment.checked || locked
+}
+
+async function ensureCheckoutOrder() {
+  if (activeCheckoutOrder) return activeCheckoutOrder
+
+  const result = await createCheckoutOrder(cart, {
+    policyAcknowledged: policyAcknowledgment.checked,
+    contactMethod: contactMethod.value,
+    customerNotes: customerNotes.value.trim(),
+  })
+
+  activeCheckoutOrder = result
+  document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(result.totals.subtotal)
+  document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(result.totals.discount)
+  document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(result.totals.shipping)
+  document.querySelector<HTMLElement>('#cartTax')!.textContent = money(result.totals.tax)
+  document.querySelector<HTMLElement>('#cartTotal')!.textContent = money(result.totals.total)
+
+  cartItems.querySelectorAll<HTMLButtonElement>('button').forEach(button => {
+    button.disabled = true
+  })
+  updateRequestButton()
+  return result
+}
+
+async function finishPayNow(
+  title: string,
+  copy: string,
+) {
+  const orderNumber = activeCheckoutOrder?.orderNumber || 'Pending'
+
+  clearCart()
+  cart = []
+  policyAcknowledgment.checked = false
+  customerNotes.value = ''
+  cartPayPanel.hidden = true
+  cartZellePanel.hidden = true
+  cartContent.hidden = true
+  cartEmpty.hidden = true
+
+  document.querySelector<HTMLElement>('#payNowSuccessTitle')!.textContent = title
+  document.querySelector<HTMLElement>('#payNowSuccessCopy')!.textContent = copy
+  document.querySelector<HTMLElement>('#payNowOrderNumber')!.textContent = orderNumber
+  payNowSuccess.hidden = false
+
+  activeCheckoutOrder = null
+  updateCartUI()
+  await refreshOrderHistory()
+}
+
+async function setupCartPayNow() {
+  cartPayMessage.textContent = ''
+
+  try {
+    const sdk = await getPayPalSdk()
+    const methods = await sdk.findEligibleMethods({ currencyCode: 'USD' })
+    const paypalEligible = methods.isEligible('paypal')
+    const venmoEligible = methods.isEligible('venmo')
+
+    const paypalSession = sdk.createPayPalOneTimePaymentSession({
+      onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
+        if (!activeCheckoutOrder) return
+        cartPayMessage.textContent = 'Finalizing PayPal payment…'
+        try {
+          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'PayPal')
+          await finishPayNow(
+            'Payment received.',
+            'Your PayPal payment was verified and your order is now processing.',
+          )
+        } catch (error) {
+          cartPayMessage.textContent =
+            error instanceof Error ? error.message : 'PayPal capture failed.'
+        }
+      },
+      onCancel: () => {
+        cartPayMessage.textContent = 'PayPal checkout was cancelled. You can choose another option.'
+      },
+      onError: (error: unknown) => {
+        console.error('Cart PayPal checkout error', error)
+        cartPayMessage.textContent = 'PayPal checkout could not be completed.'
+      },
+    })
+
+    const venmoSession = sdk.createVenmoOneTimePaymentSession({
+      onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
+        if (!activeCheckoutOrder) return
+        cartPayMessage.textContent = 'Finalizing Venmo payment…'
+        try {
+          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'Venmo')
+          await finishPayNow(
+            'Payment received.',
+            'Your Venmo payment was verified and your order is now processing.',
+          )
+        } catch (error) {
+          cartPayMessage.textContent =
+            error instanceof Error ? error.message : 'Venmo capture failed.'
+        }
+      },
+      onCancel: () => {
+        cartPayMessage.textContent = 'Venmo checkout was cancelled. You can choose another option.'
+      },
+      onError: (error: unknown) => {
+        console.error('Cart Venmo checkout error', error)
+        cartPayMessage.textContent = 'Venmo checkout could not be completed.'
+      },
+    })
+
+    if (paypalEligible) {
+      cartPayPalButton.hidden = false
+      if (!cartPayPalButton.dataset.bound) {
+        cartPayPalButton.dataset.bound = 'true'
+        cartPayPalButton.addEventListener('click', async () => {
+          cartPayMessage.textContent = 'Preparing secure PayPal checkout…'
+          try {
+            const checkout = await ensureCheckoutOrder()
+            const paypalOrder = await createPayPalOrder(checkout.orderId, 'PayPal')
+            await paypalSession.start(
+              { presentationMode: 'auto' },
+              Promise.resolve({ orderId: paypalOrder.orderId }),
+            )
+          } catch (error) {
+            cartPayMessage.textContent =
+              error instanceof Error ? error.message : 'Could not start PayPal checkout.'
+          }
+        })
+      }
+    }
+
+    if (venmoEligible) {
+      cartVenmoButton.hidden = false
+      if (!cartVenmoButton.dataset.bound) {
+        cartVenmoButton.dataset.bound = 'true'
+        cartVenmoButton.addEventListener('click', async () => {
+          cartPayMessage.textContent = 'Preparing secure Venmo checkout…'
+          try {
+            const checkout = await ensureCheckoutOrder()
+            const paypalOrder = await createPayPalOrder(checkout.orderId, 'Venmo')
+            await venmoSession.start(
+              { presentationMode: 'auto' },
+              Promise.resolve({ orderId: paypalOrder.orderId }),
+            )
+          } catch (error) {
+            cartPayMessage.textContent =
+              error instanceof Error ? error.message : 'Could not start Venmo checkout.'
+          }
+        })
+      }
+    }
+
+    if (!paypalEligible && !venmoEligible) {
+      cartPayMessage.textContent = 'PayPal and Venmo are unavailable for this session.'
+    }
+  } catch (error) {
+    console.error('Cart wallet setup unavailable', error)
+    cartPayMessage.textContent = 'PayPal/Venmo are unavailable right now.'
+  }
+
+  try {
+    const zelle = await getZelleConfig()
+    cartZelleStartButton.hidden = false
+
+    if (!cartZelleStartButton.dataset.bound) {
+      cartZelleStartButton.dataset.bound = 'true'
+      cartZelleStartButton.addEventListener('click', async () => {
+        cartZelleStartButton.disabled = true
+        cartZelleStartButton.textContent = 'Preparing Zelle…'
+        try {
+          const checkout = await ensureCheckoutOrder()
+          cartZelleDetails.innerHTML = `
+            <div><span>Recipient</span><strong>${escapeHtml(zelle.displayName)}</strong></div>
+            <div><span>Send to</span><strong>${escapeHtml(zelle.contact)}</strong></div>
+            <div><span>Exact total</span><strong>${money(checkout.totals.total)}</strong></div>
+          `
+          cartZellePanel.hidden = false
+          cartZelleStartButton.hidden = true
+        } catch (error) {
+          cartZelleStartButton.disabled = false
+          cartZelleStartButton.textContent = 'Pay with Zelle'
+          cartPayMessage.textContent =
+            error instanceof Error ? error.message : 'Could not prepare Zelle payment.'
+        }
+      })
+    }
+
+    if (!cartZelleSubmitButton.dataset.bound) {
+      cartZelleSubmitButton.dataset.bound = 'true'
+      cartZelleSubmitButton.addEventListener('click', async () => {
+        if (!activeCheckoutOrder) return
+
+        const confirmed = window.confirm(
+          'Confirm that you already sent the Zelle payment?\n\nThis submits the payment for manual verification. It does not mark the order paid.'
+        )
+        if (!confirmed) return
+
+        cartZelleSubmitButton.disabled = true
+        cartZelleSubmitButton.textContent = 'Submitting…'
+        cartZelleMessage.textContent = 'Submitting Zelle payment for verification…'
+
+        try {
+          await submitZellePayment(
+            activeCheckoutOrder.orderId,
+            cartZelleConfirmation.value.trim(),
+          )
+          await finishPayNow(
+            'Payment submitted.',
+            'Your Zelle payment is waiting for Science By HUGs verification before processing.',
+          )
+        } catch (error) {
+          cartZelleMessage.textContent =
+            error instanceof Error ? error.message : 'Could not submit Zelle payment.'
+          cartZelleSubmitButton.disabled = false
+          cartZelleSubmitButton.textContent = 'I Sent the Zelle Payment'
+        }
+      })
+    }
+  } catch (error) {
+    console.info('Cart Zelle setup unavailable', error)
+  }
 }
 
 const historyDate = (value: string) =>
@@ -521,6 +806,7 @@ function friendlyOrderStatus(status: string) {
     invoice_requested: 'Awaiting approval',
     invoice_ready: 'Invoice ready',
     invoice_sent: 'Invoice sent',
+    checkout_pending: 'Awaiting payment',
     processing: 'Processing',
     ordered: 'Ordered',
     shipped: 'Shipped',
@@ -549,6 +835,7 @@ function renderAccountHistory() {
   accountHistoryList.innerHTML = accountHistory.map(order => {
     const invoiceLabel = order.invoice?.invoice_number || order.order_number || 'Pending'
     const invoiceSent = order.invoice?.send_status === 'sent'
+    const directCheckout = order.invoice?.status === 'direct_checkout'
     const paymentVerified =
       order.payment?.status === 'verified' ||
       order.payment_status === 'paid'
@@ -580,7 +867,7 @@ function renderAccountHistory() {
         ? `Paid${order.payment?.provider ? ` via ${order.payment.provider}` : ''}`
         : paymentSubmitted
           ? `Submitted${order.payment?.provider ? ` via ${order.payment.provider}` : ''} · awaiting verification`
-          : invoiceSent
+          : invoiceSent || directCheckout
             ? 'Waiting for payment'
             : 'Payment opens after invoice delivery'
 
@@ -605,13 +892,15 @@ function renderAccountHistory() {
 
         ${order.invoice ? `
           <div class="history-invoice">
-            <span>Invoice status</span>
+            <span>${directCheckout ? 'Order type' : 'Invoice status'}</span>
             <strong>${escapeHtml(
-              invoiceSent
-                ? 'Sent by email'
-                : order.invoice.pdf_status === 'created'
-                  ? 'PDF ready'
-                  : friendlyOrderStatus(order.invoice.status)
+              directCheckout
+                ? 'Pay Now'
+                : invoiceSent
+                  ? 'Sent by email'
+                  : order.invoice.pdf_status === 'created'
+                    ? 'PDF ready'
+                    : friendlyOrderStatus(order.invoice.status)
             )}</strong>
           </div>
         ` : ''}
@@ -626,7 +915,7 @@ function renderAccountHistory() {
           ` : ''}
         </div>
 
-        ${invoiceSent && !paymentVerified ? `
+        ${(invoiceSent || directCheckout) && !paymentVerified && !paymentSubmitted ? `
           <div class="history-paypal-shell">
             <div>
               <span class="eyebrow">PAY SECURELY</span>
@@ -984,10 +1273,12 @@ document.querySelector<HTMLButtonElement>('#closeDialog')!.addEventListener('cli
 document.querySelector<HTMLButtonElement>('#closeCartDialog')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListener('click', () => accountDialog.close())
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
+document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
 accountButton.addEventListener('click', () => accountDialog.showModal())
 cartButton.addEventListener('click', () => {
   invoiceSuccess.hidden = true
+  payNowSuccess.hidden = true
   cartEmpty.hidden = cart.length > 0
   cartContent.hidden = cart.length === 0
   invoiceRequestMessage.textContent = ''
@@ -1001,6 +1292,24 @@ document.querySelector<HTMLButtonElement>('#cartSignInButton')!.addEventListener
 })
 
 policyAcknowledgment.addEventListener('change', updateRequestButton)
+
+payNowButton.addEventListener('click', async () => {
+  if (!currentProfile) {
+    cartDialog.close()
+    accountDialog.showModal()
+    return
+  }
+
+  if (!policyAcknowledgment.checked) {
+    showToast('Please acknowledge the policies first.')
+    return
+  }
+
+  cartPayPanel.hidden = false
+  cartPayPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  await setupCartPayNow()
+})
+
 refreshHistoryButton.addEventListener('click', () => {
   void refreshOrderHistory()
 })
@@ -1046,7 +1355,7 @@ requestInvoiceButton.addEventListener('click', async () => {
     updateRequestButton()
   } finally {
     if (!invoiceSuccess.hidden) return
-    requestInvoiceButton.textContent = currentProfile ? 'Request Invoice' : 'Sign In to Request Invoice'
+    requestInvoiceButton.textContent = currentProfile ? 'Request Invoice by Email' : 'Sign In to Request Invoice'
   }
 })
 
