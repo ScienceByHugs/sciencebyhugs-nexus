@@ -386,3 +386,130 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .top-actions{gap:6px}
   .cart-button,.account-button{padding:8px 10px}
 }
+
+
+/* Nexus account order archive */
+.account-dialog{
+  width:min(760px,calc(100% - 28px));
+  max-height:min(90vh,900px);
+  overflow:auto;
+}
+.account-history-shell{
+  margin-top:24px;
+  padding-top:22px;
+  border-top:1px solid var(--line);
+}
+.account-history-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:13px;
+}
+.account-history-heading h3{
+  margin:5px 0 0;
+  font-size:1.2rem;
+  letter-spacing:-.025em;
+}
+.history-refresh{
+  border:1px solid var(--line);
+  background:#0B1020;
+  color:var(--text);
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:.7rem;
+  font-weight:850;
+}
+.history-refresh:disabled{opacity:.5;cursor:wait}
+.account-history{display:grid;gap:11px}
+.history-state{
+  padding:22px 14px;
+  border:1px dashed var(--line);
+  border-radius:16px;
+  color:var(--muted);
+  text-align:center;
+  font-size:.78rem;
+}
+.history-error{color:#FFB15C}
+.history-card{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(11,16,32,.76);
+}
+.history-card-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--line);
+}
+.history-number{
+  display:block;
+  color:var(--blue2);
+  font-size:.83rem;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.history-card-top small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.68rem;
+}
+.history-status{
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:999px;
+  padding:6px 9px;
+  color:#BFEAFF;
+  background:rgba(47,128,237,.08);
+  font-size:.62rem;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.history-status.sent{
+  color:#72E0A3;
+  border-color:rgba(114,224,163,.22);
+  background:rgba(114,224,163,.06);
+}
+.history-lines{
+  display:grid;
+  gap:7px;
+  padding:12px 0;
+}
+.history-line{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  color:#CBD6E5;
+  font-size:.76rem;
+}
+.history-line small{color:var(--muted)}
+.history-line strong{color:var(--text)}
+.history-total,
+.history-invoice{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  font-size:.75rem;
+}
+.history-total span,
+.history-invoice span{color:var(--muted)}
+.history-total strong{color:var(--blue2);font-size:.9rem}
+.history-invoice{
+  margin-top:9px;
+  border-top:0;
+  padding-top:0;
+}
+.history-invoice strong{font-size:.73rem}
+.history-muted{color:var(--muted);font-size:.75rem}
+@media(max-width:600px){
+  .account-dialog{padding:22px 16px}
+  .history-card-top{display:grid}
+  .history-status{width:max-content}
+}
