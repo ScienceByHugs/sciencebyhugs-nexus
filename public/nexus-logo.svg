@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 180" role="img" aria-labelledby="t d">
+<title id="t">Nexus — Science By HUGs</title>
+<desc id="d">Blue and silver science themed Nexus wordmark with orbital paths.</desc>
+<defs>
+  <linearGradient id="silver" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#b8c8dc"/><stop offset="1" stop-color="#f7faff"/></linearGradient>
+  <linearGradient id="blue" x1="0" x2="1"><stop stop-color="#7fdbff"/><stop offset=".5" stop-color="#2f80ed"/><stop offset="1" stop-color="#1363df"/></linearGradient>
+  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<g fill="none" stroke-linecap="round" opacity=".95">
+  <ellipse cx="98" cy="77" rx="72" ry="30" stroke="url(#blue)" stroke-width="5" transform="rotate(-24 98 77)"/>
+  <ellipse cx="98" cy="77" rx="72" ry="30" stroke="#dce7f4" stroke-width="4" transform="rotate(34 98 77)"/>
+  <ellipse cx="98" cy="77" rx="58" ry="22" stroke="#2f80ed" stroke-width="3" transform="rotate(82 98 77)"/>
+</g>
+<g filter="url(#glow)">
+  <circle cx="53" cy="38" r="7" fill="#7fdbff"/>
+  <circle cx="144" cy="54" r="6" fill="#2f80ed"/>
+  <circle cx="88" cy="122" r="6" fill="#7fdbff"/>
+  <circle cx="98" cy="77" r="9" fill="#fff"/>
+</g>
+<text x="175" y="105" fill="url(#silver)" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800" letter-spacing="3">NE</text>
+<text x="280" y="105" fill="url(#blue)" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900">X</text>
+<text x="332" y="105" fill="url(#silver)" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="800" letter-spacing="3">US</text>
+<line x1="182" y1="131" x2="235" y2="131" stroke="#2f80ed" stroke-width="3"/>
+<text x="247" y="138" fill="#eef7ff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" letter-spacing="7">SCIENCE BY HUGS</text>
+<line x1="497" y1="131" x2="552" y2="131" stroke="#2f80ed" stroke-width="3"/>
+</svg>
