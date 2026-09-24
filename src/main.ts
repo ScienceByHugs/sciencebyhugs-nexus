@@ -199,21 +199,49 @@ app.innerHTML = `
           </div>
         </a>
 
-        <a
-          id="downloadContactButton"
-          class="support-action-card"
-          href="${import.meta.env.BASE_URL}science-by-hugs-contact.vcf"
-          target="_blank"
-          rel="external noopener"
-          type="text/vcard"
-        >
-          <div class="support-action-icon">＋</div>
-          <div>
-            <span>SAVE CONTACT</span>
-            <strong>Download Our Contact</strong>
-            <small>Open our official contact card and add it to your contacts.</small>
+        <details class="support-contact-details">
+          <summary class="support-action-card">
+            <div class="support-action-icon">⌁</div>
+            <div>
+              <span>CONTACT CARD</span>
+              <strong>View Contact Card</strong>
+              <small>View our phone, email, website, and saving options.</small>
+            </div>
+          </summary>
+
+          <div class="support-contact-card">
+            <span class="eyebrow">SCIENCE BY HUGs</span>
+            <h3>Customer Support</h3>
+
+            <div class="support-contact-row">
+              <span>PHONE / TEXT</span>
+              <a href="tel:+17253107502">(725) 310-7502</a>
+            </div>
+            <div class="support-contact-row">
+              <span>EMAIL</span>
+              <a href="mailto:support@sciencebyhugs.com">support@sciencebyhugs.com</a>
+            </div>
+            <div class="support-contact-row">
+              <span>WEBSITE</span>
+              <a href="https://sciencebyhugs.com" target="_blank" rel="noopener">sciencebyhugs.com</a>
+            </div>
+
+            <div class="support-contact-actions">
+              <button id="copySupportContactButton" class="auth-primary" type="button">Copy Contact Info</button>
+              <a
+                class="auth-secondary support-browser-contact-link"
+                href="https://sciencebyhugs.github.io/sciencebyhugs-nexus/science-by-hugs-contact.vcf"
+                target="_blank"
+                rel="external noopener"
+                type="text/vcard"
+              >Open in Browser to Save Contact</a>
+            </div>
+
+            <p class="support-contact-note">
+              Installed app: use “Open in Browser to Save Contact.” In a normal browser, the vCard can be handed to your phone's contact importer.
+            </p>
           </div>
-        </a>
+        </details>
       </div>
 
       <div class="support-info-card">
@@ -489,7 +517,7 @@ const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
 const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
 const referralDialog = document.querySelector<HTMLDialogElement>('#referralDialog')!
 const referralDialogContent = document.querySelector<HTMLDivElement>('#referralDialogContent')!
-const downloadContactButton = document.querySelector<HTMLAnchorElement>('#downloadContactButton')!
+const copySupportContactButton = document.querySelector<HTMLButtonElement>('#copySupportContactButton')
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
 const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
@@ -1853,6 +1881,22 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+copySupportContactButton?.addEventListener('click', async () => {
+  const contactInfo = [
+    'SCIENCE BY HUGS',
+    'Phone / Text: (725) 310-7502',
+    'Email: support@sciencebyhugs.com',
+    'Website: https://sciencebyhugs.com',
+  ].join('\n')
+
+  try {
+    await navigator.clipboard.writeText(contactInfo)
+    showToast('Contact info copied')
+  } catch (error) {
+    console.error('Could not copy contact info', error)
+    showToast('Could not copy contact info')
+  }
+})
 document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
