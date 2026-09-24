@@ -30,6 +30,13 @@ import {
   buildReferralLink,
   claimReferral,
   getReferralDashboard,
+  submitReferral,
+  type ReferralDashboard,
+} from './services/referrals'
+import {
+  buildReferralLink,
+  claimReferral,
+  getReferralDashboard,
   type ReferralDashboard,
 } from './services/referrals'
 
@@ -44,6 +51,12 @@ let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
 let recoveryMode = new URLSearchParams(window.location.search).get('mode') === 'recovery'
+let referralDashboard: ReferralDashboard | null = null
+
+const incomingReferralCode = new URLSearchParams(window.location.search).get('ref')
+if (incomingReferralCode) {
+  window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
+}
 let referralDashboard: ReferralDashboard | null = null
 
 const referralCodeFromUrl = new URLSearchParams(window.location.search).get('ref')?.trim()
@@ -655,7 +668,224 @@ async function renderReferralDashboard() {
   })
 }
 
-function openMenuInfo(kind: 'referral' | 'support' | 'policies') {
+
+async function maybeClaimStoredReferral() {
+  const referralCode = window.localStorage.getItem('sbh_referral_code')?.trim()
+  if (!referralCode) return
+
+  try {
+    await claimReferral(referralCode)
+    window.localStorage.removeItem('sbh_referral_code')
+
+    const url = new URL(window.location.href)
+    url.searchParams.delete('ref')
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash)
+    showToast('Referral connected')
+  } catch (error) {
+    console.info('Referral attribution unavailable', error)
+  }
+}
+
+function referralStatusLabel(status: string) {
+  const normalized = status.toLowerCase()
+  if (normalized === 'qualified') return 'Qualified'
+  if (normalized === 'registered') return 'Registered'
+  return 'Pending'
+}
+
+async function openReferralDashboard() {
+  menuInfoPanel.hidden = false
+
+  if (!currentProfile) {
+    menuInfoPanel.innerHTML = `
+      <span class="eyebrow">REFERRAL LAB</span>
+      <h3>Refer a Friend</h3>
+      <p>Sign in to access your personal referral code, rewards, and referral progress.</p>
+      <button id="referralSignInButton" class="auth-primary referral-action" type="button">Sign In</button>
+    `
+    document.querySelector<HTMLButtonElement>('#referralSignInButton')?.addEventListener('click', () => {
+      menuDialog.close()
+      accountDialog.showModal()
+    })
+    return
+  }
+
+  menuInfoPanel.innerHTML = `
+    <div class="referral-loading">
+      <div class="loader"></div>
+      <p>Loading your referral lab…</p>
+    </div>
+  `
+
+  try {
+    referralDashboard = await getReferralDashboard()
+  } catch (error) {
+    menuInfoPanel.innerHTML = `
+      <span class="eyebrow">REFERRAL LAB</span>
+      <h3>Referral dashboard unavailable.</h3>
+      <p>${escapeHtml(error instanceof Error ? error.message : 'Please try again.')}</p>
+    `
+    return
+  }
+
+  const data = referralDashboard
+  const referralLink = buildReferralLink(data.referralCode)
+  const nextThreshold = data.nextMilestone?.threshold || 20
+  const progress = Math.min(100, Math.round((data.qualifiedCount / nextThreshold) * 100))
+
+  const milestones = data.milestones.map(milestone => `
+    <div class="referral-milestone ${milestone.reached ? 'reached' : ''}">
+      <div class="referral-milestone-count">${milestone.threshold}</div>
+      <div>
+        <strong>${escapeHtml(milestone.title)}</strong>
+        <span>${escapeHtml(milestone.reward)}</span>
+      </div>
+      <b>${milestone.reached ? '✓' : ''}</b>
+    </div>
+  `).join('')
+
+  const referralRows = data.referrals.length
+    ? data.referrals.map(referral => `
+        <div class="referral-row">
+          <div>
+            <strong>${escapeHtml(referral.name || 'Referral')}</strong>
+            <small>${escapeHtml(historyDate(referral.referredAt))}</small>
+          </div>
+          <span class="referral-state ${referral.status === 'qualified' ? 'qualified' : ''}">
+            ${escapeHtml(referralStatusLabel(referral.status))}
+          </span>
+        </div>
+      `).join('')
+    : '<div class="referral-empty">No referrals tracked yet. Share your link to get started.</div>'
+
+  menuInfoPanel.innerHTML = `
+    <div class="referral-dashboard">
+      <div class="referral-hero">
+        <span class="eyebrow">REFERRAL LAB</span>
+        <h3>Refer a Friend</h3>
+        <p>Share your Nexus referral link. Qualified referrals count toward your Science By HUGs rewards.</p>
+      </div>
+
+      <div class="referral-code-card">
+        <span>Your Referral Code</span>
+        <strong>${escapeHtml(data.referralCode)}</strong>
+        <div class="referral-link">${escapeHtml(referralLink)}</div>
+        <div class="referral-actions">
+          <button id="copyReferralButton" class="auth-primary" type="button">Copy Link</button>
+          <button id="shareReferralButton" class="auth-secondary" type="button">Share</button>
+        </div>
+      </div>
+
+      <div class="referral-stats">
+        <div><span>Qualified</span><strong>${data.qualifiedCount}</strong></div>
+        <div><span>Pending</span><strong>${data.pendingCount}</strong></div>
+        <div><span>Total</span><strong>${data.totalCount}</strong></div>
+      </div>
+
+      <div class="referral-progress-card">
+        <div>
+          <span>Reward Progress</span>
+          <strong>${data.nextMilestone ? `${data.qualifiedCount} / ${data.nextMilestone.threshold}` : 'All milestones reached'}</strong>
+        </div>
+        <div class="referral-progress"><i style="width:${progress}%"></i></div>
+        <small>${
+          data.nextMilestone
+            ? `${Math.max(0, data.nextMilestone.threshold - data.qualifiedCount)} more qualified referral(s) until ${escapeHtml(data.nextMilestone.reward)}.`
+            : 'You reached every current referral milestone.'
+        }</small>
+      </div>
+
+      <div class="referral-milestones">
+        <div class="referral-section-title">Reward Milestones</div>
+        ${milestones}
+      </div>
+
+      <form id="trackReferralForm" class="referral-track-form">
+        <div class="referral-section-title">Track a Friend</div>
+        <p>Add someone you referred. This does not send them an email; it simply lets Nexus track their progress.</p>
+        <label>
+          Name
+          <input id="referralName" type="text" maxlength="120" placeholder="Optional">
+        </label>
+        <label>
+          Email
+          <input id="referralEmail" type="email" autocomplete="email" required placeholder="friend@example.com">
+        </label>
+        <button id="trackReferralSubmit" class="auth-primary" type="submit">Track Referral</button>
+        <div id="trackReferralMessage" class="auth-message"></div>
+      </form>
+
+      <div class="referral-history">
+        <div class="referral-section-title">Your Referrals</div>
+        ${referralRows}
+      </div>
+    </div>
+  `
+
+  document.querySelector<HTMLButtonElement>('#copyReferralButton')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(referralLink)
+      showToast('Referral link copied')
+    } catch {
+      showToast('Could not copy referral link')
+    }
+  })
+
+  const shareButton = document.querySelector<HTMLButtonElement>('#shareReferralButton')
+  if (shareButton) {
+    if (navigator.share) {
+      shareButton.addEventListener('click', async () => {
+        try {
+          await navigator.share({
+            title: 'Science By HUGs Nexus',
+            text: 'Join me on Science By HUGs Nexus.',
+            url: referralLink,
+          })
+        } catch {
+          // User cancellation is intentionally silent.
+        }
+      })
+    } else {
+      shareButton.textContent = 'Copy Code'
+      shareButton.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(data.referralCode)
+          showToast('Referral code copied')
+        } catch {
+          showToast('Could not copy referral code')
+        }
+      })
+    }
+  }
+
+  const trackForm = document.querySelector<HTMLFormElement>('#trackReferralForm')
+  trackForm?.addEventListener('submit', async event => {
+    event.preventDefault()
+    const nameInput = document.querySelector<HTMLInputElement>('#referralName')!
+    const emailInput = document.querySelector<HTMLInputElement>('#referralEmail')!
+    const submitButton = document.querySelector<HTMLButtonElement>('#trackReferralSubmit')!
+    const message = document.querySelector<HTMLElement>('#trackReferralMessage')!
+
+    message.textContent = ''
+    submitButton.disabled = true
+    submitButton.textContent = 'Saving…'
+
+    try {
+      const result = await submitReferral(nameInput.value.trim(), emailInput.value.trim())
+      message.textContent = result.alreadyTracked
+        ? 'That referral is already being tracked.'
+        : 'Referral added to your dashboard.'
+      showToast(result.alreadyTracked ? 'Referral already tracked' : 'Referral tracked')
+      await openReferralDashboard()
+    } catch (error) {
+      message.textContent = error instanceof Error ? error.message : 'Could not save referral.'
+      submitButton.disabled = false
+      submitButton.textContent = 'Track Referral'
+    }
+  })
+}
+
+function openMenuInfo(kind: 'support' | 'policies') {
   if (kind === 'referral') {
     void renderReferralDashboard()
     return
@@ -1688,7 +1918,12 @@ menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(but
       return
     }
 
-    if (target === 'referral' || target === 'support' || target === 'policies') {
+    if (target === 'referral') {
+      void openReferralDashboard()
+      return
+    }
+
+    if (target === 'support' || target === 'policies') {
       openMenuInfo(target)
     }
   })
@@ -1839,7 +2074,9 @@ recoveryPasswordForm.addEventListener('submit', async event => {
     recoveryPassword.value = ''
     recoveryPasswordConfirm.value = ''
     recoveryMode = false
-    window.history.replaceState({}, document.title, window.location.pathname)
+    const cleanUrl = new URL(window.location.href)
+    cleanUrl.searchParams.delete('mode')
+    window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search + cleanUrl.hash)
     await refreshAccount()
     showToast('Password updated successfully')
     if (accountDialog.open) accountDialog.close()
