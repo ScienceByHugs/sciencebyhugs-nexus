@@ -622,6 +622,10 @@ async function openReferralDashboard() {
           Email
           <input id="referralEmail" type="email" autocomplete="email" required placeholder="friend@example.com">
         </label>
+        <label class="referral-consent">
+          <input id="referralConsent" type="checkbox" required>
+          <span>I confirm that I have permission to provide this person's contact information to Science By HUGs for referral tracking purposes.</span>
+        </label>
         <button id="trackReferralSubmit" class="auth-primary" type="submit">Track Referral</button>
         <div id="trackReferralMessage" class="auth-message"></div>
       </form>
@@ -676,13 +680,23 @@ async function openReferralDashboard() {
     const emailInput = document.querySelector<HTMLInputElement>('#referralEmail')!
     const submitButton = document.querySelector<HTMLButtonElement>('#trackReferralSubmit')!
     const message = document.querySelector<HTMLElement>('#trackReferralMessage')!
+    const consent = document.querySelector<HTMLInputElement>('#referralConsent')!
 
     message.textContent = ''
+
+    if (!consent.checked) {
+      message.textContent = 'Please confirm you have permission to provide this contact information.'
+      return
+    }
     submitButton.disabled = true
     submitButton.textContent = 'Saving…'
 
     try {
-      const result = await submitReferral(nameInput.value.trim(), emailInput.value.trim())
+      const result = await submitReferral(
+        nameInput.value.trim(),
+        emailInput.value.trim(),
+        consent.checked,
+      )
       message.textContent = result.alreadyTracked
         ? 'That referral is already being tracked.'
         : 'Referral added to your dashboard.'
