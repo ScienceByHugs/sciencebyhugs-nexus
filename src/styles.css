@@ -2027,3 +2027,76 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     font-size:.72rem;
   }
 }
+
+
+/* Dedicated Nexus policy page */
+.policy-dialog{
+  width:min(760px,calc(100% - 24px));
+  max-height:min(92vh,920px);
+  overflow:hidden;
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:28px;
+  padding:0;
+  background:#080E1B;
+  color:var(--text);
+  box-shadow:0 30px 100px rgba(0,0,0,.65);
+}
+.policy-dialog::backdrop{
+  background:rgba(1,4,12,.84);
+  backdrop-filter:blur(10px);
+}
+.policy-dialog-header{
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 20px;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,14,27,.96);
+  backdrop-filter:blur(18px);
+}
+.policy-dialog-header>div{min-width:0}
+.policy-dialog-header strong{
+  display:block;
+  margin-top:3px;
+  font-size:1rem;
+  letter-spacing:-.02em;
+}
+.policy-dialog-content{
+  max-height:calc(min(92vh,920px) - 77px);
+  overflow:auto;
+  padding:20px;
+  -webkit-overflow-scrolling:touch;
+}
+.policy-page-intro{
+  margin-bottom:16px;
+}
+.policy-page-intro h2{
+  margin:0 0 7px;
+  font-size:clamp(1.8rem,5vw,2.4rem);
+  letter-spacing:-.04em;
+}
+.policy-page-intro p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+  font-size:.8rem;
+}
+@media(max-width:600px){
+  .policy-dialog{
+    width:calc(100% - 16px);
+    max-height:calc(100dvh - 88px);
+    margin-bottom:76px;
+    border-radius:22px;
+  }
+  .policy-dialog-content{
+    max-height:calc(100dvh - 165px);
+    padding:16px;
+  }
+  .policy-dialog-header{
+    padding:15px 16px;
+  }
+}
