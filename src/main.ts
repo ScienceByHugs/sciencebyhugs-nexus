@@ -22,6 +22,7 @@ import { createCheckoutOrder, type CheckoutOrderResult } from './services/checko
 import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
 import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
 import { getZelleConfig, submitZellePayment } from './services/zelle'
+import { getInvoicePdfLink } from './services/invoicePdf'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -616,6 +617,7 @@ async function finishPayNow(
   document.querySelector<HTMLElement>('#payNowSuccessTitle')!.textContent = title
   document.querySelector<HTMLElement>('#payNowSuccessCopy')!.textContent = copy
   document.querySelector<HTMLElement>('#payNowOrderNumber')!.textContent = orderNumber
+  invoiceSuccess.hidden = true
   payNowSuccess.hidden = false
 
   activeCheckoutOrder = null
@@ -905,6 +907,16 @@ function renderAccountHistory() {
           </div>
         ` : ''}
 
+        ${directCheckout && order.invoice ? `
+          <button
+            class="history-pdf-button"
+            type="button"
+            data-invoice-pdf-id="${escapeHtml(order.invoice.id)}"
+          >
+            View Invoice PDF
+          </button>
+        ` : ''}
+
         <div class="history-payment ${paymentVerified ? 'paid' : paymentSubmitted ? 'submitted' : ''}">
           <div>
             <span>Payment status</span>
@@ -966,6 +978,30 @@ function renderAccountHistory() {
       </article>
     `
   }).join('')
+
+  accountHistoryList.querySelectorAll<HTMLButtonElement>('[data-invoice-pdf-id]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const invoiceId = button.dataset.invoicePdfId
+      if (!invoiceId) return
+
+      const popup = window.open('', '_blank')
+      const original = button.textContent
+      button.disabled = true
+      button.textContent = 'Opening PDF…'
+
+      try {
+        const result = await getInvoicePdfLink(invoiceId)
+        if (popup) popup.location.href = result.url
+        else window.location.href = result.url
+      } catch (error) {
+        if (popup) popup.close()
+        showToast(error instanceof Error ? error.message : 'Could not open invoice PDF')
+      } finally {
+        button.disabled = false
+        button.textContent = original || 'View Invoice PDF'
+      }
+    })
+  })
 
   void Promise.all([
     setupPayPalCheckout(),
@@ -1294,6 +1330,8 @@ document.querySelector<HTMLButtonElement>('#cartSignInButton')!.addEventListener
 policyAcknowledgment.addEventListener('change', updateRequestButton)
 
 payNowButton.addEventListener('click', async () => {
+  invoiceSuccess.hidden = true
+  payNowSuccess.hidden = true
   if (!currentProfile) {
     cartDialog.close()
     accountDialog.showModal()
@@ -1315,6 +1353,10 @@ refreshHistoryButton.addEventListener('click', () => {
 })
 
 requestInvoiceButton.addEventListener('click', async () => {
+  cartPayPanel.hidden = true
+  cartZellePanel.hidden = true
+  payNowSuccess.hidden = true
+  invoiceSuccess.hidden = true
   if (!currentProfile) {
     cartDialog.close()
     accountDialog.showModal()
@@ -1343,6 +1385,7 @@ requestInvoiceButton.addEventListener('click', async () => {
     customerNotes.value = ''
     updateCartUI()
 
+    payNowSuccess.hidden = true
     document.querySelector<HTMLElement>('#successInvoiceNumber')!.textContent =
       result.invoiceNumber || 'Pending'
     cartContent.hidden = true
