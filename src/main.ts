@@ -4,6 +4,9 @@ import {
   getCurrentUser,
   getMyProfile,
   onAuthChange,
+  requestPasswordReset,
+  changePassword,
+  updatePassword,
   signIn,
   signOut,
   type NexusProfile,
@@ -49,6 +52,7 @@ app.innerHTML = `
 
     <div class="top-actions">
       <span class="system-status"><i></i> CATALOG LIVE</span>
+      <button id="menuButton" class="account-button menu-button" type="button">Menu</button>
       <button id="cartButton" class="cart-button" type="button">
         Cart <span id="cartCount">0</span>
       </button>
@@ -87,6 +91,34 @@ app.innerHTML = `
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+
+  <dialog id="menuDialog" class="menu-dialog">
+    <button id="closeMenuDialog" class="dialog-close" aria-label="Close">×</button>
+    <div class="menu-head">
+      <span class="eyebrow">NEXUS NAVIGATION</span>
+      <h2>Explore Nexus.</h2>
+      <p>Everything connected to your Science By HUGs account in one place.</p>
+    </div>
+    <nav class="menu-grid" aria-label="Nexus menu">
+      <button class="menu-card" type="button" data-menu-target="catalog">
+        <span>CATALOG</span><strong>Research Catalog</strong><small>Browse available products.</small>
+      </button>
+      <button class="menu-card" type="button" data-menu-target="account">
+        <span>ACCOUNT</span><strong>My Account</strong><small>Orders, invoices, profile, and security.</small>
+      </button>
+      <button class="menu-card" type="button" data-menu-target="referral">
+        <span>REFERRALS</span><strong>Refer a Friend</strong><small>Referral rewards and progress.</small>
+      </button>
+      <button class="menu-card" type="button" data-menu-target="support">
+        <span>SUPPORT</span><strong>Get Support</strong><small>Order, payment, and account help.</small>
+      </button>
+      <button class="menu-card" type="button" data-menu-target="policies">
+        <span>POLICIES</span><strong>Policy Library</strong><small>Terms, privacy, shipping, and research policies.</small>
+      </button>
+    </nav>
+    <section id="menuInfoPanel" class="menu-info-panel" hidden></section>
+  </dialog>
 
   <dialog id="productDialog" class="product-dialog">
     <button id="closeDialog" class="dialog-close" aria-label="Close">×</button>
@@ -243,13 +275,37 @@ app.innerHTML = `
           <input id="loginPassword" type="password" autocomplete="current-password" required />
         </label>
         <button id="loginSubmit" class="auth-primary" type="submit">Sign In</button>
+        <button id="forgotPasswordButton" class="auth-link" type="button">Forgot password?</button>
         <div id="loginMessage" class="auth-message" aria-live="polite"></div>
       </form>
 
-      <div class="activation-note">
-        <strong>Existing customer?</strong>
-        <p>Account activation and password setup will be enabled after we finish the verified-email migration test.</p>
-      </div>
+      <form id="forgotPasswordForm" class="auth-form recovery-form" hidden>
+        <span class="eyebrow">PASSWORD RECOVERY</span>
+        <h3>Reset your password.</h3>
+        <p class="account-copy">Enter the email connected to your Science By HUGs account.</p>
+        <label>
+          Email
+          <input id="forgotPasswordEmail" type="email" autocomplete="email" required />
+        </label>
+        <button id="forgotPasswordSubmit" class="auth-primary" type="submit">Send Reset Email</button>
+        <button id="forgotPasswordBack" class="auth-link" type="button">Back to sign in</button>
+        <div id="forgotPasswordMessage" class="auth-message" aria-live="polite"></div>
+      </form>
+
+      <form id="recoveryPasswordForm" class="auth-form recovery-form" hidden>
+        <span class="eyebrow">SECURE RECOVERY</span>
+        <h3>Choose a new password.</h3>
+        <label>
+          New password
+          <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="10" required />
+        </label>
+        <label>
+          Confirm new password
+          <input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="10" required />
+        </label>
+        <button id="recoveryPasswordSubmit" class="auth-primary" type="submit">Set New Password</button>
+        <div id="recoveryPasswordMessage" class="auth-message" aria-live="polite"></div>
+      </form>
     </div>
 
     <div id="signedInView" hidden>
@@ -262,6 +318,31 @@ app.innerHTML = `
         <div><span>Membership</span><strong id="accountMembership">—</strong></div>
         <div><span>Status</span><strong id="accountStatus">—</strong></div>
       </div>
+
+      <section class="account-security-shell">
+        <div class="account-history-heading">
+          <div>
+            <span class="eyebrow">SECURITY</span>
+            <h3>Change password</h3>
+          </div>
+        </div>
+        <form id="changePasswordForm" class="auth-form compact-auth-form">
+          <label>
+            Current password
+            <input id="currentPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <label>
+            New password
+            <input id="newPassword" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <label>
+            Confirm new password
+            <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="10" required />
+          </label>
+          <button id="changePasswordSubmit" class="auth-primary" type="submit">Change Password</button>
+          <div id="changePasswordMessage" class="auth-message" aria-live="polite"></div>
+        </form>
+      </section>
 
       <section class="account-history-shell">
         <div class="account-history-heading">
