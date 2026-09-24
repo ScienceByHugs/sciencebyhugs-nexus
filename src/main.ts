@@ -52,7 +52,7 @@ if (incomingReferralCode) {
   window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
 }
 
-const brandMarkUrl = `${brandMarkUrl}`
+const brandMarkUrl = `${import.meta.env.BASE_URL}brand-mark.svg`
 
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
