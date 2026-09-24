@@ -8,19 +8,19 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        entryFileNames: 'assets/index-v3.js',
-        chunkFileNames: 'assets/[name]-v3.js',
-        assetFileNames: 'assets/[name]-v3[extname]',
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
     },
   },
   plugins: [
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       workbox: {
         cleanupOutdatedCaches: true,
-        clientsClaim: false,
-        skipWaiting: false,
+        clientsClaim: true,
+        skipWaiting: true,
         navigateFallbackDenylist: [/\.vcf$/i],
       },
       includeAssets: ['brand-mark.svg', 'nexus-logo.svg', 'nexus-icon.svg', 'default-product-vial-photo.webp', 'science-by-hugs-contact.vcf'],

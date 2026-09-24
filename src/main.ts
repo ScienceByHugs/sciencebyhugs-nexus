@@ -2295,6 +2295,41 @@ async function loadCatalog() {
 
 updateCartUI()
 
+function enablePwaAutoRefresh() {
+  if (!('serviceWorker' in navigator)) return
+
+  const hadControllerAtBoot = Boolean(navigator.serviceWorker.controller)
+  let reloadingForUpdate = false
+  let lastUpdateCheck = 0
+
+  const checkForUpdate = async () => {
+    const now = Date.now()
+    if (now - lastUpdateCheck < 15_000) return
+    lastUpdateCheck = now
+
+    try {
+      const registration = await navigator.serviceWorker.getRegistration()
+      await registration?.update()
+    } catch (error) {
+      console.warn('PWA update check failed', error)
+    }
+  }
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadControllerAtBoot || reloadingForUpdate) return
+    reloadingForUpdate = true
+    window.location.reload()
+  })
+
+  window.addEventListener('load', () => void checkForUpdate())
+  window.addEventListener('pageshow', () => void checkForUpdate())
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void checkForUpdate()
+  })
+}
+
+enablePwaAutoRefresh()
+
 void Promise.all([
   loadCatalog(),
   refreshAccount(),
