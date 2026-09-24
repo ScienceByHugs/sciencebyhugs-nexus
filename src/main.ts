@@ -900,7 +900,20 @@ const supportContactText = [
 
 async function copySupportContactInfo() {
   try {
-    await navigator.clipboard.writeText(supportContactText)
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(supportContactText)
+    } else {
+      const textarea = document.createElement('textarea')
+      textarea.value = supportContactText
+      textarea.setAttribute('readonly', '')
+      textarea.style.position = 'fixed'
+      textarea.style.opacity = '0'
+      document.body.appendChild(textarea)
+      textarea.select()
+      const copied = document.execCommand('copy')
+      textarea.remove()
+      if (!copied) throw new Error('Clipboard copy was rejected.')
+    }
     showToast('Contact info copied')
   } catch (error) {
     console.error('Could not copy contact info', error)
