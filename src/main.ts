@@ -66,6 +66,12 @@ if (incomingReferralCode) {
 
 const brandMarkUrl = `${import.meta.env.BASE_URL}brand-mark.svg`
 
+const escapeHtml = (value: unknown) =>
+  String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[char] as string))
+
+
 const policyCardsMarkup = nexusPolicies.map(policy => `
   <details class="policy-card">
     <summary>
@@ -576,11 +582,6 @@ const refreshHistoryButton = document.querySelector<HTMLButtonElement>('#refresh
 
 const money = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
-
-const escapeHtml = (value: unknown) =>
-  String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-  }[char] as string))
 
 function showToast(message: string) {
   toast.textContent = message
