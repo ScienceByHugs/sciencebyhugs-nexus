@@ -712,3 +712,37 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   font-size:.7rem;
   line-height:1.4;
 }
+
+
+/* Pay Now / invoice checkout split */
+.checkout-choice{
+  display:grid;
+  gap:10px;
+  margin-top:14px;
+}
+.checkout-choice .checkout-invoice-button{
+  margin-top:0;
+}
+.checkout-choice>p{
+  margin:2px 0 0;
+  color:var(--muted);
+  font-size:.7rem;
+  line-height:1.45;
+  text-align:center;
+}
+.cart-pay-panel{
+  margin-top:14px;
+  padding:18px;
+  border:1px solid rgba(127,219,255,.18);
+  border-radius:18px;
+  background:rgba(47,128,237,.045);
+}
+.cart-pay-copy{
+  margin:-4px 0 14px;
+  color:var(--muted);
+  font-size:.74rem;
+  line-height:1.5;
+}
+.cart-pay-panel .zelle-shell{
+  margin-top:14px;
+}
