@@ -520,6 +520,10 @@ function friendlyOrderStatus(status: string) {
     invoice_ready: 'Invoice ready',
     invoice_sent: 'Invoice sent',
     processing: 'Processing',
+    ordered: 'Ordered',
+    shipped: 'Shipped',
+    delivered: 'Delivered',
+    delayed: 'Delayed',
     pending: 'Pending',
     paid: 'Paid',
     completed: 'Completed',
@@ -550,9 +554,14 @@ function renderAccountHistory() {
       order.payment?.status === 'submitted' &&
       !paymentVerified
 
+    const fulfillmentStatus =
+      ['ordered', 'shipped', 'delivered', 'delayed', 'cancelled'].includes(order.status)
+        ? friendlyOrderStatus(order.status)
+        : 'Paid · Processing'
+
     const status =
       paymentVerified
-        ? 'Paid · Processing'
+        ? fulfillmentStatus
         : paymentSubmitted
           ? 'Payment submitted'
           : friendlyOrderStatus(order.status)
@@ -580,7 +589,7 @@ function renderAccountHistory() {
             <span class="history-number">${escapeHtml(invoiceLabel)}</span>
             <small>${escapeHtml(historyDate(order.created_at))}</small>
           </div>
-          <span class="history-status ${paymentVerified ? 'paid' : paymentSubmitted ? 'submitted' : invoiceSent ? 'sent' : ''}">
+          <span class="history-status ${order.status === 'delayed' ? 'delayed' : order.status === 'cancelled' ? 'cancelled' : order.status === 'delivered' ? 'paid' : paymentVerified ? 'paid' : paymentSubmitted ? 'submitted' : invoiceSent ? 'sent' : ''}">
             ${escapeHtml(status)}
           </span>
         </div>
