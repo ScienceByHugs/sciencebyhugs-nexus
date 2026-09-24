@@ -17,7 +17,7 @@ radial-gradient(circle at 75% 15%,#7FDBFF 0 1px,transparent 1.3px),
 radial-gradient(circle at 62% 68%,#fff 0 1px,transparent 1.3px),
 radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-size:240px 240px,330px 330px,290px 290px,380px 380px}
 .topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px max(20px,calc((100vw - 1180px)/2));background:rgba(5,8,22,.75);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
-.brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}.brand img{width:42px;height:42px}.brand span{display:block;color:var(--blue2);font-size:.68rem;letter-spacing:.16em;font-weight:800}.brand strong{display:block;font-size:1.08rem;letter-spacing:.14em;margin-top:2px}
+.brand{display:flex;align-items:center;color:inherit;text-decoration:none}.brand .nexus-header-logo{display:block;width:min(230px,30vw);height:58px;object-fit:contain;object-position:left center}
 .system-status{font-size:.67rem;letter-spacing:.12em;color:#BFEAFF;font-weight:800}.system-status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#57E389;box-shadow:0 0 12px #57E389;margin-right:6px}
 .shell{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:64px 0 90px;position:relative;z-index:1}
 .hero{padding:5vh 0 7vh;max-width:850px}.eyebrow{font-size:.7rem;letter-spacing:.19em;color:var(--blue2);font-weight:900}.hero h1{font-size:clamp(3.2rem,8vw,7rem);line-height:.9;letter-spacing:-.065em;margin:.24em 0 .18em}.hero h1 em{font-style:normal;color:var(--blue2);text-shadow:0 0 32px rgba(127,219,255,.25)}.hero p{max-width:680px;color:var(--muted);font-size:1.08rem;line-height:1.7}
@@ -2144,5 +2144,30 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     min-height:38px;
     padding:0 10px;
     font-size:.68rem;
+  }
+}
+
+
+/* Nexus product vial defaults */
+.product-image>.default-product-image{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:7%;
+  box-sizing:border-box;
+  background:radial-gradient(circle at 50% 42%,rgba(47,128,237,.14),transparent 58%),#070C18;
+}
+.dialog-image>.default-product-image{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:4%;
+  box-sizing:border-box;
+  background:radial-gradient(circle at 50% 42%,rgba(47,128,237,.14),transparent 58%),#050816;
+}
+@media(max-width:600px){
+  .brand .nexus-header-logo{
+    width:150px;
+    height:46px;
   }
 }
