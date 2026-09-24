@@ -199,14 +199,21 @@ app.innerHTML = `
           </div>
         </a>
 
-        <button id="downloadContactButton" class="support-action-card support-action-button" type="button">
+        <a
+          id="downloadContactButton"
+          class="support-action-card"
+          href="${import.meta.env.BASE_URL}science-by-hugs-contact.vcf"
+          target="_blank"
+          rel="external noopener"
+          type="text/vcard"
+        >
           <div class="support-action-icon">＋</div>
           <div>
             <span>SAVE CONTACT</span>
             <strong>Download Our Contact</strong>
-            <small>Open or save our official Science By HUGs contact card.</small>
+            <small>Open our official contact card and add it to your contacts.</small>
           </div>
-        </button>
+        </a>
       </div>
 
       <div class="support-info-card">
@@ -482,7 +489,7 @@ const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
 const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
 const referralDialog = document.querySelector<HTMLDialogElement>('#referralDialog')!
 const referralDialogContent = document.querySelector<HTMLDivElement>('#referralDialogContent')!
-const downloadContactButton = document.querySelector<HTMLButtonElement>('#downloadContactButton')!
+const downloadContactButton = document.querySelector<HTMLAnchorElement>('#downloadContactButton')!
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
 const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
@@ -838,18 +845,6 @@ function openSupportDialog() {
   supportDialog.showModal()
 }
 
-function downloadSupportContact() {
-  const contactCardUrl = `${import.meta.env.BASE_URL}science-by-hugs-contact.vcf`
-
-  const link = document.createElement('a')
-  link.href = contactCardUrl
-  link.target = '_blank'
-  link.rel = 'noopener'
-  link.setAttribute('type', 'text/vcard')
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-}
 
 function openMenuInfo(kind: 'policies') {
   const copy = {
@@ -1859,9 +1854,6 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
 document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
-downloadContactButton.addEventListener('click', () => {
-  void downloadSupportContact()
-})
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
