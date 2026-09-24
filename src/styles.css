@@ -1487,3 +1487,38 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .support-grid{grid-template-columns:1fr}
   .support-action-card{padding:14px}
 }
+
+
+.support-dialog{
+  width:min(620px,calc(100% - 24px));
+  max-height:min(88vh,820px);
+  overflow:auto;
+  border:1px solid rgba(127,219,255,.2);
+  border-radius:28px;
+  padding:26px;
+  background:#080E1B;
+  color:var(--text);
+  box-shadow:0 30px 100px rgba(0,0,0,.65);
+}
+.support-dialog::backdrop{
+  background:rgba(1,4,12,.82);
+  backdrop-filter:blur(10px);
+}
+.support-action-button{
+  width:100%;
+  text-align:left;
+  font:inherit;
+}
+.support-action-button:disabled{
+  opacity:.6;
+  cursor:wait;
+}
+@media(max-width:600px){
+  .support-dialog{
+    width:calc(100% - 16px);
+    max-height:calc(100dvh - 88px);
+    margin-bottom:76px;
+    padding:20px;
+    border-radius:22px;
+  }
+}
