@@ -1923,3 +1923,107 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     max-width:calc(100vw - 24px);
   }
 }
+
+
+/* Nexus policy library */
+.policy-library-head{
+  display:grid;
+  gap:6px;
+  margin-bottom:14px;
+}
+.policy-library-head h3{
+  margin:0;
+  font-size:1.3rem;
+}
+.policy-library-head p{
+  margin:0;
+}
+.policy-library{
+  display:grid;
+  gap:10px;
+}
+.policy-card{
+  border:1px solid rgba(127,219,255,.14);
+  border-radius:16px;
+  background:rgba(5,10,20,.58);
+  overflow:hidden;
+}
+.policy-card summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  min-height:82px;
+  padding:14px 15px;
+  cursor:pointer;
+  list-style:none;
+}
+.policy-card summary::-webkit-details-marker{
+  display:none;
+}
+.policy-card summary > div{
+  display:grid;
+  gap:3px;
+}
+.policy-kicker{
+  color:#7FDBFF;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.policy-card summary strong{
+  color:var(--text);
+  font-size:.9rem;
+}
+.policy-card summary small{
+  color:var(--muted);
+  font-size:.66rem;
+}
+.policy-chevron{
+  color:#7FDBFF;
+  font-size:1.05rem;
+  transition:transform .18s ease;
+}
+.policy-card[open] .policy-chevron{
+  transform:rotate(180deg);
+}
+.policy-content{
+  max-height:56vh;
+  overflow:auto;
+  padding:15px;
+  border-top:1px solid rgba(127,219,255,.10);
+  color:#C9D6E8;
+  font-size:.74rem;
+  line-height:1.65;
+  white-space:pre-wrap;
+  -webkit-overflow-scrolling:touch;
+}
+.policy-legal-contact{
+  display:grid;
+  gap:5px;
+  margin-top:14px;
+  padding:15px;
+  border:1px solid rgba(47,128,237,.22);
+  border-radius:16px;
+  background:rgba(47,128,237,.055);
+}
+.policy-legal-contact strong{
+  font-size:.82rem;
+}
+.policy-legal-contact a{
+  color:#9DDCFF;
+  font-size:.78rem;
+  font-weight:850;
+  text-decoration:none;
+}
+@media(max-width:600px){
+  .policy-card summary{
+    min-height:76px;
+    padding:13px;
+  }
+  .policy-content{
+    max-height:50vh;
+    padding:13px;
+    font-size:.72rem;
+  }
+}
