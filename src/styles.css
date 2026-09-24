@@ -1239,3 +1239,24 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .referral-actions{grid-template-columns:1fr}
   .referral-stats{grid-template-columns:repeat(3,1fr)}
 }
+
+.referral-consent{
+  display:flex!important;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px;
+  border:1px solid rgba(127,219,255,.16);
+  border-radius:13px;
+  background:rgba(47,128,237,.045);
+  color:#C8D4E3!important;
+  font-size:.7rem!important;
+  font-weight:700!important;
+  line-height:1.5;
+}
+.referral-consent input{
+  width:18px!important;
+  height:18px!important;
+  flex:0 0 auto;
+  margin-top:1px;
+  accent-color:var(--blue);
+}
