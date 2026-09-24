@@ -36,17 +36,13 @@ import {
   type ReferralDashboard,
 } from './services/referrals'
 
-const updateServiceWorker = registerSW({
+registerSW({
   immediate: true,
   onRegisteredSW(_swUrl, registration) {
     if (!registration) return
+    // Check once at startup. A newly downloaded worker waits until the
+    // current Nexus session is closed before taking control.
     void registration.update()
-    window.setInterval(() => {
-      void registration.update()
-    }, 60 * 60 * 1000)
-  },
-  onNeedRefresh() {
-    void updateServiceWorker(true)
   },
 })
 
