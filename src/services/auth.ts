@@ -8,6 +8,7 @@ export type NexusProfile = {
   last_name: string | null
   email: string | null
   phone: string | null
+  preferred_contact_method: string | null
   account_status: string | null
   membership_id: string | null
   memberships: {
@@ -56,7 +57,7 @@ export async function getMyProfile(): Promise<NexusProfile | null> {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id,customer_number,first_name,last_name,email,phone,account_status,membership_id,memberships(name,benefits)')
+    .select('id,customer_number,first_name,last_name,email,phone,preferred_contact_method,account_status,membership_id,memberships(name,benefits)')
     .eq('auth_user_id', user.id)
     .maybeSingle()
 
