@@ -21,5 +21,24 @@ export async function fetchCatalog(): Promise<CatalogProduct[]> {
     .order('name')
 
   if (error) throw error
-  return (data ?? []) as CatalogProduct[]
+
+  return (data ?? []).map(product => {
+    const rawCategory = product.product_categories
+    const category = Array.isArray(rawCategory)
+      ? rawCategory[0] ?? null
+      : rawCategory ?? null
+
+    return {
+      id: product.id,
+      name: product.name,
+      product_type: product.product_type,
+      price: Number(product.price || 0),
+      description: product.description,
+      image_url: product.image_url,
+      storefront_status: product.storefront_status,
+      featured: Boolean(product.featured),
+      shipping_from: product.shipping_from,
+      product_categories: category?.name ? { name: String(category.name) } : null,
+    } satisfies CatalogProduct
+  })
 }
