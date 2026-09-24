@@ -18,6 +18,7 @@ import {
   type CartItem,
 } from './services/cart'
 import { requestInvoice } from './services/invoiceRequests'
+import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -26,6 +27,7 @@ let products: CatalogProduct[] = []
 let selectedCategory = 'All'
 let query = ''
 let currentProfile: NexusProfile | null = null
+let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 
 app.innerHTML = `
@@ -210,6 +212,19 @@ app.innerHTML = `
         <div><span>Status</span><strong id="accountStatus">—</strong></div>
       </div>
 
+      <section class="account-history-shell">
+        <div class="account-history-heading">
+          <div>
+            <span class="eyebrow">ORDER ARCHIVE</span>
+            <h3>Orders & invoices</h3>
+          </div>
+          <button id="refreshHistoryButton" class="history-refresh" type="button">Refresh</button>
+        </div>
+        <div id="accountHistory" class="account-history">
+          <div class="history-state">Loading history…</div>
+        </div>
+      </section>
+
       <button id="logoutButton" class="auth-secondary" type="button">Sign Out</button>
     </div>
   </dialog>
@@ -245,6 +260,8 @@ const requestInvoiceButton = document.querySelector<HTMLButtonElement>('#request
 const invoiceRequestMessage = document.querySelector<HTMLDivElement>('#invoiceRequestMessage')!
 const invoiceSuccess = document.querySelector<HTMLDivElement>('#invoiceSuccess')!
 const toast = document.querySelector<HTMLDivElement>('#toast')!
+const accountHistoryList = document.querySelector<HTMLDivElement>('#accountHistory')!
+const refreshHistoryButton = document.querySelector<HTMLButtonElement>('#refreshHistoryButton')!
 
 const money = (value: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value || 0)
@@ -489,6 +506,103 @@ function updateRequestButton() {
   requestInvoiceButton.disabled = !policyAcknowledgment.checked
 }
 
+const historyDate = (value: string) =>
+  new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value))
+
+function friendlyOrderStatus(status: string) {
+  const labels: Record<string, string> = {
+    invoice_bridge_pending: 'Creating invoice',
+    invoice_requested: 'Awaiting approval',
+    invoice_ready: 'Invoice ready',
+    invoice_sent: 'Invoice sent',
+    pending: 'Pending',
+    paid: 'Paid',
+    completed: 'Completed',
+    cancelled: 'Cancelled',
+  }
+
+  return labels[status] || status.replaceAll('_', ' ')
+}
+
+function renderAccountHistory() {
+  if (!currentProfile) {
+    accountHistoryList.innerHTML = '<div class="history-state">Sign in to view your order history.</div>'
+    return
+  }
+
+  if (!accountHistory.length) {
+    accountHistoryList.innerHTML = '<div class="history-state">No Nexus orders yet.</div>'
+    return
+  }
+
+  accountHistoryList.innerHTML = accountHistory.map(order => {
+    const invoiceLabel = order.invoice?.invoice_number || order.order_number || 'Pending'
+    const status = friendlyOrderStatus(order.status)
+    const invoiceSent = order.invoice?.send_status === 'sent'
+    const items = order.items.map(item => `
+      <div class="history-line">
+        <span>${escapeHtml(item.product_name)} <small>× ${item.quantity}</small></span>
+        <strong>${money(item.line_total)}</strong>
+      </div>
+    `).join('')
+
+    return `
+      <article class="history-card">
+        <div class="history-card-top">
+          <div>
+            <span class="history-number">${escapeHtml(invoiceLabel)}</span>
+            <small>${escapeHtml(historyDate(order.created_at))}</small>
+          </div>
+          <span class="history-status ${invoiceSent ? 'sent' : ''}">${escapeHtml(status)}</span>
+        </div>
+        <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
+        <div class="history-total">
+          <span>Total</span>
+          <strong>${money(order.total)}</strong>
+        </div>
+        ${order.invoice ? `
+          <div class="history-invoice">
+            <span>Invoice status</span>
+            <strong>${escapeHtml(
+              invoiceSent
+                ? 'Sent by email'
+                : order.invoice.pdf_status === 'created'
+                  ? 'PDF ready'
+                  : friendlyOrderStatus(order.invoice.status)
+            )}</strong>
+          </div>
+        ` : ''}
+      </article>
+    `
+  }).join('')
+}
+
+async function refreshOrderHistory() {
+  if (!currentProfile) {
+    accountHistory = []
+    renderAccountHistory()
+    return
+  }
+
+  accountHistoryList.innerHTML = '<div class="history-state">Loading history…</div>'
+  refreshHistoryButton.disabled = true
+
+  try {
+    accountHistory = await getMyOrderHistory(currentProfile.id)
+    renderAccountHistory()
+  } catch (error) {
+    console.error('Order history load failed', error)
+    accountHistoryList.innerHTML =
+      '<div class="history-state history-error">Order history could not be loaded.</div>'
+  } finally {
+    refreshHistoryButton.disabled = false
+  }
+}
+
 async function refreshAccount() {
   const user = await getCurrentUser()
 
@@ -497,6 +611,8 @@ async function refreshAccount() {
     accountButton.textContent = 'Account'
     signedOutView.hidden = false
     signedInView.hidden = true
+    accountHistory = []
+    renderAccountHistory()
     updateCheckoutCustomer()
     updateCartUI()
     return
@@ -523,6 +639,7 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || '—'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
 
+  await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
 }
@@ -558,6 +675,9 @@ document.querySelector<HTMLButtonElement>('#cartSignInButton')!.addEventListener
 })
 
 policyAcknowledgment.addEventListener('change', updateRequestButton)
+refreshHistoryButton.addEventListener('click', () => {
+  void refreshOrderHistory()
+})
 
 requestInvoiceButton.addEventListener('click', async () => {
   if (!currentProfile) {
@@ -593,6 +713,7 @@ requestInvoiceButton.addEventListener('click', async () => {
     cartContent.hidden = true
     cartEmpty.hidden = true
     invoiceSuccess.hidden = false
+    await refreshOrderHistory()
   } catch (error) {
     invoiceRequestMessage.textContent =
       error instanceof Error ? error.message : 'Invoice request failed.'
