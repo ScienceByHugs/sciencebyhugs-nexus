@@ -569,6 +569,19 @@ async function openReferralDashboard() {
       `).join('')
     : '<div class="referral-empty">No referrals tracked yet. Share your link to get started.</div>'
 
+  const availableRewards = data.availablePercentageRewards.length
+    ? data.availablePercentageRewards.map(reward => `
+        <div class="referral-reward-card">
+          <div>
+            <span>AVAILABLE</span>
+            <strong>${escapeHtml(reward.title)}</strong>
+            <small>${escapeHtml(reward.description || '')}</small>
+          </div>
+          <b>${reward.value}%</b>
+        </div>
+      `).join('')
+    : '<div class="referral-empty">No percentage rewards available right now.</div>'
+
   menuInfoPanel.innerHTML = `
     <div class="referral-dashboard">
       <div class="referral-hero">
@@ -591,6 +604,12 @@ async function openReferralDashboard() {
         <div><span>Qualified</span><strong>${data.qualifiedCount}</strong></div>
         <div><span>Pending</span><strong>${data.pendingCount}</strong></div>
         <div><span>Total</span><strong>${data.totalCount}</strong></div>
+      </div>
+
+      <div class="referral-earned-rewards">
+        <div class="referral-section-title">Your Rewards</div>
+        ${data.freeShippingActive ? '<div class="referral-benefit-chip">✓ Free Shipping Unlocked</div>' : ''}
+        ${availableRewards}
       </div>
 
       <div class="referral-progress-card">
