@@ -610,7 +610,12 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   font-size:.68rem;
   line-height:1.45;
 }
-.nexus-paypal-button{
+.nexus-wallet-buttons{
+  display:grid;
+  gap:10px;
+}
+.nexus-paypal-button,
+.nexus-venmo-button{
   display:block;
   width:100%;
 }
