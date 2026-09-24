@@ -629,14 +629,22 @@ function renderAccountHistory() {
           <div class="history-paypal-shell">
             <div>
               <span class="eyebrow">PAY SECURELY</span>
-              <strong>PayPal Sandbox</strong>
-              <small>No live money is moved while Sandbox mode is enabled.</small>
+              <strong>PayPal or Venmo Sandbox</strong>
+              <small>Choose an eligible payment method. No live money is moved while Sandbox mode is enabled.</small>
             </div>
-            <paypal-button
-              class="nexus-paypal-button"
-              data-order-id="${escapeHtml(order.id)}"
-              hidden
-            ></paypal-button>
+            <div class="nexus-wallet-buttons">
+              <paypal-button
+                class="nexus-paypal-button"
+                data-order-id="${escapeHtml(order.id)}"
+                hidden
+              ></paypal-button>
+              <venmo-button
+                class="nexus-venmo-button"
+                data-order-id="${escapeHtml(order.id)}"
+                type="pay"
+                hidden
+              ></venmo-button>
+            </div>
             <div class="paypal-message" data-paypal-message="${escapeHtml(order.id)}"></div>
           </div>
         ` : ''}
@@ -648,28 +656,25 @@ function renderAccountHistory() {
 }
 
 async function setupPayPalCheckout() {
-  const buttons = [
+  const paypalButtons = [
     ...document.querySelectorAll<HTMLElement>('.nexus-paypal-button'),
   ]
+  const venmoButtons = [
+    ...document.querySelectorAll<HTMLElement>('.nexus-venmo-button'),
+  ]
 
-  if (!buttons.length) return
+  if (!paypalButtons.length && !venmoButtons.length) return
 
   try {
     const sdk = await getPayPalSdk()
     const methods = await sdk.findEligibleMethods({ currencyCode: 'USD' })
+    const paypalEligible = methods.isEligible('paypal')
+    const venmoEligible = methods.isEligible('venmo')
 
-    if (!methods.isEligible('paypal')) {
-      buttons.forEach(button => {
-        const orderId = button.dataset.orderId || ''
-        const message = document.querySelector<HTMLElement>(
-          `[data-paypal-message="${CSS.escape(orderId)}"]`,
-        )
-        if (message) message.textContent = 'PayPal is not available for this session.'
-      })
-      return
-    }
-
-    buttons.forEach(button => {
+    const setupButton = (
+      button: HTMLElement,
+      paymentMethod: 'PayPal' | 'Venmo',
+    ) => {
       const orderId = button.dataset.orderId
       if (!orderId) return
 
@@ -677,37 +682,68 @@ async function setupPayPalCheckout() {
         `[data-paypal-message="${CSS.escape(orderId)}"]`,
       )
 
-      const session = sdk.createPayPalOneTimePaymentSession({
-        onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
-          if (message) message.textContent = 'Finalizing PayPal payment…'
+      const session =
+        paymentMethod === 'Venmo'
+          ? sdk.createVenmoOneTimePaymentSession({
+              onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
+                if (message) message.textContent = 'Finalizing Venmo payment…'
 
-          try {
-            await capturePayPalOrder(orderId, paypalOrderId)
-            if (message) message.textContent = 'Payment completed.'
-            showToast('PayPal payment completed')
-            await refreshOrderHistory()
-          } catch (error) {
-            if (message) {
-              message.textContent =
-                error instanceof Error ? error.message : 'PayPal capture failed.'
-            }
-          }
-        },
-        onCancel: () => {
-          if (message) message.textContent = 'PayPal checkout was cancelled.'
-        },
-        onError: (error: unknown) => {
-          console.error('PayPal checkout error', error)
-          if (message) message.textContent = 'PayPal checkout could not be completed.'
-        },
-      })
+                try {
+                  await capturePayPalOrder(orderId, paypalOrderId, 'Venmo')
+                  if (message) message.textContent = 'Venmo payment completed.'
+                  showToast('Venmo payment completed')
+                  await refreshOrderHistory()
+                } catch (error) {
+                  if (message) {
+                    message.textContent =
+                      error instanceof Error ? error.message : 'Venmo capture failed.'
+                  }
+                }
+              },
+              onCancel: () => {
+                if (message) message.textContent = 'Venmo checkout was cancelled.'
+              },
+              onError: (error: unknown) => {
+                console.error('Venmo checkout error', error)
+                if (message) message.textContent = 'Venmo checkout could not be completed.'
+              },
+            })
+          : sdk.createPayPalOneTimePaymentSession({
+              onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
+                if (message) message.textContent = 'Finalizing PayPal payment…'
+
+                try {
+                  await capturePayPalOrder(orderId, paypalOrderId, 'PayPal')
+                  if (message) message.textContent = 'PayPal payment completed.'
+                  showToast('PayPal payment completed')
+                  await refreshOrderHistory()
+                } catch (error) {
+                  if (message) {
+                    message.textContent =
+                      error instanceof Error ? error.message : 'PayPal capture failed.'
+                  }
+                }
+              },
+              onCancel: () => {
+                if (message) message.textContent = 'PayPal checkout was cancelled.'
+              },
+              onError: (error: unknown) => {
+                console.error('PayPal checkout error', error)
+                if (message) message.textContent = 'PayPal checkout could not be completed.'
+              },
+            })
 
       button.hidden = false
       button.addEventListener('click', async () => {
-        if (message) message.textContent = 'Opening PayPal Sandbox…'
+        if (message) {
+          message.textContent =
+            paymentMethod === 'Venmo'
+              ? 'Opening Venmo Sandbox…'
+              : 'Opening PayPal Sandbox…'
+        }
 
         try {
-          const paypalOrder = await createPayPalOrder(orderId)
+          const paypalOrder = await createPayPalOrder(orderId, paymentMethod)
           await session.start(
             { presentationMode: 'auto' },
             Promise.resolve({ orderId: paypalOrder.orderId }),
@@ -715,21 +751,61 @@ async function setupPayPalCheckout() {
         } catch (error) {
           if (message) {
             message.textContent =
-              error instanceof Error ? error.message : 'Could not start PayPal checkout.'
+              error instanceof Error
+                ? error.message
+                : `Could not start ${paymentMethod} checkout.`
           }
         }
-      }, { once: true })
-    })
-  } catch (error) {
-    console.error('PayPal setup unavailable', error)
+      })
+    }
 
-    buttons.forEach(button => {
+    if (paypalEligible) {
+      paypalButtons.forEach(button => setupButton(button, 'PayPal'))
+    } else {
+      paypalButtons.forEach(button => {
+        button.hidden = true
+      })
+    }
+
+    if (venmoEligible) {
+      venmoButtons.forEach(button => setupButton(button, 'Venmo'))
+    } else {
+      venmoButtons.forEach(button => {
+        button.hidden = true
+      })
+    }
+
+    if (!paypalEligible && !venmoEligible) {
+      paypalButtons.forEach(button => {
+        const orderId = button.dataset.orderId || ''
+        const message = document.querySelector<HTMLElement>(
+          `[data-paypal-message="${CSS.escape(orderId)}"]`,
+        )
+        if (message) {
+          message.textContent = 'PayPal and Venmo are not available for this session.'
+        }
+      })
+    } else if (!venmoEligible) {
+      venmoButtons.forEach(button => {
+        const orderId = button.dataset.orderId || ''
+        const message = document.querySelector<HTMLElement>(
+          `[data-paypal-message="${CSS.escape(orderId)}"]`,
+        )
+        if (message && !message.textContent) {
+          message.textContent = 'Venmo is unavailable on this device/session; PayPal is still available.'
+        }
+      })
+    }
+  } catch (error) {
+    console.error('PayPal/Venmo setup unavailable', error)
+
+    ;[...paypalButtons, ...venmoButtons].forEach(button => {
       const orderId = button.dataset.orderId || ''
       const message = document.querySelector<HTMLElement>(
         `[data-paypal-message="${CSS.escape(orderId)}"]`,
       )
       if (message) {
-        message.textContent = 'PayPal Sandbox setup is not finished yet.'
+        message.textContent = 'PayPal/Venmo Sandbox setup is unavailable right now.'
       }
     })
   }
