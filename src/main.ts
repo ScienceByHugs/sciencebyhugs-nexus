@@ -2262,8 +2262,7 @@ searchInput.addEventListener('input', () => {
 
 onAuthChange((event) => {
   if (event === 'PASSWORD_RECOVERY') {
-    recoveryMode = true
-    inviteMode = false
+    recoveryMode = !inviteMode
     showRecoveryPasswordView()
     return
   }
