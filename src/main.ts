@@ -66,6 +66,21 @@ if (incomingReferralCode) {
 
 const brandMarkUrl = `${import.meta.env.BASE_URL}brand-mark.svg`
 
+const policyCardsMarkup = nexusPolicies.map(policy => `
+  <details class="policy-card">
+    <summary>
+      <div>
+        <span class="policy-kicker">LEGAL POLICY</span>
+        <strong>${escapeHtml(policy.title)}</strong>
+        <small>Effective ${escapeHtml(policy.effectiveDate)}</small>
+      </div>
+      <span class="policy-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="policy-content">${escapeHtml(policy.text)}</div>
+  </details>
+`).join('')
+
+
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
 
@@ -165,7 +180,6 @@ app.innerHTML = `
         <span>POLICIES</span><strong>Policy Library</strong><small>Terms, privacy, shipping, and research policies.</small>
       </button>
     </nav>
-    <section id="menuInfoPanel" class="menu-info-panel" hidden></section>
   </dialog>
 
   <dialog id="supportDialog" class="support-dialog">
@@ -203,6 +217,33 @@ app.innerHTML = `
         <span class="eyebrow">SCIENCE BY HUGs</span>
         <strong>Customer Support</strong>
         <p>For account, order, invoice, payment, or general questions, include your customer ID or order number when available.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="policyDialog" class="policy-dialog">
+    <div class="policy-dialog-header">
+      <div>
+        <span class="eyebrow">POLICY LIBRARY</span>
+        <strong>Science By HUGs Policies</strong>
+      </div>
+      <button id="closePolicyDialog" class="referral-close-button" aria-label="Close">×</button>
+    </div>
+
+    <div class="policy-dialog-content">
+      <div class="policy-page-intro">
+        <h2>Policies & Legal</h2>
+        <p>Review the policies that apply to orders, research-use products, privacy, refunds, shipping, and delivery.</p>
+      </div>
+
+      <div class="policy-library">
+        ${policyCardsMarkup}
+      </div>
+
+      <div class="policy-legal-contact">
+        <span class="eyebrow">LEGAL CONTACT</span>
+        <strong>Questions about these policies?</strong>
+        <a href="mailto:legal@sciencebyhugs.com">legal@sciencebyhugs.com</a>
       </div>
     </div>
   </dialog>
@@ -470,10 +511,10 @@ const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
 const accountDialog = document.querySelector<HTMLDialogElement>('#accountDialog')!
 const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
 const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
+const policyDialog = document.querySelector<HTMLDialogElement>('#policyDialog')!
 const referralDialog = document.querySelector<HTMLDialogElement>('#referralDialog')!
 const referralDialogContent = document.querySelector<HTMLDivElement>('#referralDialogContent')!
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
-const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
 const cartButton = document.querySelector<HTMLButtonElement>('#cartButton')!
 const cartCount = document.querySelector<HTMLSpanElement>('#cartCount')!
@@ -828,42 +869,11 @@ function openSupportDialog() {
 }
 
 
-function openMenuInfo(kind: 'policies') {
-  if (kind !== 'policies') return
-
-  const policyCards = nexusPolicies.map(policy => `
-    <details class="policy-card">
-      <summary>
-        <div>
-          <span class="policy-kicker">LEGAL POLICY</span>
-          <strong>${escapeHtml(policy.title)}</strong>
-          <small>Effective ${escapeHtml(policy.effectiveDate)}</small>
-        </div>
-        <span class="policy-chevron" aria-hidden="true">⌄</span>
-      </summary>
-      <div class="policy-content">${escapeHtml(policy.text)}</div>
-    </details>
-  `).join('')
-
-  menuInfoPanel.innerHTML = `
-    <div class="policy-library-head">
-      <span class="eyebrow">POLICY LIBRARY</span>
-      <h3>Science By HUGs Policies</h3>
-      <p>Review the policies that apply to orders, research-use products, privacy, refunds, shipping, and delivery.</p>
-    </div>
-
-    <div class="policy-library">
-      ${policyCards}
-    </div>
-
-    <div class="policy-legal-contact">
-      <span class="eyebrow">LEGAL CONTACT</span>
-      <strong>Questions about these policies?</strong>
-      <a href="mailto:legal@sciencebyhugs.com">legal@sciencebyhugs.com</a>
-    </div>
-  `
-  menuInfoPanel.hidden = false
+function openPolicyDialog() {
+  if (menuDialog.open) menuDialog.close()
+  policyDialog.showModal()
 }
+
 function categories() {
   return ['All', ...new Set(products.map(p => p.product_categories?.name).filter(Boolean) as string[])]
 }
@@ -1844,6 +1854,9 @@ menuDialog.addEventListener('click', event => {
 supportDialog.addEventListener('click', event => {
   if (event.target === supportDialog) supportDialog.close()
 })
+policyDialog.addEventListener('click', event => {
+  if (event.target === policyDialog) policyDialog.close()
+})
 referralDialog.addEventListener('click', event => {
   if (event.target === referralDialog) referralDialog.close()
 })
@@ -1855,13 +1868,13 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+document.querySelector<HTMLButtonElement>('#closePolicyDialog')!.addEventListener('click', () => policyDialog.close())
 
 document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
 
 menuButton.addEventListener('click', () => {
-  menuInfoPanel.hidden = true
   menuDialog.showModal()
 })
 
@@ -1892,7 +1905,8 @@ menuDialog.querySelectorAll<HTMLButtonElement>('[data-menu-target]').forEach(but
     }
 
     if (target === 'policies') {
-      openMenuInfo(target)
+      openPolicyDialog()
+      return
     }
   })
 })
