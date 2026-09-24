@@ -190,12 +190,21 @@ app.innerHTML = `
           </div>
         </a>
 
+        <a class="support-action-card" href="sms:+17253107502">
+          <div class="support-action-icon">💬</div>
+          <div>
+            <span>TEXT SUPPORT</span>
+            <strong>(725) 310-7502</strong>
+            <small>Open your messaging app and text the Science By HUGs support line.</small>
+          </div>
+        </a>
+
         <button id="downloadContactButton" class="support-action-card support-action-button" type="button">
           <div class="support-action-icon">＋</div>
           <div>
             <span>SAVE CONTACT</span>
             <strong>Download Our Contact</strong>
-            <small>Save our official Science By HUGs vCard on iPhone or Android.</small>
+            <small>Open or save our official Science By HUGs contact card.</small>
           </div>
         </button>
       </div>
@@ -842,19 +851,37 @@ async function downloadSupportContact() {
       throw new Error('Contact card response was not a valid vCard.')
     }
 
+    const file = new File([text], 'Science-By-HUGs.vcf', { type: 'text/vcard' })
+    const shareData = { files: [file], title: 'Science By HUGs Contact' }
+
+    if (
+      typeof navigator.share === 'function' &&
+      typeof navigator.canShare === 'function' &&
+      navigator.canShare(shareData)
+    ) {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        console.info('Native vCard share unavailable; using browser fallback.', error)
+      }
+    }
+
     const blob = new Blob([text], { type: 'text/vcard;charset=utf-8' })
     const objectUrl = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = objectUrl
     link.download = 'Science-By-HUGs.vcf'
+    link.target = '_blank'
+    link.rel = 'noopener'
     document.body.appendChild(link)
     link.click()
     link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
-    showToast('Contact card downloaded')
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 15000)
   } catch (error) {
     console.error('Contact card download failed', error)
-    showToast('Could not download contact card')
+    showToast('Could not open contact card')
   } finally {
     downloadContactButton.disabled = false
   }
