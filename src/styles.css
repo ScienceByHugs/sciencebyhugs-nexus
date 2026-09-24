@@ -626,3 +626,89 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   font-size:.7rem;
   line-height:1.4;
 }
+
+
+/* Zelle manual payment */
+.zelle-shell{
+  margin-top:12px;
+  padding:14px;
+  border:1px solid rgba(127,219,255,.16);
+  border-radius:15px;
+  background:rgba(127,219,255,.035);
+}
+.zelle-head strong{
+  display:block;
+  font-size:.88rem;
+}
+.zelle-head small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:.68rem;
+  line-height:1.45;
+}
+.zelle-details{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+}
+.zelle-details>div{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 11px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(5,10,20,.5);
+}
+.zelle-details span{
+  color:var(--muted);
+  font-size:.7rem;
+}
+.zelle-details strong{
+  font-size:.74rem;
+  text-align:right;
+  overflow-wrap:anywhere;
+}
+.zelle-details img{
+  display:block;
+  width:min(220px,100%);
+  margin:4px auto 0;
+  border-radius:14px;
+  background:#fff;
+}
+.zelle-confirmation-label{
+  display:grid;
+  gap:6px;
+  margin-top:12px;
+  color:#A8B6CA;
+  font-size:.72rem;
+  font-weight:800;
+}
+.zelle-confirmation{
+  min-height:42px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#050A14;
+  color:var(--text);
+  padding:0 12px;
+  outline:none;
+}
+.zelle-submit-button{
+  width:100%;
+  min-height:46px;
+  margin-top:12px;
+  border:1px solid rgba(127,219,255,.28);
+  border-radius:13px;
+  background:rgba(47,128,237,.13);
+  color:#F7FAFF;
+  font-weight:900;
+}
+.zelle-submit-button:disabled{opacity:.55;cursor:wait}
+.zelle-message{
+  min-height:17px;
+  margin-top:8px;
+  color:#BFEAFF;
+  font-size:.7rem;
+  line-height:1.4;
+}
