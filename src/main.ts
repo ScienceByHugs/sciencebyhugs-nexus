@@ -52,12 +52,14 @@ if (incomingReferralCode) {
   window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
 }
 
+const brandMarkUrl = `${brandMarkUrl}`
+
 app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
 
   <header class="topbar">
     <a class="brand" href="#" aria-label="Science By HUGs Nexus home">
-      <img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" />
+      <img src="${brandMarkUrl}" alt="" />
       <div>
         <span>SCIENCE BY HUGs</span>
         <strong>NEXUS</strong>
@@ -804,7 +806,7 @@ function renderProducts() {
         <div class="product-image">
           ${product.image_url
             ? `<img src="${escapeHtml(product.image_url)}" alt="" loading="lazy" />`
-            : '<img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" class="fallback-mark" />'}
+            : '<img src="${brandMarkUrl}" alt="" class="fallback-mark" />'}
           ${product.featured ? '<span class="featured">FEATURED</span>' : ''}
         </div>
         <div class="product-body">
@@ -857,7 +859,7 @@ function openProduct(id: string) {
     <div class="dialog-image">
       ${product.image_url
         ? `<img src="${escapeHtml(product.image_url)}" alt="" />`
-        : '<img src="${import.meta.env.BASE_URL}brand-mark.svg" alt="" class="fallback-mark" />'}
+        : '<img src="${brandMarkUrl}" alt="" class="fallback-mark" />'}
     </div>
     <span class="category">${escapeHtml(category)}</span>
     <h2>${escapeHtml(product.name)}</h2>
