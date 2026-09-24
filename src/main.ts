@@ -173,11 +173,12 @@ app.innerHTML = `
 
   <dialog id="supportDialog" class="support-dialog">
     <button id="closeSupportDialog" class="dialog-close" aria-label="Close">×</button>
-    <div class="support-page">
+
+    <div id="supportHomeView" class="support-page">
       <div class="support-hero">
         <span class="eyebrow">NEXUS SUPPORT</span>
         <h2>How can we help?</h2>
-        <p>Reach Science By HUGs support or save our contact card directly to your phone.</p>
+        <p>Reach Science By HUGs or pull up our complete contact information.</p>
       </div>
 
       <div class="support-grid">
@@ -199,27 +200,72 @@ app.innerHTML = `
           </div>
         </a>
 
-        <a
-          id="downloadContactButton"
-          class="support-action-card"
-          href="${import.meta.env.BASE_URL}science-by-hugs-contact.vcf"
-          target="_blank"
-          rel="external noopener"
-          type="text/vcard"
-        >
-          <div class="support-action-icon">＋</div>
+        <button id="viewContactCardButton" class="support-action-card support-action-button" type="button">
+          <div class="support-action-icon">⌁</div>
           <div>
-            <span>SAVE CONTACT</span>
-            <strong>Download Our Contact</strong>
-            <small>Open our official contact card and add it to your contacts.</small>
+            <span>CONTACT CARD</span>
+            <strong>View Contact Card</strong>
+            <small>See our phone, email, website, and contact-saving options.</small>
           </div>
-        </a>
+        </button>
+
+        <button id="copyContactInfoButton" class="support-action-card support-action-button" type="button">
+          <div class="support-action-icon">⧉</div>
+          <div>
+            <span>COPY DETAILS</span>
+            <strong>Copy Contact Info</strong>
+            <small>Copy all Science By HUGs contact details to your clipboard.</small>
+          </div>
+        </button>
       </div>
 
       <div class="support-info-card">
         <span class="eyebrow">SCIENCE BY HUGs</span>
         <strong>Customer Support</strong>
         <p>For account, order, invoice, payment, or general questions, include your customer ID or order number when available.</p>
+      </div>
+    </div>
+
+    <div id="supportContactView" class="support-contact-view" hidden>
+      <button id="supportContactBackButton" class="support-back-button" type="button">← Back to Support</button>
+
+      <div class="contact-card-preview">
+        <div class="contact-card-mark">
+          <img src="${brandMarkUrl}" alt="" />
+        </div>
+        <span class="eyebrow">SCIENCE BY HUGs</span>
+        <h2>Contact Card</h2>
+        <p class="contact-card-subtitle">Science By HUGs Customer Support</p>
+
+        <div class="contact-details">
+          <a href="tel:+17253107502">
+            <span>PHONE / TEXT</span>
+            <strong>(725) 310-7502</strong>
+          </a>
+          <a href="mailto:support@sciencebyhugs.com">
+            <span>EMAIL</span>
+            <strong>support@sciencebyhugs.com</strong>
+          </a>
+          <a href="https://sciencebyhugs.com" target="_blank" rel="noopener">
+            <span>WEBSITE</span>
+            <strong>sciencebyhugs.com</strong>
+          </a>
+        </div>
+
+        <div class="contact-card-actions">
+          <button id="copyContactCardButton" class="auth-primary" type="button">Copy Contact Info</button>
+          <a
+            class="auth-secondary contact-vcard-link"
+            href="${import.meta.env.BASE_URL}science-by-hugs-mobile.vcf"
+            target="_blank"
+            rel="external noopener"
+            type="text/vcard"
+          >Open Mobile vCard</a>
+        </div>
+
+        <p class="contact-save-note">
+          If your phone supports web vCards, “Open Mobile vCard” will open the contact file so you can add it to Contacts. If your installed app does not hand the file to Contacts, use Copy Contact Info instead.
+        </p>
       </div>
     </div>
   </dialog>
@@ -489,7 +535,12 @@ const menuDialog = document.querySelector<HTMLDialogElement>('#menuDialog')!
 const supportDialog = document.querySelector<HTMLDialogElement>('#supportDialog')!
 const referralDialog = document.querySelector<HTMLDialogElement>('#referralDialog')!
 const referralDialogContent = document.querySelector<HTMLDivElement>('#referralDialogContent')!
-const downloadContactButton = document.querySelector<HTMLAnchorElement>('#downloadContactButton')!
+const supportHomeView = document.querySelector<HTMLDivElement>('#supportHomeView')!
+const supportContactView = document.querySelector<HTMLDivElement>('#supportContactView')!
+const viewContactCardButton = document.querySelector<HTMLButtonElement>('#viewContactCardButton')!
+const copyContactInfoButton = document.querySelector<HTMLButtonElement>('#copyContactInfoButton')!
+const copyContactCardButton = document.querySelector<HTMLButtonElement>('#copyContactCardButton')!
+const supportContactBackButton = document.querySelector<HTMLButtonElement>('#supportContactBackButton')!
 const menuButton = document.querySelector<HTMLButtonElement>('#menuButton')!
 const menuInfoPanel = document.querySelector<HTMLElement>('#menuInfoPanel')!
 const accountButton = document.querySelector<HTMLButtonElement>('#accountButton')!
@@ -840,8 +891,37 @@ async function openReferralDashboard() {
   })
 }
 
+const supportContactText = [
+  'SCIENCE BY HUGS',
+  'Phone / Text: (725) 310-7502',
+  'Email: support@sciencebyhugs.com',
+  'Website: https://sciencebyhugs.com',
+].join('\n')
+
+async function copySupportContactInfo() {
+  try {
+    await navigator.clipboard.writeText(supportContactText)
+    showToast('Contact info copied')
+  } catch (error) {
+    console.error('Could not copy contact info', error)
+    showToast('Could not copy contact info')
+  }
+}
+
+function showSupportHome() {
+  supportHomeView.hidden = false
+  supportContactView.hidden = true
+}
+
+function showSupportContactCard() {
+  supportHomeView.hidden = true
+  supportContactView.hidden = false
+  supportContactView.scrollTop = 0
+}
+
 function openSupportDialog() {
   if (menuDialog.open) menuDialog.close()
+  showSupportHome()
   supportDialog.showModal()
 }
 
@@ -1853,6 +1933,10 @@ document.querySelector<HTMLButtonElement>('#closeAccountDialog')!.addEventListen
 })
 document.querySelector<HTMLButtonElement>('#closeMenuDialog')!.addEventListener('click', () => menuDialog.close())
 document.querySelector<HTMLButtonElement>('#closeSupportDialog')!.addEventListener('click', () => supportDialog.close())
+viewContactCardButton.addEventListener('click', showSupportContactCard)
+supportContactBackButton.addEventListener('click', showSupportHome)
+copyContactInfoButton.addEventListener('click', () => { void copySupportContactInfo() })
+copyContactCardButton.addEventListener('click', () => { void copySupportContactInfo() })
 document.querySelector<HTMLButtonElement>('#closeReferralDialog')!.addEventListener('click', () => referralDialog.close())
 document.querySelector<HTMLButtonElement>('#successCloseButton')!.addEventListener('click', () => cartDialog.close())
 document.querySelector<HTMLButtonElement>('#payNowSuccessCloseButton')!.addEventListener('click', () => cartDialog.close())
