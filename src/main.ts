@@ -907,7 +907,7 @@ function renderAccountHistory() {
           </div>
         ` : ''}
 
-        ${directCheckout && order.invoice ? `
+        ${directCheckout && order.invoice?.pdf_status === 'created' ? `
           <button
             class="history-pdf-button"
             type="button"
