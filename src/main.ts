@@ -20,6 +20,7 @@ import {
 import { requestInvoice } from './services/invoiceRequests'
 import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
 import { capturePayPalOrder, createPayPalOrder, getPayPalSdk } from './services/paypal'
+import { getZelleConfig, submitZellePayment } from './services/zelle'
 
 const app = document.querySelector<HTMLDivElement>('#app')
 if (!app) throw new Error('App root not found')
@@ -646,13 +647,41 @@ function renderAccountHistory() {
               ></venmo-button>
             </div>
             <div class="paypal-message" data-paypal-message="${escapeHtml(order.id)}"></div>
+            <div class="zelle-shell" data-zelle-shell="${escapeHtml(order.id)}" hidden>
+              <div class="zelle-head">
+                <strong>Pay with Zelle</strong>
+                <small>Send the exact invoice total, then report the payment below.</small>
+              </div>
+              <div class="zelle-details" data-zelle-details="${escapeHtml(order.id)}"></div>
+              <label class="zelle-confirmation-label">
+                Confirmation / reference
+                <input
+                  class="zelle-confirmation"
+                  data-zelle-confirmation="${escapeHtml(order.id)}"
+                  type="text"
+                  maxlength="120"
+                  placeholder="Optional"
+                >
+              </label>
+              <button
+                class="zelle-submit-button"
+                data-zelle-submit="${escapeHtml(order.id)}"
+                type="button"
+              >
+                I Sent the Zelle Payment
+              </button>
+              <div class="zelle-message" data-zelle-message="${escapeHtml(order.id)}"></div>
+            </div>
           </div>
         ` : ''}
       </article>
     `
   }).join('')
 
-  void setupPayPalCheckout()
+  void Promise.all([
+    setupPayPalCheckout(),
+    setupZelleCheckout(),
+  ])
 }
 
 async function setupPayPalCheckout() {
@@ -808,6 +837,73 @@ async function setupPayPalCheckout() {
         message.textContent = 'PayPal/Venmo Sandbox setup is unavailable right now.'
       }
     })
+  }
+}
+
+
+async function setupZelleCheckout() {
+  const shells = [
+    ...document.querySelectorAll<HTMLElement>('[data-zelle-shell]'),
+  ]
+  if (!shells.length) return
+
+  try {
+    const config = await getZelleConfig()
+
+    shells.forEach(shell => {
+      const orderId = shell.dataset.zelleShell
+      if (!orderId) return
+
+      const details = document.querySelector<HTMLElement>(
+        `[data-zelle-details="${CSS.escape(orderId)}"]`,
+      )
+      const input = document.querySelector<HTMLInputElement>(
+        `[data-zelle-confirmation="${CSS.escape(orderId)}"]`,
+      )
+      const button = document.querySelector<HTMLButtonElement>(
+        `[data-zelle-submit="${CSS.escape(orderId)}"]`,
+      )
+      const message = document.querySelector<HTMLElement>(
+        `[data-zelle-message="${CSS.escape(orderId)}"]`,
+      )
+
+      if (details) {
+        details.innerHTML = `
+          <div><span>Recipient</span><strong>${escapeHtml(config.displayName)}</strong></div>
+          <div><span>Send to</span><strong>${escapeHtml(config.contact)}</strong></div>
+          ${config.qrUrl ? `<img src="${escapeHtml(config.qrUrl)}" alt="Zelle QR code">` : ''}
+        `
+      }
+
+      shell.hidden = false
+
+      button?.addEventListener('click', async () => {
+        const confirmed = window.confirm(
+          'Confirm that you already sent the Zelle payment?\n\nThis does not mark the order paid. Science By HUGs will verify it before processing.'
+        )
+        if (!confirmed) return
+
+        button.disabled = true
+        button.textContent = 'Submitting…'
+        if (message) message.textContent = 'Sending payment notice to Science By HUGs…'
+
+        try {
+          await submitZellePayment(orderId, input?.value.trim() || '')
+          if (message) message.textContent = 'Payment submitted for verification.'
+          showToast('Zelle payment submitted')
+          await refreshOrderHistory()
+        } catch (error) {
+          if (message) {
+            message.textContent =
+              error instanceof Error ? error.message : 'Could not submit Zelle payment.'
+          }
+          button.disabled = false
+          button.textContent = 'I Sent the Zelle Payment'
+        }
+      })
+    })
+  } catch (error) {
+    console.info('Zelle setup unavailable', error)
   }
 }
 
