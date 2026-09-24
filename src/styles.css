@@ -746,3 +746,24 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 .cart-pay-panel .zelle-shell{
   margin-top:14px;
 }
+
+
+/* Hidden-state guard: prevents component display rules from overriding HTML hidden */
+[hidden]{display:none!important}
+
+.history-pdf-button{
+  width:100%;
+  min-height:42px;
+  margin-top:10px;
+  border:1px solid rgba(127,219,255,.24);
+  border-radius:12px;
+  background:rgba(47,128,237,.09);
+  color:#F7FAFF;
+  font-size:.74rem;
+  font-weight:900;
+}
+.history-pdf-button:hover:not(:disabled){
+  background:rgba(47,128,237,.17);
+  border-color:rgba(127,219,255,.42);
+}
+.history-pdf-button:disabled{opacity:.55;cursor:wait}
