@@ -8,6 +8,11 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+      },
       includeAssets: ['brand-mark.svg'],
       manifest: {
         name: 'Science By HUGs Nexus',
