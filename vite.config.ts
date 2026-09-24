@@ -23,7 +23,7 @@ export default defineConfig({
         skipWaiting: false,
         navigateFallbackDenylist: [/\.vcf$/i],
       },
-      includeAssets: ['brand-mark.svg', 'science-by-hugs-contact.vcf'],
+      includeAssets: ['brand-mark.svg', 'nexus-logo.svg', 'nexus-icon.svg', 'default-product-vial.webp', 'science-by-hugs-contact.vcf'],
       manifest: {
         name: 'Science By HUGs Nexus',
         short_name: 'Nexus',
@@ -35,7 +35,7 @@ export default defineConfig({
         scope: base,
         icons: [
           {
-            src: `${base}brand-mark.svg`,
+            src: `${base}nexus-icon.svg`,
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
