@@ -1,4 +1,4 @@
-import type { User } from '@supabase/supabase-js'
+import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
 export type NexusProfile = {
@@ -35,6 +35,42 @@ export async function signOut() {
   if (error) throw error
 }
 
+
+export async function requestPasswordReset(email: string) {
+  const redirectTo = `${window.location.origin}${window.location.pathname}?mode=recovery`
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    redirectTo,
+  })
+  if (error) throw error
+}
+
+export async function updatePassword(newPassword: string) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  })
+  if (error) throw error
+  return data
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+) {
+  const user = await getCurrentUser()
+  if (!user?.email) throw new Error('Signed-in email could not be loaded.')
+
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  })
+
+  if (verifyError) {
+    throw new Error('Current password is incorrect.')
+  }
+
+  return updatePassword(newPassword)
+}
+
 export async function getCurrentUser(): Promise<User | null> {
   const { data, error } = await supabase.auth.getUser()
   if (error) return null
@@ -65,8 +101,10 @@ export async function getMyProfile(): Promise<NexusProfile | null> {
   return data as NexusProfile | null
 }
 
-export function onAuthChange(callback: () => void) {
-  return supabase.auth.onAuthStateChange(() => {
-    callback()
+export function onAuthChange(
+  callback: (event: AuthChangeEvent, session: Session | null) => void,
+) {
+  return supabase.auth.onAuthStateChange((event, session) => {
+    callback(event, session)
   })
 }
