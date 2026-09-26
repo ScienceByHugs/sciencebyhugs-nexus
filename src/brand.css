@@ -23,3 +23,34 @@ h1,h2,h3,h4,h5,h6,.display,.wordmark{font-family:var(--sbh-heading)}
 .sbh-kicker,.eyebrow,.kicker{color:var(--sbh-cyan);letter-spacing:.18em;text-transform:uppercase}
 .sbh-panel{background:linear-gradient(180deg,rgba(18,25,35,.94),rgba(13,17,23,.97));border:1px solid var(--sbh-line);box-shadow:0 18px 60px rgba(0,0,0,.28)}
 .sbh-orbit-glow{box-shadow:var(--sbh-glow)}
+
+/* Nexus product mapping */
+:root{
+  --bg:var(--sbh-jet);
+  --surface:var(--sbh-surface);
+  --surface2:var(--sbh-surface-2);
+  --line:var(--sbh-line);
+  --blue:var(--sbh-cobalt);
+  --blue2:var(--sbh-cyan);
+  --text:var(--sbh-white);
+  --muted:var(--sbh-muted);
+}
+body{
+  background:
+    radial-gradient(circle at 8% 0%,rgba(0,87,255,.18),transparent 30rem),
+    radial-gradient(circle at 94% 12%,rgba(0,210,255,.10),transparent 28rem),
+    var(--sbh-jet);
+}
+.topbar{background:rgba(10,10,11,.82);border-bottom-color:rgba(0,210,255,.16)}
+.product-card,.checkout-panel,.menu-card,.history-card,.account-data>div{
+  background:linear-gradient(180deg,rgba(18,25,35,.94),rgba(13,17,23,.97));
+  border-color:rgba(0,210,255,.15);
+}
+.auth-primary,.request-invoice-button{
+  background:var(--sbh-gradient);
+  color:#02070c;
+  box-shadow:0 0 24px rgba(0,87,255,.18);
+}
+.chip.active,.account-button:hover,.cart-button:hover,.add-cart-button:hover:not(:disabled){
+  border-color:rgba(0,210,255,.42);
+}
