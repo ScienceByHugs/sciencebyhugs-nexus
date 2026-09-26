@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" role="img" aria-label="Pulse — Science By Hugs">
+<defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#0057FF"/><stop offset="1" stop-color="#00D2FF"/></linearGradient><linearGradient id="s" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F7FAFF"/><stop offset=".6" stop-color="#C0C6D4"/><stop offset="1" stop-color="#F7FAFF"/></linearGradient></defs>
+<g transform="translate(25 26)" stroke="url(#b)" stroke-width="9" stroke-linecap="round"><path d="M5 62v24M27 42v64M49 16v116M71 34v80M93 6v136M115 31v86M137 49v50"/></g>
+<text x="205" y="95" fill="url(#s)" font-family="Space Grotesk, Inter, Arial, sans-serif" font-size="72" font-weight="700" letter-spacing="5">PULSE</text>
+<path d="M210 120h54M598 120h54" stroke="#00D2FF" stroke-width="3"/>
+<text x="281" y="127" fill="#00D2FF" font-family="Inter, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="5">SCIENCE BY HUGS</text>
+</svg>
