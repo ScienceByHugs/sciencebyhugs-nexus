@@ -213,6 +213,19 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Could not save checkout items" }, 500);
   }
 
+  // PayPal/Venmo fast path: return as soon as the secure Science By Hugs
+  // order and line items exist. Branded invoice/PDF generation is finalized
+  // after the provider confirms payment in paypal-capture-order.
+  if (paymentMethod === "PayPal" || paymentMethod === "Venmo") {
+    return json({
+      success: true,
+      orderId: order.id,
+      orderNumber: "",
+      invoicePdfReady: false,
+      totals: { subtotal, discount, shipping, processingFee, tax, total },
+    });
+  }
+
   const bridgePayload = {
     bridgeKey: secretKeys.default,
     requestToken,
