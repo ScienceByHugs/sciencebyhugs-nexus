@@ -58,7 +58,7 @@ let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
-let activeCheckoutPaymentMethod: 'PayPal' | 'Venmo' | 'Zelle' | null = null
+let activeCheckoutPaymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' | 'Zelle' | null = null
 const initialMode = new URLSearchParams(window.location.search).get('mode')
 let recoveryMode = initialMode === 'recovery'
 let inviteMode = initialMode === 'invite'
@@ -388,7 +388,7 @@ app.innerHTML = `
         <div class="summary-row"><span>Discounts</span><strong id="cartDiscount">-$0.00</strong></div>
         <div class="summary-row"><span>Shipping</span><strong id="cartShipping">$0.00</strong></div>
         <div class="summary-row"><span>Sales Tax (8%)</span><strong id="cartTax">$0.00</strong></div>
-        <div class="summary-row"><span>PayPal/Venmo Processing Fee (5%)</span><strong id="cartProcessingFee">$0.00</strong></div>
+        <div class="summary-row"><span>PayPal/Venmo/Apple Pay Processing Fee (5%)</span><strong id="cartProcessingFee">$0.00</strong></div>
         <div class="summary-row total-row"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
         <div class="server-note">Final pricing is revalidated securely when the request is submitted.</div>
       </section>
@@ -439,15 +439,16 @@ app.innerHTML = `
         <button id="requestInvoiceButton" class="auth-secondary checkout-invoice-button" type="button">
           Request Invoice by Email
         </button>
-        <p>Pay now with PayPal, Venmo, or Zelle — or request an invoice and pay later.</p>
+        <p>Pay now with PayPal, Venmo, Apple Pay, or Zelle — or request an invoice and pay later.</p>
       </section>
 
       <section id="cartPayPanel" class="cart-pay-panel" hidden>
         <div class="checkout-title">Choose Payment Method</div>
-        <p class="cart-pay-copy">PayPal and Venmo include a 5% processing surcharge. Zelle does not. Your final total is revalidated securely before payment.</p>
+        <p class="cart-pay-copy">PayPal, Venmo, and Apple Pay include a 5% processing surcharge. Zelle does not. Your final total is revalidated securely before payment.</p>
         <div class="nexus-wallet-buttons">
           <paypal-button id="cartPayPalButton" class="nexus-paypal-button" hidden></paypal-button>
           <venmo-button id="cartVenmoButton" class="nexus-venmo-button" type="pay" hidden></venmo-button>
+          <apple-pay-button id="cartApplePayButton" class="nexus-apple-pay-button" buttonstyle="black" type="buy" locale="en-US" hidden></apple-pay-button>
           <button id="cartZelleStartButton" class="zelle-submit-button" type="button" hidden>Pay with Zelle</button>
         </div>
         <div id="cartPayMessage" class="paypal-message" aria-live="polite"></div>
@@ -714,6 +715,7 @@ const requestInvoiceButton = document.querySelector<HTMLButtonElement>('#request
 const cartPayPanel = document.querySelector<HTMLElement>('#cartPayPanel')!
 const cartPayPalButton = document.querySelector<HTMLElement>('#cartPayPalButton')!
 const cartVenmoButton = document.querySelector<HTMLElement>('#cartVenmoButton')!
+const cartApplePayButton = document.querySelector<HTMLElement>('#cartApplePayButton')!
 const cartZelleStartButton = document.querySelector<HTMLButtonElement>('#cartZelleStartButton')!
 const cartZellePanel = document.querySelector<HTMLElement>('#cartZellePanel')!
 const cartZelleDetails = document.querySelector<HTMLElement>('#cartZelleDetails')!
@@ -1292,7 +1294,7 @@ function updateRequestButton() {
   requestInvoiceButton.disabled = !policyAcknowledgment.checked || locked
 }
 
-async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Zelle') {
+async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' | 'Zelle') {
   if (activeCheckoutOrder) {
     if (activeCheckoutPaymentMethod !== paymentMethod) {
       throw new Error(`This checkout was started with ${activeCheckoutPaymentMethod}. Complete that payment method before switching.`)
@@ -1358,6 +1360,10 @@ async function setupCartPayNow() {
     const methods = await sdk.findEligibleMethods({ currencyCode: 'USD' })
     const paypalEligible = methods.isEligible('paypal')
     const venmoEligible = methods.isEligible('venmo')
+    const ApplePaySessionCtor = (window as any).ApplePaySession
+    const applePayEligible =
+      methods.isEligible('applepay') &&
+      Boolean(ApplePaySessionCtor?.canMakePayments?.())
 
     const paypalSession = sdk.createPayPalOneTimePaymentSession({
       onApprove: async ({ orderId: paypalOrderId }: { orderId: string }) => {
@@ -1459,12 +1465,132 @@ async function setupCartPayNow() {
       }
     }
 
-    if (!paypalEligible && !venmoEligible) {
-      cartPayMessage.textContent = 'PayPal and Venmo are unavailable for this session.'
+    if (applePayEligible) {
+      const paypalApplePaySession = sdk.createApplePayOneTimePaymentSession()
+      const applePayConfig = await paypalApplePaySession.config()
+
+      cartApplePayButton.hidden = false
+
+      if (!cartApplePayButton.dataset.bound) {
+        cartApplePayButton.dataset.bound = 'true'
+        cartApplePayButton.addEventListener('click', () => {
+          cartPayMessage.textContent = 'Preparing secure Apple Pay checkout…'
+
+          const displayedTotal = Number(
+            (document.querySelector<HTMLElement>('#cartTotal')?.textContent || '0')
+              .replace(/[^0-9.-]/g, ''),
+          )
+
+          const nativeSession = new ApplePaySessionCtor(4, {
+            countryCode: 'US',
+            currencyCode: 'USD',
+            merchantCapabilities: applePayConfig.merchantCapabilities,
+            supportedNetworks: applePayConfig.supportedNetworks,
+            requiredBillingContactFields: ['name', 'postalAddress'],
+            requiredShippingContactFields: [],
+            total: {
+              label: 'Science By Hugs',
+              amount: Math.max(displayedTotal, 0).toFixed(2),
+              type: 'pending',
+            },
+          })
+
+          const preparedOrder = (async () => {
+            const checkout = await ensureCheckoutOrder('Apple Pay')
+            const paypalOrder = await createPayPalOrder(checkout.orderId, 'Apple Pay')
+            return { checkout, paypalOrder }
+          })()
+
+          nativeSession.onvalidatemerchant = async (event: any) => {
+            try {
+              const { merchantSession } = await paypalApplePaySession.validateMerchant({
+                validationUrl: event.validationURL,
+              })
+              nativeSession.completeMerchantValidation(merchantSession)
+            } catch (error) {
+              console.error('Apple Pay merchant validation failed', error)
+              cartPayMessage.textContent = 'Apple Pay could not validate this merchant session.'
+              nativeSession.abort()
+            }
+          }
+
+          nativeSession.onpaymentmethodselected = async () => {
+            try {
+              const { checkout } = await preparedOrder
+              nativeSession.completePaymentMethodSelection({
+                newTotal: {
+                  label: 'Science By Hugs',
+                  amount: Number(checkout.totals.total || 0).toFixed(2),
+                  type: 'final',
+                },
+              })
+            } catch (error) {
+              console.error('Apple Pay order preparation failed', error)
+              cartPayMessage.textContent =
+                error instanceof Error ? error.message : 'Could not prepare Apple Pay checkout.'
+              nativeSession.abort()
+            }
+          }
+
+          nativeSession.onpaymentauthorized = async (event: any) => {
+            try {
+              const { checkout, paypalOrder } = await preparedOrder
+
+              await paypalApplePaySession.confirmOrder({
+                orderId: paypalOrder.orderId,
+                token: event.payment.token,
+                billingContact: event.payment.billingContact,
+                shippingContact: event.payment.shippingContact,
+              })
+
+              cartPayMessage.textContent = 'Finalizing Apple Pay payment…'
+              const capture = await capturePayPalOrder(
+                checkout.orderId,
+                paypalOrder.orderId,
+                'Apple Pay',
+              )
+
+              if (capture.orderNumber && activeCheckoutOrder) {
+                activeCheckoutOrder.orderNumber = capture.orderNumber
+              }
+
+              nativeSession.completePayment({
+                status: ApplePaySessionCtor.STATUS_SUCCESS,
+              })
+
+              await finishPayNow(
+                'Payment received.',
+                capture.invoicePdfReady === false
+                  ? 'Your Apple Pay payment was verified and your order is processing. Your invoice is still being finalized.'
+                  : 'Your Apple Pay payment was verified and your order is now processing.',
+              )
+            } catch (error) {
+              console.error('Apple Pay payment failed', error)
+              nativeSession.completePayment({
+                status: ApplePaySessionCtor.STATUS_FAILURE,
+              })
+              cartPayMessage.textContent =
+                error instanceof Error ? error.message : 'Apple Pay payment could not be completed.'
+            }
+          }
+
+          nativeSession.oncancel = () => {
+            cartPayMessage.textContent = 'Apple Pay checkout was cancelled. You can choose another option.'
+          }
+
+          nativeSession.begin()
+        })
+      }
+    } else {
+      cartApplePayButton.hidden = true
+    }
+
+    if (!paypalEligible && !venmoEligible && !applePayEligible) {
+      cartPayMessage.textContent = 'PayPal, Venmo, and Apple Pay are unavailable for this session.'
     }
   } catch (error) {
     console.error('Cart wallet setup unavailable', error)
-    cartPayMessage.textContent = 'PayPal/Venmo are unavailable right now.'
+    cartPayMessage.textContent = 'PayPal, Venmo, and Apple Pay are unavailable right now.'
   }
 
   try {
