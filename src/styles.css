@@ -615,9 +615,14 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   gap:10px;
 }
 .nexus-paypal-button,
-.nexus-venmo-button{
+.nexus-venmo-button,
+.nexus-apple-pay-button{
   display:block;
   width:100%;
+}
+
+.nexus-apple-pay-button{
+  min-height:48px;
 }
 .paypal-message{
   min-height:17px;
