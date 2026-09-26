@@ -1,9 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.117.1";
 
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzvED4G5C_Lm14qxv0BY8uhsv1tRtON6_sempQu2Zn0B3IxE_mBkfAmNh7mIZsq-icsGA/exec";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://nexus.sciencebyhugs.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -80,6 +77,17 @@ async function finalizeBrandedInvoice(
   provider: "PayPal" | "Venmo" | "Apple Pay",
   now: string,
 ) {
+  const { data: runtimeConfigRow, error: runtimeConfigError } = await admin
+    .from("internal_runtime_config")
+    .select("value")
+    .eq("key", "checkout")
+    .single();
+
+  const appsScriptUrl = String(runtimeConfigRow?.value?.appsScriptUrl || "").trim();
+  if (runtimeConfigError || !appsScriptUrl) {
+    throw new Error("Invoice configuration unavailable");
+  }
+
   const { data: existingInvoice } = await admin
     .from("invoices")
     .select("id,invoice_number,pdf_url")
@@ -156,7 +164,7 @@ async function finalizeBrandedInvoice(
     };
 
     const sheetResponse = await fetch(
-      `${APPS_SCRIPT_URL}?api=nexusInvoiceRequest`,
+      `${appsScriptUrl}?api=nexusInvoiceRequest`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -176,7 +184,7 @@ async function finalizeBrandedInvoice(
     }
 
     const pdfResponse = await fetch(
-      `${APPS_SCRIPT_URL}?api=approveNexusInvoice`,
+      `${appsScriptUrl}?api=approveNexusInvoice`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
