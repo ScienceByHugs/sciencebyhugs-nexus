@@ -166,7 +166,7 @@ export async function getMyProfile(): Promise<NexusProfile | null> {
     if (!syncError) data.email = verifiedEmail
   }
 
-  return data as NexusProfile
+  return data as unknown as NexusProfile
 }
 
 export function onAuthChange(
