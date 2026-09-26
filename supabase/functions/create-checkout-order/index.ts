@@ -5,7 +5,7 @@ const APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzvED4G5C_Lm14qxv0BY8uhsv1tRtON6_sempQu2Zn0B3IxE_mBkfAmNh7mIZsq-icsGA/exec";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://nexus.sciencebyhugs.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
