@@ -57,6 +57,7 @@ let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
+let activeCheckoutPaymentMethod: 'PayPal' | 'Venmo' | 'Zelle' | null = null
 const initialMode = new URLSearchParams(window.location.search).get('mode')
 let recoveryMode = initialMode === 'recovery'
 let inviteMode = initialMode === 'invite'
@@ -302,7 +303,8 @@ app.innerHTML = `
         <div class="summary-row"><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
         <div class="summary-row"><span>Discounts</span><strong id="cartDiscount">-$0.00</strong></div>
         <div class="summary-row"><span>Shipping</span><strong id="cartShipping">$0.00</strong></div>
-        <div class="summary-row"><span>Taxes</span><strong id="cartTax">$0.00</strong></div>
+        <div class="summary-row"><span>Sales Tax (8%)</span><strong id="cartTax">$0.00</strong></div>
+        <div class="summary-row"><span>PayPal/Venmo Processing Fee (5%)</span><strong id="cartProcessingFee">$0.00</strong></div>
         <div class="summary-row total-row"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
         <div class="server-note">Final pricing is revalidated securely when the request is submitted.</div>
       </section>
@@ -358,7 +360,7 @@ app.innerHTML = `
 
       <section id="cartPayPanel" class="cart-pay-panel" hidden>
         <div class="checkout-title">Choose Payment Method</div>
-        <p class="cart-pay-copy">Your final total is revalidated securely before a payment order is created.</p>
+        <p class="cart-pay-copy">PayPal and Venmo include a 5% processing surcharge. Zelle does not. Your final total is revalidated securely before payment.</p>
         <div class="nexus-wallet-buttons">
           <paypal-button id="cartPayPalButton" class="nexus-paypal-button" hidden></paypal-button>
           <venmo-button id="cartVenmoButton" class="nexus-venmo-button" type="pay" hidden></venmo-button>
@@ -1154,20 +1156,28 @@ function updateRequestButton() {
   requestInvoiceButton.disabled = !policyAcknowledgment.checked || locked
 }
 
-async function ensureCheckoutOrder() {
-  if (activeCheckoutOrder) return activeCheckoutOrder
+async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Zelle') {
+  if (activeCheckoutOrder) {
+    if (activeCheckoutPaymentMethod !== paymentMethod) {
+      throw new Error(`This checkout was started with ${activeCheckoutPaymentMethod}. Complete that payment method before switching.`)
+    }
+    return activeCheckoutOrder
+  }
 
   const result = await createCheckoutOrder(cart, {
     policyAcknowledged: policyAcknowledgment.checked,
     contactMethod: contactMethod.value,
     customerNotes: customerNotes.value.trim(),
+    paymentMethod,
   })
 
   activeCheckoutOrder = result
+  activeCheckoutPaymentMethod = paymentMethod
   document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(result.totals.subtotal)
   document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(result.totals.discount)
   document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(result.totals.shipping)
   document.querySelector<HTMLElement>('#cartTax')!.textContent = money(result.totals.tax)
+  document.querySelector<HTMLElement>('#cartProcessingFee')!.textContent = money(result.totals.processingFee)
   document.querySelector<HTMLElement>('#cartTotal')!.textContent = money(result.totals.total)
 
   cartItems.querySelectorAll<HTMLButtonElement>('button').forEach(button => {
@@ -1199,6 +1209,7 @@ async function finishPayNow(
   payNowSuccess.hidden = false
 
   activeCheckoutOrder = null
+  activeCheckoutPaymentMethod = null
   updateCartUI()
   await refreshOrderHistory()
 }
@@ -1267,7 +1278,7 @@ async function setupCartPayNow() {
         cartPayPalButton.addEventListener('click', async () => {
           cartPayMessage.textContent = 'Preparing secure PayPal checkout…'
           try {
-            const checkout = await ensureCheckoutOrder()
+            const checkout = await ensureCheckoutOrder('PayPal')
             const paypalOrder = await createPayPalOrder(checkout.orderId, 'PayPal')
             await paypalSession.start(
               { presentationMode: 'auto' },
@@ -1288,7 +1299,7 @@ async function setupCartPayNow() {
         cartVenmoButton.addEventListener('click', async () => {
           cartPayMessage.textContent = 'Preparing secure Venmo checkout…'
           try {
-            const checkout = await ensureCheckoutOrder()
+            const checkout = await ensureCheckoutOrder('Venmo')
             const paypalOrder = await createPayPalOrder(checkout.orderId, 'Venmo')
             await venmoSession.start(
               { presentationMode: 'auto' },
@@ -1320,7 +1331,7 @@ async function setupCartPayNow() {
         cartZelleStartButton.disabled = true
         cartZelleStartButton.textContent = 'Preparing Zelle…'
         try {
-          const checkout = await ensureCheckoutOrder()
+          const checkout = await ensureCheckoutOrder('Zelle')
           cartZelleDetails.innerHTML = `
             <div><span>Recipient</span><strong>${escapeHtml(zelle.displayName)}</strong></div>
             <div><span>Send to</span><strong>${escapeHtml(zelle.contact)}</strong></div>
@@ -1464,6 +1475,13 @@ function renderAccountHistory() {
         </div>
 
         <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
+
+        ${order.processing_fee_total > 0 ? `
+          <div class="history-total">
+            <span>PayPal/Venmo Processing Fee</span>
+            <strong>${money(order.processing_fee_total)}</strong>
+          </div>
+        ` : ''}
 
         <div class="history-total">
           <span>Total</span>
