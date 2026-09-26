@@ -123,6 +123,8 @@ async function finalizeBrandedInvoice(
       bridgeKey,
       requestToken,
       orderId: order.id,
+      paymentMethod: provider,
+      paymentStatus: "Paid",
       customer: {
         customerId: profile.customer_number || "",
         firstName: profile.first_name || "",
