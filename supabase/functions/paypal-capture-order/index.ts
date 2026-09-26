@@ -77,7 +77,7 @@ async function finalizeBrandedInvoice(
   userEmail: string,
   profile: any,
   order: any,
-  provider: "PayPal" | "Venmo",
+  provider: "PayPal" | "Venmo" | "Apple Pay",
   now: string,
 ) {
   const { data: existingInvoice } = await admin
@@ -339,7 +339,11 @@ Deno.serve(async (req: Request) => {
   const orderId = String(body.orderId || "").trim();
   const paypalOrderId = String(body.paypalOrderId || "").trim();
   const requestedMethod = String(body.paymentMethod || "PayPal").trim();
-  const provider = requestedMethod.toLowerCase() === "venmo" ? "Venmo" : "PayPal";
+  const requestedProvider = requestedMethod.toLowerCase();
+  const provider =
+    requestedProvider === "venmo" ? "Venmo" :
+    requestedProvider === "apple pay" || requestedProvider === "applepay" ? "Apple Pay" :
+    "PayPal";
 
   if (!orderId || !paypalOrderId) {
     return json({ error: "Order ID and PayPal order ID are required" }, 400);
@@ -477,10 +481,16 @@ Deno.serve(async (req: Request) => {
       .from("invoice_events")
       .insert({
         invoice_id: invoice.id,
-        event_type: provider === "Venmo" ? "venmo_payment_captured" : "paypal_payment_captured",
+        event_type:
+          provider === "Venmo" ? "venmo_payment_captured" :
+          provider === "Apple Pay" ? "apple_pay_payment_captured" :
+          "paypal_payment_captured",
         description: provider + " payment captured in Nexus and order moved to processing.",
         metadata: {
-          source: provider === "Venmo" ? "nexus_venmo" : "nexus_paypal",
+          source:
+            provider === "Venmo" ? "nexus_venmo" :
+            provider === "Apple Pay" ? "nexus_apple_pay" :
+            "nexus_paypal",
           provider,
           paypalOrderId,
           captureId,
