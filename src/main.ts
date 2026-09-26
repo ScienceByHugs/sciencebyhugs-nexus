@@ -823,6 +823,7 @@ function showAccountHub() {
   accountHubView.hidden = false
   accountManageView.hidden = true
   accountOrdersView.hidden = true
+  accountDialog.scrollTop = 0
 }
 
 function showAccountManage() {
@@ -830,12 +831,14 @@ function showAccountManage() {
   accountManageView.hidden = false
   accountOrdersView.hidden = true
   accountManageMessage.textContent = ''
+  accountDialog.scrollTop = 0
 }
 
 function showOrderActivity() {
   accountHubView.hidden = true
   accountManageView.hidden = true
   accountOrdersView.hidden = false
+  accountDialog.scrollTop = 0
   void refreshOrderHistory()
 }
 
@@ -2268,7 +2271,6 @@ async function refreshAccount() {
   managePhone.value = currentProfile?.phone || ''
   manageEmail.value = currentProfile?.email || user.email || ''
   showAccountHub()
-  await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
 
@@ -2671,8 +2673,17 @@ changePasswordForm.addEventListener('submit', async event => {
 })
 
 document.querySelector<HTMLButtonElement>('#logoutButton')!.addEventListener('click', async () => {
-  await signOut()
-  await refreshAccount()
+  const logoutButton = document.querySelector<HTMLButtonElement>('#logoutButton')!
+  logoutButton.disabled = true
+  try {
+    await signOut()
+    await refreshAccount()
+    showToast('Signed out')
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : 'Could not sign out')
+  } finally {
+    logoutButton.disabled = false
+  }
 })
 
 loginForm.addEventListener('submit', async event => {
