@@ -24,7 +24,7 @@
 # Mobile test deployment trigger: standalone-support-vcf-fix
 # Mobile test deployment trigger: support-vcard-refresh
 # Mobile test deployment trigger: navigation refresh
-name: Deploy Nexus Mobile Test
+name: Deploy Nexus Production
 
 on:
   push:
