@@ -10,6 +10,7 @@ import {
   requestPasswordReset,
   changePassword,
   updatePassword,
+  updateAccountDetails,
   signIn,
   signOut,
   type NexusProfile,
@@ -551,55 +552,118 @@ app.innerHTML = `
     </div>
 
     <div id="signedInView" hidden>
-      <span class="eyebrow">NEXUS IDENTITY</span>
-      <h2 id="accountName">Your account</h2>
-      <p id="accountEmail" class="account-copy"></p>
+      <div id="accountHubView" class="account-hub-view">
+        <div class="account-welcome">
+          <span class="eyebrow">NEXUS IDENTITY</span>
+          <h2 id="accountWelcome">Welcome to the Nexus.</h2>
+          <p class="account-copy">Your research account, orders, and connections — all in one place.</p>
+          <div class="account-identity-strip">
+            <span id="accountCustomerId">—</span>
+            <i></i>
+            <span id="accountMembership">—</span>
+            <i></i>
+            <span id="accountStatus">—</span>
+          </div>
+          <span id="accountName" class="account-hidden-identity"></span>
+          <span id="accountEmail" class="account-hidden-identity"></span>
+        </div>
 
-      <div class="account-data">
-        <div><span>Customer ID</span><strong id="accountCustomerId">—</strong></div>
-        <div><span>Membership</span><strong id="accountMembership">—</strong></div>
-        <div><span>Status</span><strong id="accountStatus">—</strong></div>
+        <div class="account-hub-actions">
+          <button id="manageAccountButton" class="account-hub-card" type="button">
+            <span class="account-hub-icon">◎</span>
+            <span><strong>Manage Account</strong><small>Name, phone, email & password</small></span>
+            <b>→</b>
+          </button>
+          <button id="orderActivityButton" class="account-hub-card" type="button">
+            <span class="account-hub-icon">◇</span>
+            <span><strong>Order Activity</strong><small>Orders, payments & invoices</small></span>
+            <b>→</b>
+          </button>
+          <button id="accountReferralButton" class="account-hub-card" type="button">
+            <span class="account-hub-icon">↗</span>
+            <span><strong>Refer a Friend</strong><small>Share Nexus & view referral progress</small></span>
+            <b>→</b>
+          </button>
+          <button id="logoutButton" class="account-hub-card account-hub-signout" type="button">
+            <span class="account-hub-icon">↪</span>
+            <span><strong>Sign Out</strong><small>Securely end this Nexus session</small></span>
+            <b>→</b>
+          </button>
+        </div>
       </div>
 
-      <section class="account-security-shell">
-        <div class="account-history-heading">
-          <div>
-            <span class="eyebrow">SECURITY</span>
-            <h3>Change password</h3>
-          </div>
+      <div id="accountManageView" class="account-subview" hidden>
+        <button id="backFromManageAccount" class="subpage-back-button account-subview-back" type="button">← Back to Account</button>
+        <div class="account-subview-heading">
+          <span class="eyebrow">ACCOUNT CONTROL</span>
+          <h2>Manage Account</h2>
+          <p>Keep your Nexus identity and sign-in information current.</p>
         </div>
-        <form id="changePasswordForm" class="auth-form compact-auth-form">
+
+        <form id="accountManageForm" class="auth-form account-manage-form">
+          <div class="account-name-grid">
+            <label>
+              First name
+              <input id="manageFirstName" type="text" autocomplete="given-name" required />
+            </label>
+            <label>
+              Last name
+              <input id="manageLastName" type="text" autocomplete="family-name" required />
+            </label>
+          </div>
           <label>
-            Current password
-            <input id="currentPassword" type="password" autocomplete="current-password" required />
+            Phone number
+            <input id="managePhone" type="tel" autocomplete="tel" />
           </label>
           <label>
-            New password
-            <input id="newPassword" type="password" autocomplete="new-password" minlength="10" required />
+            Email
+            <input id="manageEmail" type="email" autocomplete="email" required />
           </label>
-          <label>
-            Confirm new password
-            <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="10" required />
-          </label>
-          <button id="changePasswordSubmit" class="auth-primary" type="submit">Change Password</button>
-          <div id="changePasswordMessage" class="auth-message" aria-live="polite"></div>
+          <button id="accountManageSubmit" class="auth-primary" type="submit">Save Account Changes</button>
+          <div id="accountManageMessage" class="auth-message" aria-live="polite"></div>
         </form>
-      </section>
 
-      <section class="account-history-shell">
-        <div class="account-history-heading">
-          <div>
-            <span class="eyebrow">ORDER ARCHIVE</span>
-            <h3>Orders & invoices</h3>
+        <section class="account-security-shell account-manage-security">
+          <div class="account-history-heading">
+            <div>
+              <span class="eyebrow">SECURITY</span>
+              <h3>Change password</h3>
+            </div>
           </div>
-          <button id="refreshHistoryButton" class="history-refresh" type="button">Refresh</button>
-        </div>
-        <div id="accountHistory" class="account-history">
-          <div class="history-state">Loading history…</div>
-        </div>
-      </section>
+          <form id="changePasswordForm" class="auth-form compact-auth-form">
+            <label>
+              Current password
+              <input id="currentPassword" type="password" autocomplete="current-password" required />
+            </label>
+            <label>
+              New password
+              <input id="newPassword" type="password" autocomplete="new-password" minlength="10" required />
+            </label>
+            <label>
+              Confirm new password
+              <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="10" required />
+            </label>
+            <button id="changePasswordSubmit" class="auth-primary" type="submit">Change Password</button>
+            <div id="changePasswordMessage" class="auth-message" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
 
-      <button id="logoutButton" class="auth-secondary" type="button">Sign Out</button>
+      <div id="accountOrdersView" class="account-subview" hidden>
+        <button id="backFromOrderActivity" class="subpage-back-button account-subview-back" type="button">← Back to Account</button>
+        <section class="account-history-shell account-orders-shell">
+          <div class="account-history-heading">
+            <div>
+              <span class="eyebrow">ORDER ACTIVITY</span>
+              <h3>Orders & invoices</h3>
+            </div>
+            <button id="refreshHistoryButton" class="history-refresh" type="button">Refresh</button>
+          </div>
+          <div id="accountHistory" class="account-history">
+            <div class="history-state">Loading history…</div>
+          </div>
+        </section>
+      </div>
     </div>
   </dialog>
 `
@@ -680,6 +744,21 @@ const mobileSupportButton = document.querySelector<HTMLButtonElement>('#mobileSu
 const mobileCartButton = document.querySelector<HTMLButtonElement>('#mobileCartButton')!
 const signedOutView = document.querySelector<HTMLDivElement>('#signedOutView')!
 const signedInView = document.querySelector<HTMLDivElement>('#signedInView')!
+const accountHubView = document.querySelector<HTMLDivElement>('#accountHubView')!
+const accountManageView = document.querySelector<HTMLDivElement>('#accountManageView')!
+const accountOrdersView = document.querySelector<HTMLDivElement>('#accountOrdersView')!
+const manageAccountButton = document.querySelector<HTMLButtonElement>('#manageAccountButton')!
+const orderActivityButton = document.querySelector<HTMLButtonElement>('#orderActivityButton')!
+const accountReferralButton = document.querySelector<HTMLButtonElement>('#accountReferralButton')!
+const backFromManageAccount = document.querySelector<HTMLButtonElement>('#backFromManageAccount')!
+const backFromOrderActivity = document.querySelector<HTMLButtonElement>('#backFromOrderActivity')!
+const accountManageForm = document.querySelector<HTMLFormElement>('#accountManageForm')!
+const manageFirstName = document.querySelector<HTMLInputElement>('#manageFirstName')!
+const manageLastName = document.querySelector<HTMLInputElement>('#manageLastName')!
+const managePhone = document.querySelector<HTMLInputElement>('#managePhone')!
+const manageEmail = document.querySelector<HTMLInputElement>('#manageEmail')!
+const accountManageSubmit = document.querySelector<HTMLButtonElement>('#accountManageSubmit')!
+const accountManageMessage = document.querySelector<HTMLDivElement>('#accountManageMessage')!
 const loginForm = document.querySelector<HTMLFormElement>('#loginForm')!
 const loginEmail = document.querySelector<HTMLInputElement>('#loginEmail')!
 const loginPassword = document.querySelector<HTMLInputElement>('#loginPassword')!
@@ -739,6 +818,26 @@ function showToast(message: string) {
   window.setTimeout(() => toast.classList.remove('show'), 1800)
 }
 
+
+function showAccountHub() {
+  accountHubView.hidden = false
+  accountManageView.hidden = true
+  accountOrdersView.hidden = true
+}
+
+function showAccountManage() {
+  accountHubView.hidden = true
+  accountManageView.hidden = false
+  accountOrdersView.hidden = true
+  accountManageMessage.textContent = ''
+}
+
+function showOrderActivity() {
+  accountHubView.hidden = true
+  accountManageView.hidden = true
+  accountOrdersView.hidden = false
+  void refreshOrderHistory()
+}
 
 function showLoginView() {
   loginForm.hidden = false
@@ -2156,12 +2255,19 @@ async function refreshAccount() {
     ? [currentProfile.first_name, currentProfile.last_name].filter(Boolean).join(' ')
     : ''
 
+  const firstName = currentProfile?.first_name?.trim() || fullName.split(' ')[0] || 'Researcher'
   accountButton.textContent = fullName || 'My Account'
+  document.querySelector<HTMLElement>('#accountWelcome')!.textContent = `Welcome, ${firstName}, to the Nexus.`
   document.querySelector<HTMLElement>('#accountName')!.textContent = fullName || 'Your account'
   document.querySelector<HTMLElement>('#accountEmail')!.textContent = currentProfile?.email || user.email || ''
-  document.querySelector<HTMLElement>('#accountCustomerId')!.textContent = currentProfile?.customer_number || '—'
-  document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || '—'
+  document.querySelector<HTMLElement>('#accountCustomerId')!.textContent = currentProfile?.customer_number || 'Nexus Member'
+  document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || 'Member'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
+  manageFirstName.value = currentProfile?.first_name || ''
+  manageLastName.value = currentProfile?.last_name || ''
+  managePhone.value = currentProfile?.phone || ''
+  manageEmail.value = currentProfile?.email || user.email || ''
+  showAccountHub()
   await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
@@ -2270,7 +2376,10 @@ function openCartDialog() {
 }
 
 function openAccountDialog() {
-  if (!recoveryMode) showLoginView()
+  if (!recoveryMode) {
+    showLoginView()
+    if (currentProfile) showAccountHub()
+  }
   accountDialog.showModal()
 }
 
@@ -2346,6 +2455,44 @@ payNowButton.addEventListener('click', async () => {
   cartPayPanel.hidden = false
   cartPayPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   await setupCartPayNow()
+})
+
+manageAccountButton.addEventListener('click', showAccountManage)
+orderActivityButton.addEventListener('click', showOrderActivity)
+backFromManageAccount.addEventListener('click', showAccountHub)
+backFromOrderActivity.addEventListener('click', showAccountHub)
+accountReferralButton.addEventListener('click', () => {
+  accountDialog.close()
+  void openReferralDashboard()
+})
+
+accountManageForm.addEventListener('submit', async event => {
+  event.preventDefault()
+  accountManageMessage.textContent = ''
+  accountManageSubmit.disabled = true
+  accountManageSubmit.textContent = 'Saving…'
+
+  try {
+    const result = await updateAccountDetails({
+      firstName: manageFirstName.value,
+      lastName: manageLastName.value,
+      phone: managePhone.value,
+      email: manageEmail.value,
+    })
+
+    await refreshAccount()
+    showAccountManage()
+    accountManageMessage.textContent = result.emailConfirmationRequired
+      ? 'Account updated. Check your email to confirm the new sign-in address.'
+      : 'Account updated successfully.'
+    showToast('Account updated')
+  } catch (error) {
+    accountManageMessage.textContent =
+      error instanceof Error ? error.message : 'Could not update your account.'
+  } finally {
+    accountManageSubmit.disabled = false
+    accountManageSubmit.textContent = 'Save Account Changes'
+  }
 })
 
 refreshHistoryButton.addEventListener('click', () => {
