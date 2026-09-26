@@ -72,11 +72,19 @@ export async function updateAccountDetails(input: {
 
   const currentEmail = String(user.email || '').trim().toLowerCase()
   let emailConfirmationRequired = false
+  let profileEmail = currentEmail || email
 
   if (email !== currentEmail) {
     const { data: authData, error: authError } = await supabase.auth.updateUser({ email })
     if (authError) throw authError
-    emailConfirmationRequired = authData.user?.email?.toLowerCase() !== email
+
+    const activeAuthEmail = String(authData.user?.email || '').trim().toLowerCase()
+    emailConfirmationRequired = activeAuthEmail !== email
+
+    // Do not make checkout/invoice contact data use an unconfirmed address.
+    // Once Supabase promotes the new address to user.email, getMyProfile()
+    // synchronizes it into the customer profile.
+    if (!emailConfirmationRequired) profileEmail = email
   }
 
   const { error: profileError } = await supabase
@@ -85,7 +93,7 @@ export async function updateAccountDetails(input: {
       first_name: firstName,
       last_name: lastName,
       phone,
-      email,
+      email: profileEmail,
       updated_at: new Date().toISOString(),
     })
     .eq('auth_user_id', user.id)
@@ -141,7 +149,24 @@ export async function getMyProfile(): Promise<NexusProfile | null> {
     .maybeSingle()
 
   if (error) throw error
-  return data as NexusProfile | null
+  if (!data) return null
+
+  const verifiedEmail = String(user.email || '').trim()
+  const profileEmail = String(data.email || '').trim()
+
+  if (verifiedEmail && verifiedEmail.toLowerCase() !== profileEmail.toLowerCase()) {
+    const { error: syncError } = await supabase
+      .from('profiles')
+      .update({
+        email: verifiedEmail,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('auth_user_id', user.id)
+
+    if (!syncError) data.email = verifiedEmail
+  }
+
+  return data as NexusProfile
 }
 
 export function onAuthChange(
