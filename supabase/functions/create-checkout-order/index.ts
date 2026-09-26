@@ -230,6 +230,8 @@ Deno.serve(async (req: Request) => {
     bridgeKey: secretKeys.default,
     requestToken,
     orderId: order.id,
+    paymentMethod,
+    paymentStatus: "Pending Payment",
     customer: {
       customerId: profile.customer_number || "",
       firstName: profile.first_name || "",
