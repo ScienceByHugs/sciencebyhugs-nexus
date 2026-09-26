@@ -80,7 +80,11 @@ Deno.serve(async (req: Request) => {
 
   const orderId = String(body.orderId || "").trim();
   const requestedMethod = String(body.paymentMethod || "PayPal").trim();
-  const provider = requestedMethod.toLowerCase() === "venmo" ? "Venmo" : "PayPal";
+  const requestedProvider = requestedMethod.toLowerCase();
+  const provider =
+    requestedProvider === "venmo" ? "Venmo" :
+    requestedProvider === "apple pay" || requestedProvider === "applepay" ? "Apple Pay" :
+    "PayPal";
 
   if (!orderId) return json({ error: "Order ID is required" }, 400);
   if (!["PayPal", "Venmo"].includes(provider)) {
@@ -131,7 +135,7 @@ Deno.serve(async (req: Request) => {
   if (
     existingPayment?.provider === provider &&
     existingPayment?.provider_order_id &&
-    ["paypal_created", "venmo_created", "submitted"].includes(String(existingPayment.status))
+    ["paypal_created", "venmo_created", "applepay_created", "submitted"].includes(String(existingPayment.status))
   ) {
     return json({
       success: true,
@@ -191,7 +195,10 @@ Deno.serve(async (req: Request) => {
         provider_capture_id: null,
         payment_reference: null,
         amount: Number(order.total || 0),
-        status: provider === "Venmo" ? "venmo_created" : "paypal_created",
+        status:
+          provider === "Venmo" ? "venmo_created" :
+          provider === "Apple Pay" ? "applepay_created" :
+          "paypal_created",
         updated_at: now,
       },
       { onConflict: "order_id" },
@@ -205,7 +212,10 @@ Deno.serve(async (req: Request) => {
     .from("orders")
     .update({
       payment_method: provider,
-      payment_status: provider === "Venmo" ? "venmo_pending" : "paypal_pending",
+      payment_status:
+        provider === "Venmo" ? "venmo_pending" :
+        provider === "Apple Pay" ? "applepay_pending" :
+        "paypal_pending",
       updated_at: now,
     })
     .eq("id", order.id);
