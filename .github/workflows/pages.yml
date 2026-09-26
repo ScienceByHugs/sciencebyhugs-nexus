@@ -1,29 +1,3 @@
-# Mobile test deployment trigger: photographic-default-vial
-# Mobile test deployment trigger: svg-default-vial
-# Mobile test deployment trigger: fixed-vial-asset
-# Mobile test deployment trigger: branding-cache-bust-v3
-# Mobile test deployment trigger: nexus-branding-vial
-# Mobile test deployment trigger: subpage-back-navigation
-# Mobile test deployment trigger: stable-assets-recovery
-# Mobile test deployment trigger: fix-policy-startup-order
-# Mobile test deployment trigger: stabilize-service-worker
-# Mobile test deployment trigger: nexus-policy-library
-# Mobile test deployment trigger: remove-contact-saving
-# Mobile test deployment trigger: pwa-safe-contact-flow
-# Mobile test deployment trigger: restore-working-runtime
-# Mobile test deployment trigger: contact-flow-rework
-# Mobile test deployment trigger: vcard-sw-fix
-# Mobile test deployment trigger: direct-vcard-anchor
-# Mobile test deployment trigger: external-vcard-open
-# Mobile test deployment trigger: direct-vcard-open
-# Mobile test deployment trigger: support-fix-v2
-# Mobile test deployment trigger: text-support
-# Mobile test deployment trigger: referral-fluid-sizing
-# Mobile test deployment trigger: mobile-referral-redesign
-# Mobile test deployment trigger: referral-modal-refresh
-# Mobile test deployment trigger: standalone-support-vcf-fix
-# Mobile test deployment trigger: support-vcard-refresh
-# Mobile test deployment trigger: navigation refresh
 name: Deploy Nexus Production
 
 on:
