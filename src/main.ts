@@ -1229,10 +1229,15 @@ async function setupCartPayNow() {
         if (!activeCheckoutOrder) return
         cartPayMessage.textContent = 'Finalizing PayPal payment…'
         try {
-          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'PayPal')
+          const capture = await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'PayPal')
+          if (capture.orderNumber && activeCheckoutOrder) {
+            activeCheckoutOrder.orderNumber = capture.orderNumber
+          }
           await finishPayNow(
             'Payment received.',
-            'Your PayPal payment was verified and your order is now processing.',
+            capture.invoicePdfReady === false
+              ? 'Your PayPal payment was verified and your order is processing. Your invoice is still being finalized.'
+              : 'Your PayPal payment was verified and your order is now processing.',
           )
         } catch (error) {
           cartPayMessage.textContent =
@@ -1253,10 +1258,15 @@ async function setupCartPayNow() {
         if (!activeCheckoutOrder) return
         cartPayMessage.textContent = 'Finalizing Venmo payment…'
         try {
-          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'Venmo')
+          const capture = await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'Venmo')
+          if (capture.orderNumber && activeCheckoutOrder) {
+            activeCheckoutOrder.orderNumber = capture.orderNumber
+          }
           await finishPayNow(
             'Payment received.',
-            'Your Venmo payment was verified and your order is now processing.',
+            capture.invoicePdfReady === false
+              ? 'Your Venmo payment was verified and your order is processing. Your invoice is still being finalized.'
+              : 'Your Venmo payment was verified and your order is now processing.',
           )
         } catch (error) {
           cartPayMessage.textContent =
