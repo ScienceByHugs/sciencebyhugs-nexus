@@ -53,6 +53,48 @@ export async function updatePassword(newPassword: string) {
   return data
 }
 
+export async function updateAccountDetails(input: {
+  firstName: string
+  lastName: string
+  phone: string
+  email: string
+}) {
+  const user = await getCurrentUser()
+  if (!user) throw new Error('You must be signed in to update your account.')
+
+  const firstName = input.firstName.trim()
+  const lastName = input.lastName.trim()
+  const phone = input.phone.trim()
+  const email = input.email.trim().toLowerCase()
+
+  if (!firstName || !lastName) throw new Error('First and last name are required.')
+  if (!email) throw new Error('Email is required.')
+
+  const currentEmail = String(user.email || '').trim().toLowerCase()
+  let emailConfirmationRequired = false
+
+  if (email !== currentEmail) {
+    const { data: authData, error: authError } = await supabase.auth.updateUser({ email })
+    if (authError) throw authError
+    emailConfirmationRequired = authData.user?.email?.toLowerCase() !== email
+  }
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({
+      first_name: firstName,
+      last_name: lastName,
+      phone,
+      email,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('auth_user_id', user.id)
+
+  if (profileError) throw profileError
+
+  return { emailConfirmationRequired }
+}
+
 export async function changePassword(
   currentPassword: string,
   newPassword: string,
