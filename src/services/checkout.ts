@@ -21,7 +21,7 @@ export async function createCheckoutOrder(
     policyAcknowledged: boolean
     contactMethod?: string
     customerNotes?: string
-    paymentMethod: 'PayPal' | 'Venmo' | 'Zelle'
+    paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' | 'Zelle'
   },
 ): Promise<CheckoutOrderResult> {
   const { data, error } = await supabase.functions.invoke('create-checkout-order', {
