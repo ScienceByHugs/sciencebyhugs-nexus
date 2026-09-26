@@ -1476,10 +1476,22 @@ async function setupCartPayNow() {
         cartApplePayButton.addEventListener('click', () => {
           cartPayMessage.textContent = 'Preparing secure Apple Pay checkout…'
 
-          const displayedTotal = Number(
-            (document.querySelector<HTMLElement>('#cartTotal')?.textContent || '0')
-              .replace(/[^0-9.-]/g, ''),
+          // Apple Pay must authorize the exact amount on the PayPal order.
+          // Mirror the server's wallet pricing here before Apple opens the sheet:
+          // 5% processing fee on taxable merchandise, then 8% tax on
+          // taxable merchandise + processing fee. Shipping is not taxed.
+          const preview = calculateCart(cart, isFoundingMember())
+          const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
+          const taxableMerchandise = roundMoney(Math.max(0, preview.subtotal - preview.discount))
+          const processingFee = roundMoney(taxableMerchandise * 0.05)
+          const tax = roundMoney((taxableMerchandise + processingFee) * 0.08)
+          const applePayTotal = roundMoney(
+            preview.subtotal - preview.discount + preview.shipping + processingFee + tax,
           )
+
+          document.querySelector<HTMLElement>('#cartProcessingFee')!.textContent = money(processingFee)
+          document.querySelector<HTMLElement>('#cartTax')!.textContent = money(tax)
+          document.querySelector<HTMLElement>('#cartTotal')!.textContent = money(applePayTotal)
 
           const nativeSession = new ApplePaySessionCtor(4, {
             countryCode: 'US',
@@ -1490,7 +1502,7 @@ async function setupCartPayNow() {
             requiredShippingContactFields: [],
             total: {
               label: 'Science By Hugs',
-              amount: Math.max(displayedTotal, 0).toFixed(2),
+              amount: Math.max(applePayTotal, 0).toFixed(2),
               type: 'final',
             },
           })
