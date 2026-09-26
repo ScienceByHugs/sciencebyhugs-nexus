@@ -1897,6 +1897,16 @@ async function refreshAccount() {
   await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
+
+  // Warm the PayPal/Venmo SDK after sign-in so wallet buttons open faster later.
+  // This runs off the critical account-render path and reuses getPayPalSdk()'s cached promise.
+  if (currentProfile && currentAccountIsActive()) {
+    window.setTimeout(() => {
+      void getPayPalSdk().catch(error => {
+        console.info('PayPal preload unavailable', error)
+      })
+    }, 250)
+  }
 }
 
 productDialog.addEventListener('click', event => {
