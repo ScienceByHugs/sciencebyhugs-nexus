@@ -87,7 +87,7 @@ Deno.serve(async (req: Request) => {
     "PayPal";
 
   if (!orderId) return json({ error: "Order ID is required" }, 400);
-  if (!["PayPal", "Venmo"].includes(provider)) {
+  if (!["PayPal", "Venmo", "Apple Pay"].includes(provider)) {
     return json({ error: "Unsupported payment method" }, 400);
   }
 
