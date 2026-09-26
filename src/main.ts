@@ -1491,7 +1491,7 @@ async function setupCartPayNow() {
             total: {
               label: 'Science By Hugs',
               amount: Math.max(displayedTotal, 0).toFixed(2),
-              type: 'pending',
+              type: 'final',
             },
           })
 
@@ -1509,25 +1509,10 @@ async function setupCartPayNow() {
               nativeSession.completeMerchantValidation(merchantSession)
             } catch (error) {
               console.error('Apple Pay merchant validation failed', error)
-              cartPayMessage.textContent = 'Apple Pay could not validate this merchant session.'
-              nativeSession.abort()
-            }
-          }
-
-          nativeSession.onpaymentmethodselected = async () => {
-            try {
-              const { checkout } = await preparedOrder
-              nativeSession.completePaymentMethodSelection({
-                newTotal: {
-                  label: 'Science By Hugs',
-                  amount: Number(checkout.totals.total || 0).toFixed(2),
-                  type: 'final',
-                },
-              })
-            } catch (error) {
-              console.error('Apple Pay order preparation failed', error)
               cartPayMessage.textContent =
-                error instanceof Error ? error.message : 'Could not prepare Apple Pay checkout.'
+                error instanceof Error
+                  ? `Apple Pay merchant validation failed: ${error.message}`
+                  : 'Apple Pay could not validate this merchant session.'
               nativeSession.abort()
             }
           }
