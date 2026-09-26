@@ -1,4 +1,5 @@
 import './styles.css'
+import './brand.css'
 import { registerSW } from 'virtual:pwa-register'
 import { fetchCatalog, type CatalogProduct } from './services/catalog'
 import {
@@ -57,6 +58,7 @@ let currentProfile: NexusProfile | null = null
 let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
+let activeCheckoutPaymentMethod: 'PayPal' | 'Venmo' | 'Zelle' | null = null
 const initialMode = new URLSearchParams(window.location.search).get('mode')
 let recoveryMode = initialMode === 'recovery'
 let inviteMode = initialMode === 'invite'
@@ -67,7 +69,7 @@ if (incomingReferralCode) {
   window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
 }
 
-const nexusLogoUrl = `${import.meta.env.BASE_URL}nexus-logo.svg`
+const nexusLogoUrl = `${import.meta.env.BASE_URL}brand/nexus.svg`
 const defaultProductImageUrl = `${import.meta.env.BASE_URL}default-product-vial-photo.webp?v=2`
 
 const escapeHtml = (value: unknown) =>
@@ -75,6 +77,38 @@ const escapeHtml = (value: unknown) =>
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
   }[char] as string))
 
+
+const researchUsePolicy = nexusPolicies.find(policy => policy.id === 'research-use')
+if (!researchUsePolicy) throw new Error('Research Use Only Policy not found')
+
+const ENTRY_GATE_STORAGE_KEY = 'sbh_nexus_entry_ack'
+const ENTRY_GATE_DAYS = 30
+const ENTRY_GATE_VERSION = `research-use:${researchUsePolicy.effectiveDate}`
+
+type EntryGateAcknowledgment = {
+  version: string
+  acknowledgedAt: string
+  expiresAt: string
+  age21: true
+  researchUse: true
+}
+
+function hasValidEntryAcknowledgment() {
+  try {
+    const raw = window.localStorage.getItem(ENTRY_GATE_STORAGE_KEY)
+    if (!raw) return false
+    const acknowledgment = JSON.parse(raw) as Partial<EntryGateAcknowledgment>
+    return (
+      acknowledgment.version === ENTRY_GATE_VERSION &&
+      acknowledgment.age21 === true &&
+      acknowledgment.researchUse === true &&
+      typeof acknowledgment.expiresAt === 'string' &&
+      new Date(acknowledgment.expiresAt).getTime() > Date.now()
+    )
+  } catch {
+    return false
+  }
+}
 
 const policyCardsMarkup = nexusPolicies.map(policy => `
   <details class="policy-card">
@@ -92,6 +126,57 @@ const policyCardsMarkup = nexusPolicies.map(policy => `
 
 
 app.innerHTML = `
+  <section id="entryGate" class="entry-gate" aria-labelledby="entryGateTitle" style="--entry-vial:url('${defaultProductImageUrl}')" ${hasValidEntryAcknowledgment() ? 'hidden' : ''}>
+    <div class="entry-gate-backdrop" aria-hidden="true"></div>
+    <div class="entry-gate-card">
+      <img class="entry-gate-logo" src="${nexusLogoUrl}" alt="Nexus — Science By Hugs" />
+      <div class="entry-gate-atom" aria-hidden="true">⚛</div>
+      <span class="entry-gate-kicker">RESEARCH ACCESS CONFIRMATION</span>
+      <h1 id="entryGateTitle">Before entering <em>Nexus.</em></h1>
+      <p class="entry-gate-intro">
+        Science By Hugs products are offered for research use only and are not intended for human or veterinary use.
+      </p>
+
+      <div class="entry-gate-notice">
+        <strong>Research Use Only</strong>
+        <p>
+          Products are not intended for human consumption, human administration, veterinary use,
+          diagnosis, treatment, mitigation, cure, or prevention of disease or any medical condition.
+        </p>
+      </div>
+
+      <details class="entry-policy-details">
+        <summary>Read the Research Use Only Policy</summary>
+        <div class="entry-policy-copy">
+          <div class="entry-policy-meta">Effective ${escapeHtml(researchUsePolicy.effectiveDate)}</div>
+          <pre>${escapeHtml(researchUsePolicy.text)}</pre>
+        </div>
+      </details>
+
+      <div class="entry-gate-confirmations">
+        <label class="entry-gate-check">
+          <input id="entryAge21" type="checkbox" />
+          <span>I confirm that I am 21 years of age or older.</span>
+        </label>
+        <label class="entry-gate-check">
+          <input id="entryResearchUse" type="checkbox" />
+          <span>I have read, understand, and agree to the Science By Hugs Research Use Only Policy.</span>
+        </label>
+      </div>
+
+      <button id="enterNexusButton" class="entry-gate-enter" type="button" disabled>
+        Enter Nexus
+      </button>
+      <button id="exitNexusButton" class="entry-gate-exit" type="button">
+        Leave Site
+      </button>
+
+      <p class="entry-gate-footnote">
+        Your acknowledgment is remembered on this device for 30 days. You will be asked again if the policy is updated.
+      </p>
+    </div>
+  </section>
+
   <div class="stars" aria-hidden="true"></div>
 
   <header class="topbar">
@@ -302,7 +387,8 @@ app.innerHTML = `
         <div class="summary-row"><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
         <div class="summary-row"><span>Discounts</span><strong id="cartDiscount">-$0.00</strong></div>
         <div class="summary-row"><span>Shipping</span><strong id="cartShipping">$0.00</strong></div>
-        <div class="summary-row"><span>Taxes</span><strong id="cartTax">$0.00</strong></div>
+        <div class="summary-row"><span>Sales Tax (8%)</span><strong id="cartTax">$0.00</strong></div>
+        <div class="summary-row"><span>PayPal/Venmo Processing Fee (5%)</span><strong id="cartProcessingFee">$0.00</strong></div>
         <div class="summary-row total-row"><span>Total</span><strong id="cartTotal">$0.00</strong></div>
         <div class="server-note">Final pricing is revalidated securely when the request is submitted.</div>
       </section>
@@ -358,7 +444,7 @@ app.innerHTML = `
 
       <section id="cartPayPanel" class="cart-pay-panel" hidden>
         <div class="checkout-title">Choose Payment Method</div>
-        <p class="cart-pay-copy">Your final total is revalidated securely before a payment order is created.</p>
+        <p class="cart-pay-copy">PayPal and Venmo include a 5% processing surcharge. Zelle does not. Your final total is revalidated securely before payment.</p>
         <div class="nexus-wallet-buttons">
           <paypal-button id="cartPayPalButton" class="nexus-paypal-button" hidden></paypal-button>
           <venmo-button id="cartVenmoButton" class="nexus-venmo-button" type="pay" hidden></venmo-button>
@@ -521,6 +607,58 @@ const grid = document.querySelector<HTMLDivElement>('#catalogGrid')!
 const chips = document.querySelector<HTMLDivElement>('#categoryChips')!
 const count = document.querySelector<HTMLSpanElement>('#productCount')!
 const searchInput = document.querySelector<HTMLInputElement>('#searchInput')!
+const entryGate = document.querySelector<HTMLElement>('#entryGate')!
+const entryAge21 = document.querySelector<HTMLInputElement>('#entryAge21')!
+const entryResearchUse = document.querySelector<HTMLInputElement>('#entryResearchUse')!
+const enterNexusButton = document.querySelector<HTMLButtonElement>('#enterNexusButton')!
+const exitNexusButton = document.querySelector<HTMLButtonElement>('#exitNexusButton')!
+
+function syncEntryGateState() {
+  enterNexusButton.disabled = !(entryAge21.checked && entryResearchUse.checked)
+}
+
+function unlockNexusEntry() {
+  const acknowledgedAt = new Date()
+  const expiresAt = new Date(acknowledgedAt.getTime() + ENTRY_GATE_DAYS * 24 * 60 * 60 * 1000)
+  const acknowledgment: EntryGateAcknowledgment = {
+    version: ENTRY_GATE_VERSION,
+    acknowledgedAt: acknowledgedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    age21: true,
+    researchUse: true,
+  }
+
+  try {
+    window.localStorage.setItem(ENTRY_GATE_STORAGE_KEY, JSON.stringify(acknowledgment))
+  } catch {
+    // The gate still unlocks for the current page when local storage is unavailable.
+  }
+
+  entryGate.hidden = true
+  document.documentElement.classList.remove('nexus-gated')
+}
+
+if (!hasValidEntryAcknowledgment()) {
+  document.documentElement.classList.add('nexus-gated')
+}
+
+entryAge21.addEventListener('change', syncEntryGateState)
+entryResearchUse.addEventListener('change', syncEntryGateState)
+enterNexusButton.addEventListener('click', () => {
+  if (enterNexusButton.disabled) return
+  unlockNexusEntry()
+})
+exitNexusButton.addEventListener('click', () => {
+  if (window.history.length > 1) {
+    window.history.back()
+    window.setTimeout(() => {
+      if (!document.hidden && !entryGate.hidden) window.location.replace('about:blank')
+    }, 350)
+    return
+  }
+  window.location.replace('about:blank')
+})
+
 const productDialog = document.querySelector<HTMLDialogElement>('#productDialog')!
 const dialogContent = document.querySelector<HTMLDivElement>('#dialogContent')!
 const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
@@ -1154,20 +1292,28 @@ function updateRequestButton() {
   requestInvoiceButton.disabled = !policyAcknowledgment.checked || locked
 }
 
-async function ensureCheckoutOrder() {
-  if (activeCheckoutOrder) return activeCheckoutOrder
+async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Zelle') {
+  if (activeCheckoutOrder) {
+    if (activeCheckoutPaymentMethod !== paymentMethod) {
+      throw new Error(`This checkout was started with ${activeCheckoutPaymentMethod}. Complete that payment method before switching.`)
+    }
+    return activeCheckoutOrder
+  }
 
   const result = await createCheckoutOrder(cart, {
     policyAcknowledged: policyAcknowledgment.checked,
     contactMethod: contactMethod.value,
     customerNotes: customerNotes.value.trim(),
+    paymentMethod,
   })
 
   activeCheckoutOrder = result
+  activeCheckoutPaymentMethod = paymentMethod
   document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(result.totals.subtotal)
   document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(result.totals.discount)
   document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(result.totals.shipping)
   document.querySelector<HTMLElement>('#cartTax')!.textContent = money(result.totals.tax)
+  document.querySelector<HTMLElement>('#cartProcessingFee')!.textContent = money(result.totals.processingFee)
   document.querySelector<HTMLElement>('#cartTotal')!.textContent = money(result.totals.total)
 
   cartItems.querySelectorAll<HTMLButtonElement>('button').forEach(button => {
@@ -1199,6 +1345,7 @@ async function finishPayNow(
   payNowSuccess.hidden = false
 
   activeCheckoutOrder = null
+  activeCheckoutPaymentMethod = null
   updateCartUI()
   await refreshOrderHistory()
 }
@@ -1217,10 +1364,15 @@ async function setupCartPayNow() {
         if (!activeCheckoutOrder) return
         cartPayMessage.textContent = 'Finalizing PayPal payment…'
         try {
-          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'PayPal')
+          const capture = await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'PayPal')
+          if (capture.orderNumber && activeCheckoutOrder) {
+            activeCheckoutOrder.orderNumber = capture.orderNumber
+          }
           await finishPayNow(
             'Payment received.',
-            'Your PayPal payment was verified and your order is now processing.',
+            capture.invoicePdfReady === false
+              ? 'Your PayPal payment was verified and your order is processing. Your invoice is still being finalized.'
+              : 'Your PayPal payment was verified and your order is now processing.',
           )
         } catch (error) {
           cartPayMessage.textContent =
@@ -1241,10 +1393,15 @@ async function setupCartPayNow() {
         if (!activeCheckoutOrder) return
         cartPayMessage.textContent = 'Finalizing Venmo payment…'
         try {
-          await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'Venmo')
+          const capture = await capturePayPalOrder(activeCheckoutOrder.orderId, paypalOrderId, 'Venmo')
+          if (capture.orderNumber && activeCheckoutOrder) {
+            activeCheckoutOrder.orderNumber = capture.orderNumber
+          }
           await finishPayNow(
             'Payment received.',
-            'Your Venmo payment was verified and your order is now processing.',
+            capture.invoicePdfReady === false
+              ? 'Your Venmo payment was verified and your order is processing. Your invoice is still being finalized.'
+              : 'Your Venmo payment was verified and your order is now processing.',
           )
         } catch (error) {
           cartPayMessage.textContent =
@@ -1267,7 +1424,7 @@ async function setupCartPayNow() {
         cartPayPalButton.addEventListener('click', async () => {
           cartPayMessage.textContent = 'Preparing secure PayPal checkout…'
           try {
-            const checkout = await ensureCheckoutOrder()
+            const checkout = await ensureCheckoutOrder('PayPal')
             const paypalOrder = await createPayPalOrder(checkout.orderId, 'PayPal')
             await paypalSession.start(
               { presentationMode: 'auto' },
@@ -1288,7 +1445,7 @@ async function setupCartPayNow() {
         cartVenmoButton.addEventListener('click', async () => {
           cartPayMessage.textContent = 'Preparing secure Venmo checkout…'
           try {
-            const checkout = await ensureCheckoutOrder()
+            const checkout = await ensureCheckoutOrder('Venmo')
             const paypalOrder = await createPayPalOrder(checkout.orderId, 'Venmo')
             await venmoSession.start(
               { presentationMode: 'auto' },
@@ -1320,7 +1477,7 @@ async function setupCartPayNow() {
         cartZelleStartButton.disabled = true
         cartZelleStartButton.textContent = 'Preparing Zelle…'
         try {
-          const checkout = await ensureCheckoutOrder()
+          const checkout = await ensureCheckoutOrder('Zelle')
           cartZelleDetails.innerHTML = `
             <div><span>Recipient</span><strong>${escapeHtml(zelle.displayName)}</strong></div>
             <div><span>Send to</span><strong>${escapeHtml(zelle.contact)}</strong></div>
@@ -1465,6 +1622,13 @@ function renderAccountHistory() {
 
         <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
 
+        ${order.processing_fee_total > 0 ? `
+          <div class="history-total">
+            <span>PayPal/Venmo Processing Fee</span>
+            <strong>${money(order.processing_fee_total)}</strong>
+          </div>
+        ` : ''}
+
         <div class="history-total">
           <span>Total</span>
           <strong>${money(order.total)}</strong>
@@ -1509,8 +1673,8 @@ function renderAccountHistory() {
           <div class="history-paypal-shell">
             <div>
               <span class="eyebrow">PAY SECURELY</span>
-              <strong>PayPal or Venmo Sandbox</strong>
-              <small>Choose an eligible payment method. No live money is moved while Sandbox mode is enabled.</small>
+              <strong>PayPal or Venmo</strong>
+              <small>Choose an eligible payment method to securely complete payment.</small>
             </div>
             <div class="nexus-wallet-buttons">
               <paypal-button
@@ -1670,8 +1834,8 @@ async function setupPayPalCheckout() {
         if (message) {
           message.textContent =
             paymentMethod === 'Venmo'
-              ? 'Opening Venmo Sandbox…'
-              : 'Opening PayPal Sandbox…'
+              ? 'Opening Venmo…'
+              : 'Opening PayPal…'
         }
 
         try {
@@ -1737,7 +1901,7 @@ async function setupPayPalCheckout() {
         `[data-paypal-message="${CSS.escape(orderId)}"]`,
       )
       if (message) {
-        message.textContent = 'PayPal/Venmo Sandbox setup is unavailable right now.'
+        message.textContent = 'PayPal/Venmo setup is unavailable right now.'
       }
     })
   }
@@ -1878,6 +2042,16 @@ async function refreshAccount() {
   await refreshOrderHistory()
   updateCheckoutCustomer()
   updateCartUI()
+
+  // Warm the PayPal/Venmo SDK after sign-in so wallet buttons open faster later.
+  // This runs off the critical account-render path and reuses getPayPalSdk()'s cached promise.
+  if (currentProfile && currentAccountIsActive()) {
+    window.setTimeout(() => {
+      void getPayPalSdk().catch(error => {
+        console.info('PayPal preload unavailable', error)
+      })
+    }, 250)
+  }
 }
 
 productDialog.addEventListener('click', event => {

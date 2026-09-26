@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Science By Hugs monogram">
+<defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#0057FF"/><stop offset="1" stop-color="#00D2FF"/></linearGradient><linearGradient id="s" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F7FAFF"/><stop offset=".55" stop-color="#C0C6D4"/><stop offset="1" stop-color="#F7FAFF"/></linearGradient><filter id="g" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+<ellipse cx="120" cy="120" rx="96" ry="61" transform="rotate(-16 120 120)" fill="none" stroke="url(#b)" stroke-width="4"/>
+<circle cx="191" cy="59" r="11" fill="#00D2FF" filter="url(#g)"/><circle cx="191" cy="59" r="6" fill="#F7FAFF"/>
+<text x="31" y="145" fill="url(#s)" font-family="Space Grotesk, Arial, sans-serif" font-size="83" font-weight="700" letter-spacing="-7">SB</text>
+<text x="135" y="145" fill="url(#b)" font-family="Space Grotesk, Arial, sans-serif" font-size="83" font-weight="700">H</text>
+</svg>

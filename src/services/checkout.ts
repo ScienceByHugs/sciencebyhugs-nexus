@@ -9,6 +9,7 @@ export type CheckoutOrderResult = {
     subtotal: number
     discount: number
     shipping: number
+    processingFee: number
     tax: number
     total: number
   }
@@ -20,6 +21,7 @@ export async function createCheckoutOrder(
     policyAcknowledged: boolean
     contactMethod?: string
     customerNotes?: string
+    paymentMethod: 'PayPal' | 'Venmo' | 'Zelle'
   },
 ): Promise<CheckoutOrderResult> {
   const { data, error } = await supabase.functions.invoke('create-checkout-order', {
@@ -32,6 +34,7 @@ export async function createCheckoutOrder(
       policyAcknowledged: options.policyAcknowledged,
       contactMethod: options.contactMethod || null,
       customerNotes: options.customerNotes || null,
+      paymentMethod: options.paymentMethod,
     },
   })
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 220" role="img" aria-labelledby="t d">
+<title id="t">Science By Hugs</title><desc id="d">Blue Reactor horizontal Science By Hugs wordmark.</desc>
+<defs>
+<linearGradient id="silver" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#F7FAFF"/><stop offset=".5" stop-color="#C0C6D4"/><stop offset="1" stop-color="#F7FAFF"/></linearGradient>
+<linearGradient id="blue" x1="0" x2="1"><stop stop-color="#0057FF"/><stop offset="1" stop-color="#00D2FF"/></linearGradient>
+<filter id="g" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="M54 158 C240 232, 674 216, 864 102 C910 75, 915 43, 878 34" fill="none" stroke="url(#blue)" stroke-width="4" stroke-linecap="round"/>
+<path d="M76 72 C302 5, 714 2, 884 36" fill="none" stroke="#0057FF" stroke-width="2.4" opacity=".85" stroke-linecap="round"/>
+<circle cx="884" cy="36" r="9" fill="#00D2FF" filter="url(#g)"/><circle cx="884" cy="36" r="4" fill="#F7FAFF"/>
+<text x="70" y="132" fill="url(#silver)" font-family="Space Grotesk, Inter, Arial, sans-serif" font-size="78" font-weight="700" letter-spacing="2">SCIENCE BY </text>
+<text x="610" y="132" fill="url(#blue)" font-family="Space Grotesk, Inter, Arial, sans-serif" font-size="78" font-weight="700" letter-spacing="2">HUGS</text>
+<text x="238" y="176" fill="#C0C6D4" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="7">PEOPLE • DATA • A BRIGHTER TOMORROW</text>
+</svg>
