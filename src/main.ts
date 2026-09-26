@@ -1509,8 +1509,8 @@ function renderAccountHistory() {
           <div class="history-paypal-shell">
             <div>
               <span class="eyebrow">PAY SECURELY</span>
-              <strong>PayPal or Venmo Sandbox</strong>
-              <small>Choose an eligible payment method. No live money is moved while Sandbox mode is enabled.</small>
+              <strong>PayPal or Venmo</strong>
+              <small>Choose an eligible payment method to securely complete payment.</small>
             </div>
             <div class="nexus-wallet-buttons">
               <paypal-button
@@ -1670,8 +1670,8 @@ async function setupPayPalCheckout() {
         if (message) {
           message.textContent =
             paymentMethod === 'Venmo'
-              ? 'Opening Venmo Sandbox…'
-              : 'Opening PayPal Sandbox…'
+              ? 'Opening Venmo…'
+              : 'Opening PayPal…'
         }
 
         try {
@@ -1737,7 +1737,7 @@ async function setupPayPalCheckout() {
         `[data-paypal-message="${CSS.escape(orderId)}"]`,
       )
       if (message) {
-        message.textContent = 'PayPal/Venmo Sandbox setup is unavailable right now.'
+        message.textContent = 'PayPal/Venmo setup is unavailable right now.'
       }
     })
   }
