@@ -2171,3 +2171,197 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     height:46px;
   }
 }
+
+
+/* Nexus 21+ research-use entry gate */
+.nexus-gated,
+.nexus-gated body{
+  overflow:hidden;
+}
+.entry-gate[hidden]{display:none!important}
+.entry-gate{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  overflow:auto;
+}
+.entry-gate-backdrop{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(0,87,255,.24),transparent 34rem),
+    radial-gradient(circle at 92% 18%,rgba(0,210,255,.14),transparent 30rem),
+    rgba(4,6,10,.94);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.entry-gate-card{
+  position:relative;
+  z-index:1;
+  width:min(680px,100%);
+  margin:auto;
+  padding:clamp(26px,5vw,44px);
+  border:1px solid rgba(0,210,255,.24);
+  border-radius:28px;
+  background:
+    linear-gradient(180deg,rgba(18,25,35,.97),rgba(10,10,11,.985));
+  box-shadow:
+    0 36px 120px rgba(0,0,0,.66),
+    0 0 42px rgba(0,87,255,.12);
+}
+.entry-gate-logo{
+  display:block;
+  width:min(270px,70%);
+  height:auto;
+  margin:0 0 24px;
+}
+.entry-gate-kicker{
+  display:block;
+  color:#00D2FF;
+  font-size:.68rem;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.entry-gate-card h1{
+  margin:.35em 0 .3em;
+  font-size:clamp(2rem,6vw,3.5rem);
+  line-height:.98;
+  letter-spacing:-.045em;
+}
+.entry-gate-intro{
+  margin:0;
+  color:#AAB6C8;
+  line-height:1.65;
+}
+.entry-gate-notice{
+  margin:22px 0 16px;
+  padding:16px 18px;
+  border:1px solid rgba(0,210,255,.18);
+  border-radius:16px;
+  background:rgba(0,87,255,.07);
+}
+.entry-gate-notice strong{
+  color:#F7FAFF;
+  font-size:.9rem;
+}
+.entry-gate-notice p{
+  margin:7px 0 0;
+  color:#AAB6C8;
+  font-size:.82rem;
+  line-height:1.55;
+}
+.entry-policy-details{
+  margin:0 0 18px;
+  border:1px solid rgba(0,210,255,.16);
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(13,17,23,.84);
+}
+.entry-policy-details summary{
+  cursor:pointer;
+  list-style:none;
+  padding:14px 16px;
+  color:#00D2FF;
+  font-size:.78rem;
+  font-weight:850;
+}
+.entry-policy-details summary::-webkit-details-marker{display:none}
+.entry-policy-details summary::after{
+  content:"＋";
+  float:right;
+}
+.entry-policy-details[open] summary::after{content:"−"}
+.entry-policy-copy{
+  max-height:280px;
+  overflow:auto;
+  padding:0 16px 16px;
+  border-top:1px solid rgba(0,210,255,.11);
+}
+.entry-policy-meta{
+  margin:14px 0 10px;
+  color:#8A94A6;
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.entry-policy-copy pre{
+  margin:0;
+  white-space:pre-wrap;
+  font:inherit;
+  color:#B7C1D1;
+  font-size:.75rem;
+  line-height:1.6;
+}
+.entry-gate-confirmations{
+  display:grid;
+  gap:10px;
+}
+.entry-gate-check{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:12px;
+  align-items:start;
+  padding:14px;
+  border:1px solid rgba(0,210,255,.14);
+  border-radius:14px;
+  background:rgba(18,25,35,.72);
+  color:#EAF4FF;
+  font-size:.85rem;
+  line-height:1.45;
+  cursor:pointer;
+}
+.entry-gate-check input{
+  width:18px;
+  height:18px;
+  margin:1px 0 0;
+  accent-color:#00D2FF;
+}
+.entry-gate-enter,
+.entry-gate-exit{
+  width:100%;
+  min-height:50px;
+  margin-top:14px;
+  border-radius:14px;
+  font-weight:900;
+}
+.entry-gate-enter{
+  border:0;
+  background:linear-gradient(135deg,#0057FF,#00D2FF);
+  color:#02070c;
+  box-shadow:0 0 28px rgba(0,87,255,.18);
+}
+.entry-gate-enter:disabled{
+  opacity:.38;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+.entry-gate-exit{
+  margin-top:9px;
+  border:1px solid rgba(0,210,255,.18);
+  background:transparent;
+  color:#AAB6C8;
+}
+.entry-gate-footnote{
+  margin:14px 0 0;
+  color:#748198;
+  text-align:center;
+  font-size:.68rem;
+  line-height:1.45;
+}
+@media(max-width:600px){
+  .entry-gate{
+    padding:12px;
+    align-items:start;
+  }
+  .entry-gate-card{
+    margin:12px auto;
+    padding:24px 18px;
+    border-radius:22px;
+  }
+  .entry-gate-logo{width:220px}
+  .entry-policy-copy{max-height:220px}
+}
