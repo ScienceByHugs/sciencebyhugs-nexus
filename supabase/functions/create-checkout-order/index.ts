@@ -81,11 +81,12 @@ Deno.serve(async (req: Request) => {
   const paymentMethod =
     requestedPaymentMethod === "paypal" ? "PayPal" :
     requestedPaymentMethod === "venmo" ? "Venmo" :
+    requestedPaymentMethod === "apple pay" || requestedPaymentMethod === "applepay" ? "Apple Pay" :
     requestedPaymentMethod === "zelle" ? "Zelle" :
     null;
 
   if (!paymentMethod) {
-    return json({ error: "Choose PayPal, Venmo, or Zelle before starting checkout" }, 400);
+    return json({ error: "Choose PayPal, Venmo, Apple Pay, or Zelle before starting checkout" }, 400);
   }
 
   const requestedItems = Array.isArray(body.items) ? body.items : [];
@@ -162,9 +163,10 @@ Deno.serve(async (req: Request) => {
   shipping = money(shipping);
 
   const taxableMerchandise = money(Math.max(0, subtotal - discount));
-  const processingFee = paymentMethod === "PayPal" || paymentMethod === "Venmo"
-    ? money(taxableMerchandise * 0.05)
-    : 0;
+  const processingFee =
+    paymentMethod === "PayPal" || paymentMethod === "Venmo" || paymentMethod === "Apple Pay"
+      ? money(taxableMerchandise * 0.05)
+      : 0;
   const tax = money((taxableMerchandise + processingFee) * 0.08);
   const total = money(subtotal - discount + shipping + processingFee + tax);
   const now = new Date().toISOString();
@@ -213,10 +215,10 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Could not save checkout items" }, 500);
   }
 
-  // PayPal/Venmo fast path: return as soon as the secure Science By Hugs
+  // PayPal/Venmo/Apple Pay fast path: return as soon as the secure Science By Hugs
   // order and line items exist. Branded invoice/PDF generation is finalized
   // after the provider confirms payment in paypal-capture-order.
-  if (paymentMethod === "PayPal" || paymentMethod === "Venmo") {
+  if (paymentMethod === "PayPal" || paymentMethod === "Venmo" || paymentMethod === "Apple Pay") {
     return json({
       success: true,
       orderId: order.id,
