@@ -1,4 +1,5 @@
 import './styles.css'
+import './brand.css'
 import { registerSW } from 'virtual:pwa-register'
 import { fetchCatalog, type CatalogProduct } from './services/catalog'
 import {
@@ -68,7 +69,7 @@ if (incomingReferralCode) {
   window.localStorage.setItem('sbh_referral_code', incomingReferralCode.trim())
 }
 
-const nexusLogoUrl = `${import.meta.env.BASE_URL}nexus-logo.svg`
+const nexusLogoUrl = `${import.meta.env.BASE_URL}brand/nexus.svg`
 const defaultProductImageUrl = `${import.meta.env.BASE_URL}default-product-vial-photo.webp?v=2`
 
 const escapeHtml = (value: unknown) =>
