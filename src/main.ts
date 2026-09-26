@@ -78,6 +78,38 @@ const escapeHtml = (value: unknown) =>
   }[char] as string))
 
 
+const researchUsePolicy = nexusPolicies.find(policy => policy.id === 'research-use')
+if (!researchUsePolicy) throw new Error('Research Use Only Policy not found')
+
+const ENTRY_GATE_STORAGE_KEY = 'sbh_nexus_entry_ack'
+const ENTRY_GATE_DAYS = 30
+const ENTRY_GATE_VERSION = `research-use:${researchUsePolicy.effectiveDate}`
+
+type EntryGateAcknowledgment = {
+  version: string
+  acknowledgedAt: string
+  expiresAt: string
+  age21: true
+  researchUse: true
+}
+
+function hasValidEntryAcknowledgment() {
+  try {
+    const raw = window.localStorage.getItem(ENTRY_GATE_STORAGE_KEY)
+    if (!raw) return false
+    const acknowledgment = JSON.parse(raw) as Partial<EntryGateAcknowledgment>
+    return (
+      acknowledgment.version === ENTRY_GATE_VERSION &&
+      acknowledgment.age21 === true &&
+      acknowledgment.researchUse === true &&
+      typeof acknowledgment.expiresAt === 'string' &&
+      new Date(acknowledgment.expiresAt).getTime() > Date.now()
+    )
+  } catch {
+    return false
+  }
+}
+
 const policyCardsMarkup = nexusPolicies.map(policy => `
   <details class="policy-card">
     <summary>
@@ -94,6 +126,56 @@ const policyCardsMarkup = nexusPolicies.map(policy => `
 
 
 app.innerHTML = `
+  <section id="entryGate" class="entry-gate" aria-labelledby="entryGateTitle" ${hasValidEntryAcknowledgment() ? 'hidden' : ''}>
+    <div class="entry-gate-backdrop" aria-hidden="true"></div>
+    <div class="entry-gate-card">
+      <img class="entry-gate-logo" src="${nexusLogoUrl}" alt="Nexus — Science By Hugs" />
+      <span class="entry-gate-kicker">RESEARCH ACCESS CONFIRMATION</span>
+      <h1 id="entryGateTitle">Before entering Nexus.</h1>
+      <p class="entry-gate-intro">
+        Science By Hugs products are offered strictly for lawful research purposes and are not intended for human or veterinary use.
+      </p>
+
+      <div class="entry-gate-notice">
+        <strong>Research Use Only</strong>
+        <p>
+          Products are not intended for human consumption, human administration, veterinary use,
+          diagnosis, treatment, mitigation, cure, or prevention of disease or any medical condition.
+        </p>
+      </div>
+
+      <details class="entry-policy-details">
+        <summary>Read the Research Use Only Policy</summary>
+        <div class="entry-policy-copy">
+          <div class="entry-policy-meta">Effective ${escapeHtml(researchUsePolicy.effectiveDate)}</div>
+          <pre>${escapeHtml(researchUsePolicy.text)}</pre>
+        </div>
+      </details>
+
+      <div class="entry-gate-confirmations">
+        <label class="entry-gate-check">
+          <input id="entryAge21" type="checkbox" />
+          <span>I confirm that I am 21 years of age or older.</span>
+        </label>
+        <label class="entry-gate-check">
+          <input id="entryResearchUse" type="checkbox" />
+          <span>I have read, understand, and agree to the Science By Hugs Research Use Only Policy.</span>
+        </label>
+      </div>
+
+      <button id="enterNexusButton" class="entry-gate-enter" type="button" disabled>
+        Enter Nexus
+      </button>
+      <button id="exitNexusButton" class="entry-gate-exit" type="button">
+        Leave Site
+      </button>
+
+      <p class="entry-gate-footnote">
+        Your acknowledgment is remembered on this device for 30 days. You will be asked again if the policy is updated.
+      </p>
+    </div>
+  </section>
+
   <div class="stars" aria-hidden="true"></div>
 
   <header class="topbar">
@@ -524,6 +606,58 @@ const grid = document.querySelector<HTMLDivElement>('#catalogGrid')!
 const chips = document.querySelector<HTMLDivElement>('#categoryChips')!
 const count = document.querySelector<HTMLSpanElement>('#productCount')!
 const searchInput = document.querySelector<HTMLInputElement>('#searchInput')!
+const entryGate = document.querySelector<HTMLElement>('#entryGate')!
+const entryAge21 = document.querySelector<HTMLInputElement>('#entryAge21')!
+const entryResearchUse = document.querySelector<HTMLInputElement>('#entryResearchUse')!
+const enterNexusButton = document.querySelector<HTMLButtonElement>('#enterNexusButton')!
+const exitNexusButton = document.querySelector<HTMLButtonElement>('#exitNexusButton')!
+
+function syncEntryGateState() {
+  enterNexusButton.disabled = !(entryAge21.checked && entryResearchUse.checked)
+}
+
+function unlockNexusEntry() {
+  const acknowledgedAt = new Date()
+  const expiresAt = new Date(acknowledgedAt.getTime() + ENTRY_GATE_DAYS * 24 * 60 * 60 * 1000)
+  const acknowledgment: EntryGateAcknowledgment = {
+    version: ENTRY_GATE_VERSION,
+    acknowledgedAt: acknowledgedAt.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    age21: true,
+    researchUse: true,
+  }
+
+  try {
+    window.localStorage.setItem(ENTRY_GATE_STORAGE_KEY, JSON.stringify(acknowledgment))
+  } catch {
+    // The gate still unlocks for the current page when local storage is unavailable.
+  }
+
+  entryGate.hidden = true
+  document.documentElement.classList.remove('nexus-gated')
+}
+
+if (!hasValidEntryAcknowledgment()) {
+  document.documentElement.classList.add('nexus-gated')
+}
+
+entryAge21.addEventListener('change', syncEntryGateState)
+entryResearchUse.addEventListener('change', syncEntryGateState)
+enterNexusButton.addEventListener('click', () => {
+  if (enterNexusButton.disabled) return
+  unlockNexusEntry()
+})
+exitNexusButton.addEventListener('click', () => {
+  if (window.history.length > 1) {
+    window.history.back()
+    window.setTimeout(() => {
+      if (!document.hidden && !entryGate.hidden) window.location.replace('about:blank')
+    }, 350)
+    return
+  }
+  window.location.replace('about:blank')
+})
+
 const productDialog = document.querySelector<HTMLDialogElement>('#productDialog')!
 const dialogContent = document.querySelector<HTMLDivElement>('#dialogContent')!
 const cartDialog = document.querySelector<HTMLDialogElement>('#cartDialog')!
