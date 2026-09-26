@@ -1,24 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.117.1";
 
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzvED4G5C_Lm14qxv0BY8uhsv1tRtON6_sempQu2Zn0B3IxE_mBkfAmNh7mIZsq-icsGA/exec";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://nexus.sciencebyhugs.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-const SHIPPING_RATES: Record<string, number> = {
-  "Shipping - Emlin (L)": 70,
-  "Shipping - Emlin (S)": 50,
-  "Shipping - Emlin (US)": 20,
-  "Shipping - Amazon": 3,
-  "Shipping - Ella (US)": 20,
-  "Shipping - Ella (CN)": 50,
-  "Shipping Gigi": 16,
-  "Shipping": 0,
 };
 
 const json = (body: unknown, status = 200) =>
@@ -54,6 +40,29 @@ Deno.serve(async (req: Request) => {
     secretKeys.default,
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
+
+  const { data: runtimeConfigRow, error: runtimeConfigError } = await admin
+    .from("internal_runtime_config")
+    .select("value")
+    .eq("key", "checkout")
+    .single();
+
+  if (runtimeConfigError || !runtimeConfigRow?.value) {
+    return json({ error: "Checkout configuration unavailable" }, 503);
+  }
+
+  const runtimeConfig = runtimeConfigRow.value as {
+    appsScriptUrl?: string;
+    shippingRates?: Record<string, number>;
+    foundingMemberFreeShippingSource?: string;
+  };
+  const APPS_SCRIPT_URL = String(runtimeConfig.appsScriptUrl || "").trim();
+  const SHIPPING_RATES = runtimeConfig.shippingRates || {};
+  const FREE_SHIPPING_SOURCE = String(runtimeConfig.foundingMemberFreeShippingSource || "").trim();
+
+  if (!APPS_SCRIPT_URL) {
+    return json({ error: "Checkout configuration unavailable" }, 503);
+  }
 
   const { data: { user }, error: userError } = await userClient.auth.getUser();
   if (userError || !user) return json({ error: "Invalid session" }, 401);
@@ -157,7 +166,7 @@ Deno.serve(async (req: Request) => {
 
   let shipping = 0;
   for (const source of shippingSources) {
-    if (isFoundingMember && source.toLowerCase() === "shipping gigi") continue;
+    if (isFoundingMember && FREE_SHIPPING_SOURCE && source.toLowerCase() === FREE_SHIPPING_SOURCE.toLowerCase()) continue;
     shipping += SHIPPING_RATES[source] || 0;
   }
   shipping = money(shipping);
