@@ -16,6 +16,7 @@ declare global {
       }): Promise<any>
     }
     __sbhPayPalScriptPromise?: Promise<void>
+    __sbhApplePayScriptPromise?: Promise<void>
   }
 }
 
@@ -32,6 +33,24 @@ export async function getPayPalConfig(): Promise<PayPalConfig> {
   }
 
   return data as PayPalConfig
+}
+
+function loadApplePayScript() {
+  if ((window as any).ApplePaySession && customElements.get('apple-pay-button')) {
+    return Promise.resolve()
+  }
+  if (window.__sbhApplePayScriptPromise) return window.__sbhApplePayScriptPromise
+
+  window.__sbhApplePayScriptPromise = new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script')
+    script.async = true
+    script.src = 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('Could not load Apple Pay checkout'))
+    document.head.appendChild(script)
+  })
+
+  return window.__sbhApplePayScriptPromise
 }
 
 function loadPayPalScript(environment: string) {
@@ -59,13 +78,16 @@ export async function getPayPalSdk() {
 
   sdkPromise = (async () => {
     const config = await getPayPalConfig()
-    await loadPayPalScript(config.environment)
+    await Promise.all([
+      loadPayPalScript(config.environment),
+      loadApplePayScript().catch(() => undefined),
+    ])
 
     if (!window.paypal) throw new Error('PayPal checkout did not initialize')
 
     return window.paypal.createInstance({
       clientId: config.clientId,
-      components: ['paypal-payments', 'venmo-payments'],
+      components: ['paypal-payments', 'venmo-payments', 'applepay-payments'],
       pageType: 'checkout',
     })
   })()
@@ -80,7 +102,7 @@ export async function getPayPalSdk() {
 
 export async function createPayPalOrder(
   orderId: string,
-  paymentMethod: 'PayPal' | 'Venmo' = 'PayPal',
+  paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' = 'PayPal',
 ) {
   const { data, error } = await supabase.functions.invoke('paypal-create-order', {
     body: { orderId, paymentMethod },
@@ -101,7 +123,7 @@ export async function createPayPalOrder(
 export async function capturePayPalOrder(
   orderId: string,
   paypalOrderId: string,
-  paymentMethod: 'PayPal' | 'Venmo' = 'PayPal',
+  paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' = 'PayPal',
 ) {
   const { data, error } = await supabase.functions.invoke('paypal-capture-order', {
     body: { orderId, paypalOrderId, paymentMethod },
