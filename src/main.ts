@@ -126,14 +126,15 @@ const policyCardsMarkup = nexusPolicies.map(policy => `
 
 
 app.innerHTML = `
-  <section id="entryGate" class="entry-gate" aria-labelledby="entryGateTitle" ${hasValidEntryAcknowledgment() ? 'hidden' : ''}>
+  <section id="entryGate" class="entry-gate" aria-labelledby="entryGateTitle" style="--entry-vial:url('${defaultProductImageUrl}')" ${hasValidEntryAcknowledgment() ? 'hidden' : ''}>
     <div class="entry-gate-backdrop" aria-hidden="true"></div>
     <div class="entry-gate-card">
       <img class="entry-gate-logo" src="${nexusLogoUrl}" alt="Nexus — Science By Hugs" />
+      <div class="entry-gate-atom" aria-hidden="true">⚛</div>
       <span class="entry-gate-kicker">RESEARCH ACCESS CONFIRMATION</span>
-      <h1 id="entryGateTitle">Before entering Nexus.</h1>
+      <h1 id="entryGateTitle">Before entering <em>Nexus.</em></h1>
       <p class="entry-gate-intro">
-        Science By Hugs products are offered strictly for lawful research purposes and are not intended for human or veterinary use.
+        Science By Hugs products are offered for research use only and are not intended for human or veterinary use.
       </p>
 
       <div class="entry-gate-notice">
