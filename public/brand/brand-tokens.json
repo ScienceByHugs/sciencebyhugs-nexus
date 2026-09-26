@@ -1,0 +1,34 @@
+{
+  "name": "Science By Hugs — Blue Reactor",
+  "version": "1.0.0",
+  "status": "approved",
+  "colors": {
+    "jetBlack": "#0A0A0B",
+    "cobaltBlue": "#0057FF",
+    "cyanBlue": "#00D2FF",
+    "metallicSilver": "#C0C6D4",
+    "softWhite": "#F7FAFF",
+    "slateGray": "#2E3440",
+    "surface1": "#0D1117",
+    "surface2": "#121923",
+    "muted": "#8A94A6",
+    "success": "#20D6A2",
+    "warning": "#F7B731",
+    "danger": "#FF4D6D"
+  },
+  "typography": {
+    "display": "Space Grotesk",
+    "body": "Inter",
+    "fallback": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
+  },
+  "radii": { "sm": 10, "md": 14, "lg": 20, "xl": 28, "pill": 999 },
+  "glow": {
+    "cobalt": "0 0 28px rgba(0,87,255,.22)",
+    "cyan": "0 0 24px rgba(0,210,255,.22)"
+  },
+  "products": {
+    "nexus": { "descriptor": "Customer Research Portal" },
+    "core": { "descriptor": "Operations System" },
+    "pulse": { "descriptor": "Research Tracking System" }
+  }
+}
