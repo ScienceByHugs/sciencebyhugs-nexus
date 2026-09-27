@@ -18,6 +18,7 @@ export async function fetchCatalog(): Promise<CatalogProduct[]> {
     .from('products')
     .select('id,name,product_type,price,description,image_url,storefront_status,featured,shipping_from,product_categories(name)')
     .eq('active', true)
+    .eq('core_hidden', false)
     .order('name')
 
   if (error) throw error
