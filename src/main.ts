@@ -13,6 +13,8 @@ import {
   updateAccountDetails,
   signIn,
   signOut,
+  getMembershipBenefits,
+  hasMembershipBenefit,
   type NexusProfile,
 } from './services/auth'
 import {
@@ -564,6 +566,7 @@ app.innerHTML = `
             <i></i>
             <span id="accountStatus">—</span>
           </div>
+          <div id="accountBenefits" class="account-benefits" hidden></div>
           <span id="accountName" class="account-hidden-identity"></span>
           <span id="accountEmail" class="account-hidden-identity"></span>
         </div>
@@ -818,6 +821,24 @@ function showToast(message: string) {
   window.setTimeout(() => toast.classList.remove('show'), 1800)
 }
 
+
+function renderAccountBenefits() {
+  const benefits = getMembershipBenefits(currentProfile)
+  const container = document.querySelector<HTMLElement>('#accountBenefits')
+  if (!container) return
+
+  if (!benefits.length) {
+    container.hidden = true
+    container.innerHTML = ''
+    return
+  }
+
+  container.hidden = false
+  container.innerHTML = benefits.map(benefit => {
+    const active = hasMembershipBenefit(currentProfile, benefit)
+    return `<span class="account-benefit-chip" data-active="${active ? 'true' : 'false'}">✓ ${escapeHtml(benefit)}</span>`
+  }).join('')
+}
 
 function showAccountHub() {
   accountHubView.hidden = false
@@ -2266,6 +2287,7 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountCustomerId')!.textContent = currentProfile?.customer_number || 'Nexus Member'
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || 'Member'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
+  renderAccountBenefits()
   manageFirstName.value = currentProfile?.first_name || ''
   manageLastName.value = currentProfile?.last_name || ''
   managePhone.value = currentProfile?.phone || ''
