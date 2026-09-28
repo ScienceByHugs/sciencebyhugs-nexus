@@ -1188,17 +1188,39 @@ function renderChips() {
 
 function visibleProducts() {
   const normalized = query.trim().toLowerCase()
+
   return products.filter(product => {
     const category = product.product_categories?.name || 'Uncategorized'
-    const categoryMatch = selectedCategory === 'All' || category === selectedCategory
-    const searchMatch = !normalized || [
-      product.name,
-      product.product_type,
-      product.description,
-      category,
-    ].join(' ').toLowerCase().includes(normalized)
+    const normalizedCategory = category.trim().toLowerCase()
+    const foundingOnlyCategory =
+      normalizedCategory.includes('oral') ||
+      normalizedCategory.includes('inject')
 
-    return categoryMatch && searchMatch
+    const accessMatch =
+      !foundingOnlyCategory ||
+      isFoundingMember()
+
+    const categoryMatch =
+      selectedCategory === 'All' ||
+      category === selectedCategory
+
+    const searchMatch =
+      !normalized ||
+      [
+        product.name,
+        product.product_type,
+        product.description,
+        category,
+      ]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalized)
+
+    return (
+      accessMatch &&
+      categoryMatch &&
+      searchMatch
+    )
   })
 }
 
@@ -2700,6 +2722,7 @@ document.querySelector<HTMLButtonElement>('#logoutButton')!.addEventListener('cl
   try {
     await signOut()
     await refreshAccount()
+    await loadCatalog()
     showToast('Signed out')
   } catch (error) {
     showToast(error instanceof Error ? error.message : 'Could not sign out')
@@ -2718,6 +2741,7 @@ loginForm.addEventListener('submit', async event => {
     await signIn(loginEmail.value, loginPassword.value)
     loginPassword.value = ''
     await refreshAccount()
+    await loadCatalog()
     accountDialog.close()
 
     if (cart.length) {
