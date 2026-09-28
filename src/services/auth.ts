@@ -17,6 +17,31 @@ export type NexusProfile = {
   } | null
 }
 
+const normalizeMembershipBenefit = (value: string) =>
+  value.trim().toLowerCase()
+
+export function getMembershipBenefits(
+  profile: NexusProfile | null | undefined,
+): string[] {
+  return Array.isArray(profile?.memberships?.benefits)
+    ? profile.memberships.benefits.filter(
+        (benefit): benefit is string => typeof benefit === 'string' && benefit.trim().length > 0,
+      )
+    : []
+}
+
+export function hasMembershipBenefit(
+  profile: NexusProfile | null | undefined,
+  benefitName: string,
+): boolean {
+  const normalizedBenefitName = normalizeMembershipBenefit(benefitName)
+  if (!normalizedBenefitName) return false
+
+  return getMembershipBenefits(profile).some(
+    benefit => normalizeMembershipBenefit(benefit) === normalizedBenefitName,
+  )
+}
+
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email.trim(),
