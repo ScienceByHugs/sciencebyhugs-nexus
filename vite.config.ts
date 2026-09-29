@@ -23,11 +23,11 @@ export default defineConfig({
         skipWaiting: true,
         navigateFallbackDenylist: [/\.vcf$/i],
       },
-      includeAssets: ['brand/science-by-hugs.svg', 'brand/sbh-monogram.svg', 'brand/nexus.svg', 'default-product-vial-photo.webp', 'science-by-hugs-contact.vcf'],
+      includeAssets: ['brand/science-by-hugs.svg', 'brand/sbh-monogram.svg', 'brand/nexus.svg', 'brand/nexus-app-icon.svg', 'default-product-vial-photo.webp', 'science-by-hugs-contact.vcf'],
       manifest: {
-        name: 'Science By HUGs Nexus',
+        name: 'Science By Hugs Nexus',
         short_name: 'Nexus',
-        description: 'Customer-facing ordering and account PWA for the Science By HUGs ecosystem.',
+        description: 'NEXUS — Explore. Connect. Order. Customer research portal by Science By Hugs.',
         theme_color: '#0A0A0B',
         background_color: '#0A0A0B',
         display: 'standalone',
@@ -35,7 +35,7 @@ export default defineConfig({
         scope: base,
         icons: [
           {
-            src: `${base}brand/sbh-monogram.svg`,
+            src: `${base}brand/nexus-app-icon.svg`,
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
