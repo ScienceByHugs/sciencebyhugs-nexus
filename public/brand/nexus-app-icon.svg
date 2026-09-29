@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NEXUS — Science By Hugs">
+<defs><linearGradient id="b" x1="0" x2="1"><stop stop-color="#0057FF"/><stop offset="1" stop-color="#00D2FF"/></linearGradient><filter id="g" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="12"/></filter></defs>
+<rect width="512" height="512" rx="112" fill="#0A0A0B"/>
+<circle cx="256" cy="256" r="174" fill="none" stroke="#121923" stroke-width="2"/>
+<path d="M256 91 406 350H106Z" fill="none" stroke="url(#b)" stroke-width="20" stroke-linejoin="round"/>
+<path d="M256 132 370 329H142Z" fill="none" stroke="url(#b)" stroke-width="8" opacity=".66"/>
+<path d="M132 316C94 248 135 161 207 136M380 316c38-68-3-155-75-180" fill="none" stroke="url(#b)" stroke-width="12" stroke-linecap="round" opacity=".75"/>
+<circle cx="386" cy="171" r="20" fill="#00D2FF" opacity=".28" filter="url(#g)"/><circle cx="386" cy="171" r="10" fill="#F7FAFF"/>
+</svg>
