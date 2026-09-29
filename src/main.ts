@@ -183,8 +183,8 @@ app.innerHTML = `
   <div class="stars" aria-hidden="true"></div>
 
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Science By HUGs Nexus home">
-      <img class="nexus-header-logo" src="${nexusLogoUrl}" alt="Nexus — Science By HUGs" />
+    <a class="brand" href="#" aria-label="Science By Hugs Nexus home">
+      <img class="nexus-header-logo" src="${nexusLogoUrl}" alt="Nexus — Science By Hugs" />
     </a>
 
     <div class="top-actions">
@@ -201,7 +201,7 @@ app.innerHTML = `
     <section class="hero">
       <div class="eyebrow">SCIENCE • RESEARCH • DISCOVERY</div>
       <h1>Enter the <em>Nexus.</em></h1>
-      <p>Explore the live Science By HUGs catalog, powered by our continuously synced research database.</p>
+      <p>Explore the live Science By Hugs catalog, powered by our continuously synced research database.</p>
     </section>
 
     <section class="catalog-shell">
@@ -255,7 +255,7 @@ app.innerHTML = `
     <div class="menu-head">
       <span class="eyebrow">NEXUS NAVIGATION</span>
       <h2>Explore Nexus.</h2>
-      <p>Everything connected to your Science By HUGs account in one place.</p>
+      <p>Everything connected to your Science By Hugs account in one place.</p>
     </div>
     <nav class="menu-grid" aria-label="Nexus menu">
       <button class="menu-card" type="button" data-menu-target="catalog">
@@ -285,7 +285,7 @@ app.innerHTML = `
       <div class="support-hero">
         <span class="eyebrow">NEXUS SUPPORT</span>
         <h2>How can we help?</h2>
-        <p>Reach Science By HUGs support or save our contact card directly to your phone.</p>
+        <p>Reach Science By Hugs support or save our contact card directly to your phone.</p>
       </div>
 
       <div class="support-grid">
@@ -303,7 +303,7 @@ app.innerHTML = `
           <div>
             <span>TEXT SUPPORT</span>
             <strong>(725) 310-7502</strong>
-            <small>Open your messaging app and text the Science By HUGs support line.</small>
+            <small>Open your messaging app and text the Science By Hugs support line.</small>
           </div>
         </a>
 
@@ -324,7 +324,7 @@ app.innerHTML = `
         <button id="backPolicyToMenu" class="subpage-back-button" type="button">← Back to Menu</button>
         <div>
           <span class="eyebrow">POLICY LIBRARY</span>
-          <strong>Science By HUGs Policies</strong>
+          <strong>Science By Hugs Policies</strong>
         </div>
       </div>
       <button id="closePolicyDialog" class="referral-close-button" aria-label="Close">×</button>
@@ -430,7 +430,7 @@ app.innerHTML = `
         <label class="policy-check">
           <input id="policyAcknowledgment" type="checkbox" />
           <span>
-            I have read, acknowledged, and agree to comply with all Science By HUGs policies.
+            I have read, acknowledged, and agree to comply with all Science By Hugs policies.
           </span>
         </label>
       </section>
@@ -480,7 +480,7 @@ app.innerHTML = `
       <div class="success-orbit">✓</div>
       <span class="eyebrow">REQUEST RECEIVED</span>
       <h2>Invoice queued.</h2>
-      <p>Your invoice request is waiting for Science By HUGs approval.</p>
+      <p>Your invoice request is waiting for Science By Hugs approval.</p>
       <div class="success-number">
         <span>Invoice</span>
         <strong id="successInvoiceNumber">—</strong>
@@ -492,7 +492,7 @@ app.innerHTML = `
       <div class="success-orbit">✓</div>
       <span class="eyebrow">CHECKOUT RECEIVED</span>
       <h2 id="payNowSuccessTitle">Payment received.</h2>
-      <p id="payNowSuccessCopy">Your order has been sent to Science By HUGs Core.</p>
+      <p id="payNowSuccessCopy">Your order has been sent to Science By Hugs Core.</p>
       <div class="success-number">
         <span>Order</span>
         <strong id="payNowOrderNumber">—</strong>
@@ -507,7 +507,7 @@ app.innerHTML = `
     <div id="signedOutView">
       <span class="eyebrow">NEXUS IDENTITY</span>
       <h2>Welcome back.</h2>
-      <p class="account-copy">Sign in with your Science By HUGs account.</p>
+      <p class="account-copy">Sign in with your Science By Hugs account.</p>
 
       <form id="loginForm" class="auth-form">
         <label>
@@ -526,7 +526,7 @@ app.innerHTML = `
       <form id="forgotPasswordForm" class="auth-form recovery-form" hidden>
         <span class="eyebrow">PASSWORD RECOVERY</span>
         <h3>Reset your password.</h3>
-        <p class="account-copy">Enter the email connected to your Science By HUGs account.</p>
+        <p class="account-copy">Enter the email connected to your Science By Hugs account.</p>
         <label>
           Email
           <input id="forgotPasswordEmail" type="email" autocomplete="email" required />
@@ -539,7 +539,7 @@ app.innerHTML = `
       <form id="recoveryPasswordForm" class="auth-form recovery-form" hidden>
         <span id="passwordSetupEyebrow" class="eyebrow">SECURE RECOVERY</span>
         <h3 id="passwordSetupTitle">Choose a new password.</h3>
-        <p id="passwordSetupCopy" class="account-copy">Create a secure password for your Science By HUGs account.</p>
+        <p id="passwordSetupCopy" class="account-copy">Create a secure password for your Science By Hugs account.</p>
         <label>
           New password
           <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="10" required />
@@ -898,7 +898,7 @@ function showRecoveryPasswordView() {
   } else {
     if (eyebrow) eyebrow.textContent = 'SECURE RECOVERY'
     if (title) title.textContent = 'Choose a new password.'
-    if (copy) copy.textContent = 'Create a secure password for your Science By HUGs account.'
+    if (copy) copy.textContent = 'Create a secure password for your Science By Hugs account.'
     if (submit) submit.textContent = 'Set New Password'
   }
 
@@ -1013,7 +1013,7 @@ async function openReferralDashboard() {
       <div class="referral-hero">
         <span class="eyebrow">REFERRAL LAB</span>
         <h3>Refer a Friend</h3>
-        <p>Share your Nexus referral link. Qualified referrals count toward your Science By HUGs rewards.</p>
+        <p>Share your Nexus referral link. Qualified referrals count toward your Science By Hugs rewards.</p>
       </div>
 
       <div class="referral-code-card">
@@ -1069,7 +1069,7 @@ async function openReferralDashboard() {
         </label>
         <label class="referral-consent">
           <input id="referralConsent" type="checkbox" required>
-          <span>I confirm that I have permission to provide this person's contact information to Science By HUGs for referral tracking purposes.</span>
+          <span>I confirm that I have permission to provide this person's contact information to Science By Hugs for referral tracking purposes.</span>
         </label>
         <button id="trackReferralSubmit" class="auth-primary" type="submit">Track Referral</button>
         <div id="trackReferralMessage" class="auth-message"></div>
@@ -1097,8 +1097,8 @@ async function openReferralDashboard() {
       shareButton.addEventListener('click', async () => {
         try {
           await navigator.share({
-            title: 'Science By HUGs Nexus',
-            text: 'Join me on Science By HUGs Nexus.',
+            title: 'Science By Hugs Nexus',
+            text: 'Join me on Science By Hugs Nexus.',
             url: referralLink,
           })
         } catch {
@@ -1242,7 +1242,7 @@ function renderProducts() {
         <div class="product-image">
           ${product.image_url
             ? `<img src="${escapeHtml(product.image_url)}" alt="" loading="lazy" />`
-            : `<img src="${defaultProductImageUrl}" alt="Science By HUGs research vial" loading="lazy" class="default-product-image" />`}
+            : `<img src="${defaultProductImageUrl}" alt="Science By Hugs research vial" loading="lazy" class="default-product-image" />`}
           ${product.featured ? '<span class="featured">FEATURED</span>' : ''}
         </div>
         <div class="product-body">
@@ -1295,13 +1295,13 @@ function openProduct(id: string) {
     <div class="dialog-image">
       ${product.image_url
         ? `<img src="${escapeHtml(product.image_url)}" alt="" />`
-        : `<img src="${defaultProductImageUrl}" alt="Science By HUGs research vial" class="default-product-image" />`}
+        : `<img src="${defaultProductImageUrl}" alt="Science By Hugs research vial" class="default-product-image" />`}
     </div>
     <span class="category">${escapeHtml(category)}</span>
     <h2>${escapeHtml(product.name)}</h2>
     <div class="dialog-price">${money(Number(product.price))}</div>
     <p class="dialog-description">${escapeHtml(product.description || 'Product information is being prepared.')}</p>
-    <div class="research-notice">For research use only. Catalog availability is synchronized with the Science By HUGs research database.</div>
+    <div class="research-notice">For research use only. Catalog availability is synchronized with the Science By Hugs research database.</div>
     <button id="dialogAddToCart" class="request-invoice-button" type="button" ${available ? '' : 'disabled'}>
       ${available ? 'Add to Cart' : 'Unavailable'}
     </button>
@@ -1385,7 +1385,7 @@ function updateCheckoutCustomer() {
   customerSignedIn.hidden = false
 
   const name = [currentProfile.first_name, currentProfile.last_name].filter(Boolean).join(' ')
-  document.querySelector<HTMLElement>('#checkoutCustomerName')!.textContent = name || 'Science By HUGs Customer'
+  document.querySelector<HTMLElement>('#checkoutCustomerName')!.textContent = name || 'Science By Hugs Customer'
   document.querySelector<HTMLElement>('#checkoutCustomerId')!.textContent =
     currentProfile.customer_number ? `Customer ID: ${currentProfile.customer_number}` : 'Customer ID: —'
   document.querySelector<HTMLElement>('#checkoutCustomerEmail')!.textContent =
@@ -1783,7 +1783,7 @@ async function setupCartPayNow() {
           )
           await finishPayNow(
             'Payment submitted.',
-            'Your Zelle payment is waiting for Science By HUGs verification before processing.',
+            'Your Zelle payment is waiting for Science By Hugs verification before processing.',
           )
         } catch (error) {
           cartZelleMessage.textContent =
@@ -2214,13 +2214,13 @@ async function setupZelleCheckout() {
 
       button?.addEventListener('click', async () => {
         const confirmed = window.confirm(
-          'Confirm that you already sent the Zelle payment?\n\nThis does not mark the order paid. Science By HUGs will verify it before processing.'
+          'Confirm that you already sent the Zelle payment?\n\nThis does not mark the order paid. Science By Hugs will verify it before processing.'
         )
         if (!confirmed) return
 
         button.disabled = true
         button.textContent = 'Submitting…'
-        if (message) message.textContent = 'Sending payment notice to Science By HUGs…'
+        if (message) message.textContent = 'Sending payment notice to Science By Hugs…'
 
         try {
           await submitZellePayment(orderId, input?.value.trim() || '')
