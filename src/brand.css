@@ -54,3 +54,15 @@ body{
 .chip.active,.account-button:hover,.cart-button:hover,.add-cart-button:hover:not(:disabled){
   border-color:rgba(0,210,255,.42);
 }
+/* Blue Reactor v2 — NEXUS */
+:root{
+  --nexus-cobalt:#0057FF;
+  --nexus-cyan:#00D2FF;
+  --nexus-tagline:"Explore. Connect. Order.";
+}
+.nexus-tagline,.product-tagline{
+  color:var(--sbh-cyan);
+  font-family:var(--sbh-heading);
+  font-weight:700;
+  letter-spacing:.08em;
+}
