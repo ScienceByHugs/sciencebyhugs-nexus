@@ -7,7 +7,7 @@ import { ensureKeys, deliver, handleSubscription } from '../_shared/web-push.ts'
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' }
 const keys = JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}')
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, keys.default || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
-const sql = postgres(Deno.env.get('SUPABASE_DB_URL')!, { prepare: false, max: 1, idle_timeout: 1, connect_timeout: 10 })
+function createHandler(sql: any) {
 
 async function dispatch() {
   const { publicKey, privateKey } = await ensureKeys(sql, 'ecosystem')
@@ -40,7 +40,7 @@ async function dispatch() {
   return { sent, processed: events.length }
 }
 
-Deno.serve(async (req: Request) => {
+return async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
     if (new URL(req.url).searchParams.get('action') === 'dispatch') {
@@ -53,4 +53,10 @@ Deno.serve(async (req: Request) => {
     console.error('Push request failed', error?.statusCode || error?.code || 'internal')
     return Response.json({ error: 'Unable to process notifications. Please try again.' }, { status: 500, headers: cors })
   }
+}
+}
+Deno.serve(async (req: Request) => {
+  const sql = postgres(Deno.env.get('SUPABASE_DB_URL')!, { prepare: false, max: 1, idle_timeout: 1, connect_timeout: 10 })
+  try { return await createHandler(sql)(req) }
+  finally { await sql.end({ timeout: 1 }) }
 })
