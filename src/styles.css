@@ -2188,10 +2188,13 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   position:fixed;
   inset:0;
   z-index:9999;
-  display:grid;
-  place-items:center;
-  padding:24px;
-  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  height:100vh;
+  height:100dvh;
+  padding:max(24px,env(safe-area-inset-top)) 24px max(24px,env(safe-area-inset-bottom));
+  overflow:hidden;
 }
 .entry-gate-backdrop{
   position:fixed;
@@ -2207,7 +2210,10 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   position:relative;
   z-index:1;
   width:min(680px,100%);
-  margin:auto;
+  flex:0 1 auto;
+  min-height:0;
+  max-height:100%;
+  margin:auto 0;
   padding:clamp(26px,5vw,44px);
   border:1px solid rgba(0,210,255,.24);
   border-radius:28px;
@@ -2359,11 +2365,11 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 }
 @media(max-width:600px){
   .entry-gate{
-    padding:12px;
-    align-items:start;
+    padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));
+    align-items:center;
   }
   .entry-gate-card{
-    margin:12px auto;
+    margin:auto 0;
     padding:24px 18px;
     border-radius:22px;
   }
@@ -2409,7 +2415,9 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 }
 .entry-gate-card{
   text-align:center;
-  overflow:hidden;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
 }
 .entry-gate-card::before{
   content:"";
@@ -2520,9 +2528,8 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 }
 @media(max-width:600px){
   .entry-gate{
-    padding:0;
-    min-height:100dvh;
-    align-items:start;
+    padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));
+    align-items:center;
   }
   .entry-gate::before{
     background:
@@ -2536,8 +2543,8 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     -webkit-backdrop-filter:blur(4px);
   }
   .entry-gate-card{
-    width:calc(100% - 28px);
-    margin:max(150px,22vh) auto max(18px,env(safe-area-inset-bottom));
+    width:100%;
+    margin:auto 0;
     padding:26px 18px 20px;
     border-radius:26px;
     border-color:rgba(0,210,255,.46);
@@ -2548,8 +2555,8 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   }
   .entry-gate-logo{
     width:min(240px,78%);
-    margin-top:-82px;
-    margin-bottom:28px;
+    margin-top:0;
+    margin-bottom:12px;
     filter:drop-shadow(0 10px 24px rgba(0,0,0,.55));
   }
   .entry-gate-atom{
@@ -2637,9 +2644,12 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   }
 }
 @media(max-width:390px){
+  .entry-gate{
+    padding-left:10px;
+    padding-right:10px;
+  }
   .entry-gate-card{
-    width:calc(100% - 20px);
-    margin-top:max(132px,20vh);
+    width:100%;
     padding-left:14px;
     padding-right:14px;
   }
