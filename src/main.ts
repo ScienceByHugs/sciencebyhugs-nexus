@@ -1,3 +1,4 @@
+import { avatarMarkup, avatarPanel, bindAvatars } from './avatar'
 import { pushPanel, bindPushPanel, disablePush } from './push'
 import './styles.css'
 import './brand.css'
@@ -190,7 +191,7 @@ app.innerHTML = `
 
     <div class="top-actions">
       <span class="system-status"><i></i> CATALOG LIVE</span>
-      <button id="menuButton" class="account-button menu-button" type="button">Menu</button>
+      <button id="menuButton" class="account-button menu-button" type="button">${avatarMarkup()}<span>Menu</span></button>
       <button id="cartButton" class="cart-button" type="button">
         Cart <span id="cartCount">0</span>
       </button>
@@ -572,6 +573,7 @@ app.innerHTML = `
           <span id="accountEmail" class="account-hidden-identity"></span>
         </div>
 
+        ${avatarPanel()}
         ${pushPanel()}
         <div class="account-hub-actions">
           <button id="manageAccountButton" class="account-hub-card" type="button">
@@ -843,6 +845,7 @@ function renderAccountBenefits() {
 }
 
 function showAccountHub() {
+  void bindAvatars([currentProfile?.first_name, currentProfile?.last_name].filter(Boolean).join(' '), true)
   accountHubView.hidden = false
   accountManageView.hidden = true
   accountOrdersView.hidden = true
@@ -2280,6 +2283,7 @@ async function refreshOrderHistory() {
 
 async function refreshAccount() {
   const user = await getCurrentUser()
+  void bindAvatars()
 
   if (recoveryMode || inviteMode) {
     currentProfile = null
@@ -2316,7 +2320,9 @@ async function refreshAccount() {
     : ''
 
   const firstName = currentProfile?.first_name?.trim() || fullName.split(' ')[0] || 'Researcher'
-  accountButton.textContent = fullName || 'My Account'
+  accountButton.innerHTML = avatarMarkup()
+  accountButton.setAttribute('aria-label', fullName || 'My Account')
+  void bindAvatars(fullName)
   document.querySelector<HTMLElement>('#accountWelcome')!.textContent = `Welcome, ${firstName}, to the Nexus.`
   document.querySelector<HTMLElement>('#accountName')!.textContent = fullName || 'Your account'
   document.querySelector<HTMLElement>('#accountEmail')!.textContent = currentProfile?.email || user.email || ''
