@@ -55,9 +55,9 @@ export async function handleSubscription(req: Request, admin: any, sql: any, pre
   if (error || !user) return respond({ error: 'Unauthorized' }, 401)
   const input = req.method === 'POST' ? await req.json() : {}
   const app = fixedApp || input.app
-  if (!['pulse', 'nexus', 'core'].includes(app)) return respond({ error: 'Invalid app' }, 400)
-  if (app === 'core' && !['owner', 'admin'].includes(String(user.app_metadata?.role || '').toLowerCase())) return respond({ error: 'Forbidden' }, 403)
+  if (!(fixedApp ? [fixedApp] : ['core', 'nexus']).includes(app)) return respond({ error: 'Invalid app' }, 400)
   const action = input.action || new URL(req.url).searchParams.get('action') || 'config'
+  if (app === 'core' && !['status', 'unsubscribe'].includes(action) && !['owner', 'admin'].includes(String(user.app_metadata?.role || '').toLowerCase())) return respond({ error: 'Forbidden' }, 403)
   if (action === 'config') {
     const { publicKey } = await ensureKeys(sql, prefix)
     return respond({ publicKey })
