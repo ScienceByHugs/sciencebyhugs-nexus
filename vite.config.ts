@@ -18,6 +18,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
+        importScripts: ['push-sw.js'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
