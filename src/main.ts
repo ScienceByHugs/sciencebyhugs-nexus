@@ -1826,6 +1826,10 @@ function friendlyOrderStatus(status: string) {
   return labels[status] || status.replaceAll('_', ' ')
 }
 
+const deliveryDate = (value: string) => new Intl.DateTimeFormat('en-US', {
+  weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC',
+}).format(new Date(value + 'T00:00:00Z'))
+
 function renderAccountHistory() {
   if (!currentProfile) {
     accountHistoryList.innerHTML = '<div class="history-state">Sign in to view your order history.</div>'
@@ -1887,6 +1891,14 @@ function renderAccountHistory() {
             ${escapeHtml(status)}
           </span>
         </div>
+
+        ${!['delivered', 'cancelled'].includes(order.status) ? `
+          <div class="history-delivery">
+            <span>Estimated delivery</span>
+            <strong>${order.estimated_delivery_date ? escapeHtml(deliveryDate(order.estimated_delivery_date)) : 'To be confirmed'}</strong>
+            <small>Delivery dates are estimates and may change.</small>
+          </div>
+        ` : ''}
 
         <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
 

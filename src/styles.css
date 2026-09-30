@@ -2779,3 +2779,9 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   .account-name-grid{grid-template-columns:1fr}
   .account-manage-form{padding:14px}
 }
+
+/* Customer order delivery estimate */
+.history-delivery{display:grid;gap:6px;padding:14px;margin:12px 0;border:1px solid rgba(32,201,255,.2);border-radius:12px;background:rgba(0,119,255,.05)}
+.history-delivery>span{font-size:.75rem;color:var(--muted)}
+.history-delivery>strong{font-size:1rem;color:var(--text)}
+.history-delivery>small{font-size:.72rem;color:var(--muted);line-height:1.4}
