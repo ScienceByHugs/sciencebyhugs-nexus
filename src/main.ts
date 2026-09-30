@@ -845,6 +845,7 @@ function renderAccountBenefits() {
 }
 
 function showAccountHub() {
+  void bindAvatars([currentProfile?.first_name, currentProfile?.last_name].filter(Boolean).join(' '), true)
   accountHubView.hidden = false
   accountManageView.hidden = true
   accountOrdersView.hidden = true

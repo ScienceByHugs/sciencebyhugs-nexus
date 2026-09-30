@@ -54,7 +54,7 @@ function clear() {
 supabase.auth.onAuthStateChange((_event, session) => {
   if (!session || (currentId && session.user.id !== currentId)) clear()
 })
-export async function bindAvatars(name = '') {
+export async function bindAvatars(name = '', refresh = false) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) { clear(); return }
   const id = session.user.id
@@ -63,7 +63,7 @@ export async function bindAvatars(name = '') {
   currentName = name || session.user.user_metadata?.display_name || [session.user.user_metadata?.first_name, session.user.user_metadata?.last_name].filter(Boolean).join(' ') || session.user.email?.split('@')[0] || '?'
   paint()
   const version = generation
-  if (Date.now() - loadedAt > 30 * 60 * 1000) {
+  if (refresh || Date.now() - loadedAt > 30 * 60 * 1000) {
     const { data, error } = await bucket().createSignedUrl(`${id}/avatar.jpg`, 3600)
     if (currentId !== id || version !== generation) return
     photoUrl = error ? '' : data?.signedUrl || ''
