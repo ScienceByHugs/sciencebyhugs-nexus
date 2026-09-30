@@ -1,3 +1,4 @@
+import { pushPanel, bindPushPanel, disablePush } from './push'
 import './styles.css'
 import './brand.css'
 import { registerSW } from 'virtual:pwa-register'
@@ -571,6 +572,7 @@ app.innerHTML = `
           <span id="accountEmail" class="account-hidden-identity"></span>
         </div>
 
+        ${pushPanel()}
         <div class="account-hub-actions">
           <button id="manageAccountButton" class="account-hub-card" type="button">
             <span class="account-hub-icon">◎</span>
@@ -2322,11 +2324,19 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || 'Member'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
   renderAccountBenefits()
+  void bindPushPanel()
   manageFirstName.value = currentProfile?.first_name || ''
   manageLastName.value = currentProfile?.last_name || ''
   managePhone.value = currentProfile?.phone || ''
   manageEmail.value = currentProfile?.email || user.email || ''
   showAccountHub()
+  const pushUrl = new URL(location.href)
+  if (pushUrl.searchParams.get('push') === 'orders') {
+    pushUrl.searchParams.delete('push')
+    history.replaceState(null, '', pushUrl)
+    if (!accountDialog.open) accountDialog.showModal()
+    showOrderActivity()
+  }
   updateCheckoutCustomer()
   updateCartUI()
 
@@ -2732,6 +2742,7 @@ document.querySelector<HTMLButtonElement>('#logoutButton')!.addEventListener('cl
   const logoutButton = document.querySelector<HTMLButtonElement>('#logoutButton')!
   logoutButton.disabled = true
   try {
+    await disablePush()
     await signOut()
     await refreshAccount()
     await loadCatalog()
