@@ -26,13 +26,12 @@ async function dispatch() {
       const users = await sql`select id from auth.users where id=${event.user_id} and lower(raw_app_meta_data->>'role') in ('owner','admin')`
       if (!users.length) { await sql`update private.app_push_queue set delivered_at=now() where id=${event.id}`; continue }
     }
-    const { data: subscriptions, error } = await admin.from('app_push_subscriptions').select('*').eq('user_id', event.user_id).eq('app', event.app)
-    if (error) throw error
+    const subscriptions=await sql`select * from public.app_push_subscriptions where user_id=${event.user_id} and app=${event.app}`
     let failed = false
     for (const sub of subscriptions || []) {
       if ((event.delivered_endpoints || []).includes(sub.id)) continue
       try {
-        if (await deliver(admin, 'app_push_subscriptions', sub, event.payload)) sent++
+        if (await deliver(admin, 'app_push_subscriptions', sub, event.payload, sql)) sent++
         await sql`update private.app_push_queue set delivered_endpoints=array_append(delivered_endpoints,${sub.id}::uuid) where id=${event.id}`
       } catch (error: any) { failed = true; console.error('Push delivery failed', error?.statusCode || 'network') }
     }
