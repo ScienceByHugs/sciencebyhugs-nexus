@@ -2795,3 +2795,74 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 .history-delivery>span{font-size:.75rem;color:var(--muted)}
 .history-delivery>strong{font-size:1rem;color:var(--text)}
 .history-delivery>small{font-size:.72rem;color:var(--muted);line-height:1.4}
+
+/* Keep the collapsed entry warning within a typical phone's safe viewport. */
+@media(max-width:600px){
+  .entry-gate-card{
+    padding:16px 16px 14px;
+  }
+  .entry-gate-logo{
+    width:150px;
+    margin:0 auto 8px;
+  }
+  .entry-gate-atom{
+    display:none;
+  }
+  .entry-gate-card h1{
+    max-width:100%;
+    font-size:clamp(1.3rem,5.5vw,1.6rem);
+    line-height:1.08;
+    margin:0 auto 12px;
+    letter-spacing:.02em;
+  }
+  .entry-gate-intro{
+    max-width:100%;
+    font-size:.78rem;
+    line-height:1.4;
+  }
+  .entry-gate-notice{
+    margin:12px 0 10px;
+    padding:10px 12px 10px 14px;
+  }
+  .entry-gate-notice p{
+    margin-top:5px;
+    line-height:1.4;
+  }
+  .entry-policy-details{
+    margin-bottom:10px;
+  }
+  .entry-policy-details summary{
+    padding:10px 12px;
+  }
+  .entry-gate-confirmations{
+    gap:7px;
+  }
+  .entry-gate-check{
+    padding:9px 10px;
+    font-size:.73rem;
+    line-height:1.35;
+  }
+  .entry-gate-enter,
+  .entry-gate-exit{
+    min-height:44px;
+  }
+  .entry-gate-enter{
+    margin-top:10px;
+  }
+  .entry-gate-exit{
+    margin-top:6px;
+  }
+  .entry-gate-footnote{
+    margin-top:8px;
+    line-height:1.35;
+  }
+}
+@media(max-width:600px) and (max-height:740px){
+  .entry-gate-logo{
+    display:none;
+  }
+  .entry-gate-card{
+    padding-top:14px;
+    padding-bottom:12px;
+  }
+}
