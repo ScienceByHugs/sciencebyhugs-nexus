@@ -2866,3 +2866,31 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
     padding-bottom:12px;
   }
 }
+
+/* Compact mobile catalog layout */
+@media(max-width:600px){
+  .topbar{padding:8px 14px}
+  .brand .nexus-header-logo{height:40px}
+  .menu-button{min-height:44px;padding:9px 15px}
+  .shell{padding-top:16px}
+  .hero{padding:10px 0 24px}
+  .hero .eyebrow{font-size:.62rem;letter-spacing:.15em}
+  .hero h1{font-size:clamp(2.15rem,9vw,3rem);line-height:1.04;margin:12px 0}
+  .hero p{font-size:.95rem;line-height:1.5;margin:0;max-width:100%}
+  .catalog-shell{padding-top:0}
+  .toolbar{gap:10px}
+  .search{height:48px;border-radius:15px}
+  .search input{min-width:0;font-size:16px}
+  .chips{gap:8px;padding-bottom:4px}
+  .chip{min-height:44px;padding:9px 13px;font-size:.72rem}
+  .section-heading{margin:22px 0 12px;gap:12px}
+  .section-heading h2{font-size:1.65rem;margin-top:5px}
+  .section-heading .eyebrow{font-size:.62rem}
+  .count{white-space:nowrap;font-size:.76rem}
+  .product-card{border-radius:18px}
+  .product-body{padding:12px}
+  .product-footer{margin-top:12px}
+  body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  .mobile-bottom-nav{padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+  .mobile-nav-item{min-height:48px;gap:2px;border-radius:11px}
+}
