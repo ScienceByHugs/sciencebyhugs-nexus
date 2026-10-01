@@ -199,6 +199,7 @@ app.innerHTML = `
     </div>
   </header>
 
+  ${pushPrompt()}
   <main class="shell">
     <section class="hero">
       <div class="eyebrow">SCIENCE • RESEARCH • DISCOVERY</div>
@@ -573,7 +574,6 @@ app.innerHTML = `
           <span id="accountEmail" class="account-hidden-identity"></span>
         </div>
 
-        ${pushPrompt()}
         <div class="account-hub-actions">
           <button id="manageAccountButton" class="account-hub-card" type="button">
             <span class="account-hub-icon">◎</span>
@@ -846,7 +846,6 @@ function renderAccountBenefits() {
 }
 
 function showAccountHub() {
-  void bindPushPanel()
   void bindAvatars([currentProfile?.first_name, currentProfile?.last_name].filter(Boolean).join(' '), true)
   accountHubView.hidden = false
   accountManageView.hidden = true
@@ -2285,6 +2284,7 @@ async function refreshOrderHistory() {
 
 async function refreshAccount() {
   const user = await getCurrentUser()
+  void bindPushPanel(!recoveryMode && !inviteMode ? user?.id || '' : '')
   void bindAvatars()
 
   if (recoveryMode || inviteMode) {
