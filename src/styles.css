@@ -2901,3 +2901,9 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 .push-actions button{min-height:44px;padding:10px 14px;border:1px solid rgba(0,210,255,.3);border-radius:12px;background:rgba(0,87,255,.12);color:var(--text);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}
 .push-actions button:disabled{opacity:.5;cursor:wait}
 .push-actions button[hidden]{display:none}
+
+.push-prompt{padding:14px 16px;margin:16px 0;border:1px solid rgba(0,210,255,.3);border-radius:16px;background:rgba(0,87,255,.08)}
+.push-prompt[hidden]{display:none}.push-prompt p{margin:0 0 8px;font-size:.85rem;line-height:1.5;color:var(--muted)}
+.push-prompt button{min-height:44px;padding:8px 0;border:0;background:none;color:var(--cyan,#00d2ff);font:inherit;font-size:.85rem;font-weight:800;text-align:left;cursor:pointer}
+.push-prompt button:disabled{opacity:.5;cursor:wait}.push-prompt button:focus-visible{outline:2px solid var(--cyan,#00d2ff);outline-offset:3px;border-radius:4px}
+.push-prompt [data-push-prompt-status]:empty{display:none}
