@@ -25,7 +25,7 @@ export const SHIPPING_RATES: Record<string, number> = {
   'Shipping - Amazon': 3,
   'Shipping - Ella (US)': 20,
   'Shipping - Ella (CN)': 50,
-  'Shipping Gigi': 16,
+  'Shipping Gigi': 20,
   'Shipping': 0,
 }
 
