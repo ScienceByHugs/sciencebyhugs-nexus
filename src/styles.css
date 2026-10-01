@@ -1319,9 +1319,13 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 }
 
 
+/* Keep one profile shortcut: desktop Account, mobile Menu. */
+#menuButton > .profile-avatar{display:none}
+
 /* Mobile bottom navigation */
 .mobile-bottom-nav{display:none}
 @media(max-width:600px){
+  #menuButton > .profile-avatar{display:inline-flex}
   body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
   .shell{padding-bottom:34px}
   .top-actions #cartButton,
