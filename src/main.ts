@@ -2817,8 +2817,28 @@ onAuthChange((event) => {
 async function loadCatalog() {
   try {
     products = await fetchCatalog()
+
+    const liveProducts = new Map(products.map(product => [product.id, product]))
+    let cartChanged = false
+
+    cart = cart.map(item => {
+      const product = liveProducts.get(item.id)
+      if (!product) return item
+
+      const price = Number(product.price) || 0
+      const shippingFrom = product.shipping_from || ''
+
+      if (item.price === price && item.shippingFrom === shippingFrom) return item
+
+      cartChanged = true
+      return { ...item, price, shippingFrom }
+    })
+
+    if (cartChanged) saveCart(cart)
+
     renderChips()
     renderProducts()
+    updateCartUI()
   } catch (error) {
     console.error(error)
     grid.innerHTML = `
