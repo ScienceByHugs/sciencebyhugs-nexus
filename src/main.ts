@@ -1,5 +1,5 @@
 import { avatarMarkup, avatarPanel, bindAvatars } from './avatar'
-import { pushPanel, bindPushPanel, disablePush } from './push'
+import { pushPanel, pushPrompt, bindPushPanel, disablePush } from './push'
 import './styles.css'
 import './brand.css'
 import { registerSW } from 'virtual:pwa-register'
@@ -573,12 +573,11 @@ app.innerHTML = `
           <span id="accountEmail" class="account-hidden-identity"></span>
         </div>
 
-        ${avatarPanel()}
-        ${pushPanel()}
+        ${pushPrompt()}
         <div class="account-hub-actions">
           <button id="manageAccountButton" class="account-hub-card" type="button">
             <span class="account-hub-icon">◎</span>
-            <span><strong>Manage Account</strong><small>Name, phone, email & password</small></span>
+            <span><strong>Manage Account</strong><small>Photo, profile, notifications & security</small></span>
             <b>→</b>
           </button>
           <button id="orderActivityButton" class="account-hub-card" type="button">
@@ -607,6 +606,7 @@ app.innerHTML = `
           <p>Keep your Nexus identity and sign-in information current.</p>
         </div>
 
+        ${avatarPanel()}
         <form id="accountManageForm" class="auth-form account-manage-form">
           <div class="account-name-grid">
             <label>
@@ -630,6 +630,7 @@ app.innerHTML = `
           <div id="accountManageMessage" class="auth-message" aria-live="polite"></div>
         </form>
 
+        ${pushPanel()}
         <section class="account-security-shell account-manage-security">
           <div class="account-history-heading">
             <div>
@@ -845,6 +846,7 @@ function renderAccountBenefits() {
 }
 
 function showAccountHub() {
+  void bindPushPanel()
   void bindAvatars([currentProfile?.first_name, currentProfile?.last_name].filter(Boolean).join(' '), true)
   accountHubView.hidden = false
   accountManageView.hidden = true
@@ -2330,7 +2332,6 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || 'Member'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
   renderAccountBenefits()
-  void bindPushPanel()
   manageFirstName.value = currentProfile?.first_name || ''
   manageLastName.value = currentProfile?.last_name || ''
   managePhone.value = currentProfile?.phone || ''
