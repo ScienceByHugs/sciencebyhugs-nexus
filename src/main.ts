@@ -1,3 +1,4 @@
+import { marketingFields, marketingPanel, bindMarketing, saveMarketing, readMarketing } from './marketing'
 import { avatarMarkup, avatarPanel, bindAvatars } from './avatar'
 import { pushPanel, pushPrompt, bindPushPanel, disablePush } from './push'
 import './styles.css'
@@ -551,6 +552,7 @@ app.innerHTML = `
           Confirm new password
           <input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="10" required />
         </label>
+        ${marketingFields('activation')}
         <button id="recoveryPasswordSubmit" class="auth-primary" type="submit">Set New Password</button>
         <div id="recoveryPasswordMessage" class="auth-message" aria-live="polite"></div>
       </form>
@@ -631,6 +633,7 @@ app.innerHTML = `
         </form>
 
         ${pushPanel()}
+        ${marketingPanel()}
         <section class="account-security-shell account-manage-security">
           <div class="account-history-heading">
             <div>
@@ -2332,6 +2335,7 @@ async function refreshAccount() {
   document.querySelector<HTMLElement>('#accountMembership')!.textContent = currentProfile?.memberships?.name || 'Member'
   document.querySelector<HTMLElement>('#accountStatus')!.textContent = currentProfile?.account_status || 'Active'
   renderAccountBenefits()
+  void bindMarketing('nexus')
   manageFirstName.value = currentProfile?.first_name || ''
   manageLastName.value = currentProfile?.last_name || ''
   managePhone.value = currentProfile?.phone || ''
@@ -2676,6 +2680,7 @@ recoveryPasswordForm.addEventListener('submit', async event => {
 
   try {
     const wasInvite = inviteMode
+    const choices = readMarketing(recoveryPasswordForm)
     await updatePassword(recoveryPassword.value)
 
     if (wasInvite) {
@@ -2686,6 +2691,7 @@ recoveryPasswordForm.addEventListener('submit', async event => {
       }
     }
 
+    if (choices.email_opt_in || choices.sms_opt_in) await saveMarketing(recoveryPasswordForm, 'nexus', 'activation')
     recoveryPassword.value = ''
     recoveryPasswordConfirm.value = ''
     recoveryMode = false
