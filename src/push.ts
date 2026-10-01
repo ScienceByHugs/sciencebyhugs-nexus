@@ -89,15 +89,15 @@ export function pushPanel() {
 }
 
 export function pushPrompt() {
-  return `<aside class="push-prompt" data-push-prompt hidden aria-label="Enable notifications">
+  return `<aside class="push-prompt push-prompt-popup" data-push-prompt hidden aria-label="Enable notifications">
     <p>We noticed you don’t have notifications enabled.</p>
-    <button type="button" data-push-enable>Click here to enable notifications</button>
+    <div class="push-prompt-actions"><button type="button" data-push-enable>Enable notifications</button><button type="button" data-push-dismiss>Not now</button></div>
     <p data-push-prompt-status role="status" aria-live="polite"></p>
   </aside>`
 }
 
 let bindingVersion = 0
-export async function bindPushPanel() {
+export async function bindPushPanel(userId = '') {
   let panel = document.querySelector<HTMLElement>('.push-panel')
   if (!panel) return
   if (panel.dataset.bound) {
@@ -115,11 +115,21 @@ export async function bindPushPanel() {
   const promptStatus = prompt?.querySelector<HTMLElement>('[data-push-prompt-status]')
   if (prompt) prompt.hidden = true
   if (promptStatus) promptStatus.textContent = ''
+  if (!userId) { button.disabled = true; return }
+  const dismissalKey = `nexus-push-prompt-dismissed:${userId}`
+  let dismissed = false
+  try { dismissed = sessionStorage.getItem(dismissalKey) === 'true' } catch {}
+  const dismissButton = prompt?.querySelector<HTMLButtonElement>('[data-push-dismiss]')
+  if (dismissButton) dismissButton.onclick = () => {
+    dismissed = true
+    if (prompt) prompt.hidden = true
+    try { sessionStorage.setItem(dismissalKey, 'true') } catch {}
+  }
   let enabled = false
   let checked = false
   const update = () => {
     if (version !== bindingVersion) return
-    if (prompt) prompt.hidden = !checked || enabled
+    if (prompt) prompt.hidden = !checked || enabled || dismissed
     if (promptButton) promptButton.disabled = false
     button.textContent = enabled ? 'Turn off on this device' : 'Enable notifications'
     button.disabled = false
