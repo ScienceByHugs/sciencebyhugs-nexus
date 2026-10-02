@@ -1752,8 +1752,22 @@ async function setupCartPayNow() {
     if (!cartZelleStartButton.dataset.bound) {
       cartZelleStartButton.dataset.bound = 'true'
       cartZelleStartButton.addEventListener('click', async () => {
+        // Open Zelle immediately. Creating the server-verified checkout order can
+        // take several seconds on a cold function, so don't make the customer
+        // stare at a loading button while that happens.
         cartZelleStartButton.disabled = true
         cartZelleStartButton.textContent = 'Preparing Zelle…'
+        cartZelleDetails.innerHTML = `
+          <div><span>Recipient</span><strong>${escapeHtml(zelle.displayName)}</strong></div>
+          <div><span>Send to</span><strong>${escapeHtml(zelle.contact)}</strong></div>
+          <div><span>Exact total</span><strong>Confirming…</strong></div>
+        `
+        cartZelleMessage.textContent = 'Confirming your exact total securely…'
+        cartZelleSubmitButton.disabled = true
+        cartZellePanel.hidden = false
+        cartZelleStartButton.hidden = true
+        cartZellePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+
         try {
           const checkout = await ensureCheckoutOrder('Zelle')
           cartZelleDetails.innerHTML = `
@@ -1761,11 +1775,15 @@ async function setupCartPayNow() {
             <div><span>Send to</span><strong>${escapeHtml(zelle.contact)}</strong></div>
             <div><span>Exact total</span><strong>${money(checkout.totals.total)}</strong></div>
           `
-          cartZellePanel.hidden = false
-          cartZelleStartButton.hidden = true
+          cartZelleMessage.textContent = ''
+          cartZelleSubmitButton.disabled = false
         } catch (error) {
+          cartZellePanel.hidden = true
+          cartZelleStartButton.hidden = false
           cartZelleStartButton.disabled = false
           cartZelleStartButton.textContent = 'Pay with Zelle'
+          cartZelleSubmitButton.disabled = false
+          cartZelleMessage.textContent = ''
           cartPayMessage.textContent =
             error instanceof Error ? error.message : 'Could not prepare Zelle payment.'
         }
