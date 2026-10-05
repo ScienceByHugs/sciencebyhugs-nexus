@@ -432,6 +432,32 @@ app.innerHTML = `
         </div>
       </section>
 
+      <section class="checkout-panel discount-code-panel">
+        <div class="discount-code-heading">
+          <div>
+            <span class="eyebrow">PROMOTIONS</span>
+            <div class="checkout-title">Discount Code</div>
+          </div>
+          <span class="discount-code-badge">OPTIONAL</span>
+        </div>
+        <div class="discount-code-row">
+          <label class="discount-code-field" for="discountCode">
+            <span class="sr-only">Discount code</span>
+            <input
+              id="discountCode"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="characters"
+              maxlength="40"
+              placeholder="Enter code"
+            />
+          </label>
+          <button id="applyDiscountCodeButton" class="discount-code-apply" type="button">Apply</button>
+        </div>
+        <div id="discountCodeMessage" class="discount-code-message" aria-live="polite"></div>
+      </section>
+
       <section class="policy-panel">
         <label class="policy-check">
           <input id="policyAcknowledgment" type="checkbox" />
@@ -721,6 +747,9 @@ app.innerHTML = `
   </dialog>
 `
 
+const discountCodeInput = document.querySelector<HTMLInputElement>('#discountCode')!
+const applyDiscountCodeButton = document.querySelector<HTMLButtonElement>('#applyDiscountCodeButton')!
+const discountCodeMessage = document.querySelector<HTMLDivElement>('#discountCodeMessage')!
 const grid = document.querySelector<HTMLDivElement>('#catalogGrid')!
 const chips = document.querySelector<HTMLDivElement>('#categoryChips')!
 const count = document.querySelector<HTMLSpanElement>('#productCount')!
@@ -1398,6 +1427,23 @@ function canViewRestrictedCatalog() {
 function isFoundingMember() {
   return currentProfile?.memberships?.name?.trim().toLowerCase() === 'founding member'
 }
+
+applyDiscountCodeButton.addEventListener('click', () => {
+  const code = discountCodeInput.value.trim().toUpperCase()
+  discountCodeInput.value = code
+
+  if (!code) {
+    discountCodeMessage.textContent = 'Enter a discount code first.'
+    discountCodeInput.focus()
+    return
+  }
+
+  discountCodeMessage.textContent = 'Discount code validation will be available here shortly.'
+})
+
+discountCodeInput.addEventListener('input', () => {
+  discountCodeMessage.textContent = ''
+})
 
 function updateCartUI() {
   const quantity = cartQuantity(cart)
