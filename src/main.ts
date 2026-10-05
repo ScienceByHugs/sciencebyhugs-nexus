@@ -15,6 +15,7 @@ import {
   updatePassword,
   updateAccountDetails,
   signIn,
+  signUp,
   signOut,
   getMembershipBenefits,
   hasMembershipBenefit,
@@ -525,7 +526,40 @@ app.innerHTML = `
         </label>
         <button id="loginSubmit" class="auth-primary" type="submit">Sign In</button>
         <button id="forgotPasswordButton" class="auth-link" type="button">Forgot password?</button>
+        <div class="auth-divider"><span>New to Nexus?</span></div>
+        <button id="createAccountButton" class="auth-secondary create-account-button" type="button">Create Account</button>
         <div id="loginMessage" class="auth-message" aria-live="polite"></div>
+      </form>
+
+      <form id="signupForm" class="auth-form recovery-form" hidden>
+        <span class="eyebrow">CREATE NEXUS IDENTITY</span>
+        <h3>Create your account.</h3>
+        <p class="account-copy">Set up your Science By Hugs Nexus account to order, view activity, and manage your profile.</p>
+        <div class="account-name-grid">
+          <label>
+            First name
+            <input id="signupFirstName" type="text" autocomplete="given-name" required />
+          </label>
+          <label>
+            Last name
+            <input id="signupLastName" type="text" autocomplete="family-name" required />
+          </label>
+        </div>
+        <label>
+          Email
+          <input id="signupEmail" type="email" autocomplete="email" required />
+        </label>
+        <label>
+          Password
+          <input id="signupPassword" type="password" autocomplete="new-password" minlength="10" required />
+        </label>
+        <label>
+          Confirm password
+          <input id="signupPasswordConfirm" type="password" autocomplete="new-password" minlength="10" required />
+        </label>
+        <button id="signupSubmit" class="auth-primary" type="submit">Create Account</button>
+        <button id="signupBack" class="auth-link" type="button">Back to sign in</button>
+        <div id="signupMessage" class="auth-message" aria-live="polite"></div>
       </form>
 
       <form id="forgotPasswordForm" class="auth-form recovery-form" hidden>
@@ -776,6 +810,16 @@ const loginEmail = document.querySelector<HTMLInputElement>('#loginEmail')!
 const loginPassword = document.querySelector<HTMLInputElement>('#loginPassword')!
 const loginSubmit = document.querySelector<HTMLButtonElement>('#loginSubmit')!
 const loginMessage = document.querySelector<HTMLDivElement>('#loginMessage')!
+const createAccountButton = document.querySelector<HTMLButtonElement>('#createAccountButton')!
+const signupForm = document.querySelector<HTMLFormElement>('#signupForm')!
+const signupFirstName = document.querySelector<HTMLInputElement>('#signupFirstName')!
+const signupLastName = document.querySelector<HTMLInputElement>('#signupLastName')!
+const signupEmail = document.querySelector<HTMLInputElement>('#signupEmail')!
+const signupPassword = document.querySelector<HTMLInputElement>('#signupPassword')!
+const signupPasswordConfirm = document.querySelector<HTMLInputElement>('#signupPasswordConfirm')!
+const signupSubmit = document.querySelector<HTMLButtonElement>('#signupSubmit')!
+const signupBack = document.querySelector<HTMLButtonElement>('#signupBack')!
+const signupMessage = document.querySelector<HTMLDivElement>('#signupMessage')!
 const forgotPasswordButton = document.querySelector<HTMLButtonElement>('#forgotPasswordButton')!
 const forgotPasswordForm = document.querySelector<HTMLFormElement>('#forgotPasswordForm')!
 const forgotPasswordEmail = document.querySelector<HTMLInputElement>('#forgotPasswordEmail')!
@@ -875,12 +919,23 @@ function showOrderActivity() {
 
 function showLoginView() {
   loginForm.hidden = false
+  signupForm.hidden = true
   forgotPasswordForm.hidden = true
   recoveryPasswordForm.hidden = true
 }
 
+function showSignupView() {
+  loginForm.hidden = true
+  signupForm.hidden = false
+  forgotPasswordForm.hidden = true
+  recoveryPasswordForm.hidden = true
+  signupEmail.value = loginEmail.value.trim()
+  signupMessage.textContent = ''
+}
+
 function showForgotPasswordView() {
   loginForm.hidden = true
+  signupForm.hidden = true
   forgotPasswordForm.hidden = false
   recoveryPasswordForm.hidden = true
   forgotPasswordEmail.value = loginEmail.value.trim()
@@ -889,6 +944,7 @@ function showForgotPasswordView() {
 
 function showRecoveryPasswordView() {
   loginForm.hidden = true
+  signupForm.hidden = true
   forgotPasswordForm.hidden = true
   recoveryPasswordForm.hidden = false
   signedOutView.hidden = false
@@ -2652,6 +2708,62 @@ requestInvoiceButton.addEventListener('click', async () => {
   }
 })
 
+
+createAccountButton.addEventListener('click', () => {
+  showSignupView()
+})
+
+signupBack.addEventListener('click', () => {
+  showLoginView()
+})
+
+signupForm.addEventListener('submit', async event => {
+  event.preventDefault()
+  signupMessage.textContent = ''
+
+  if (signupPassword.value.length < 10) {
+    signupMessage.textContent = 'Use at least 10 characters for your password.'
+    return
+  }
+
+  if (signupPassword.value !== signupPasswordConfirm.value) {
+    signupMessage.textContent = 'The passwords do not match.'
+    return
+  }
+
+  signupSubmit.disabled = true
+  signupSubmit.textContent = 'Creating Account…'
+
+  try {
+    const result = await signUp({
+      firstName: signupFirstName.value,
+      lastName: signupLastName.value,
+      email: signupEmail.value,
+      password: signupPassword.value,
+    })
+
+    signupPassword.value = ''
+    signupPasswordConfirm.value = ''
+
+    if (result.confirmationRequired) {
+      signupMessage.textContent = 'Account created. Check your email to confirm your address, then return to Nexus to sign in.'
+      signupSubmit.textContent = 'Confirmation Email Sent'
+      return
+    }
+
+    await refreshAccount()
+    await loadCatalog()
+    accountDialog.close()
+    showToast('Nexus account created')
+  } catch (error) {
+    signupMessage.textContent = error instanceof Error ? error.message : 'Could not create your account.'
+  } finally {
+    if (signupSubmit.textContent !== 'Confirmation Email Sent') {
+      signupSubmit.disabled = false
+      signupSubmit.textContent = 'Create Account'
+    }
+  }
+})
 
 forgotPasswordButton.addEventListener('click', () => {
   showForgotPasswordView()
