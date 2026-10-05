@@ -2944,3 +2944,185 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
   #signedOutView .auth-primary,
   #signedOutView .auth-secondary{min-height:40px}
 }
+
+/* Premium NEXUS signed-out account experience */
+.auth-shell{
+  position:relative;
+  overflow:hidden;
+}
+.auth-shell::before{
+  content:"";
+  position:absolute;
+  width:250px;
+  height:250px;
+  right:-105px;
+  top:-110px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,210,255,.16),rgba(47,128,237,.06) 48%,transparent 72%);
+  filter:blur(2px);
+  pointer-events:none;
+}
+.auth-brand-panel{
+  position:relative;
+  z-index:1;
+  display:grid;
+  justify-items:center;
+  text-align:center;
+  margin:-4px 0 18px;
+}
+.auth-brand-logo{
+  width:min(210px,64%);
+  height:54px;
+  object-fit:contain;
+  filter:drop-shadow(0 10px 25px rgba(0,0,0,.35));
+}
+.auth-status-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-top:5px;
+  padding:6px 10px;
+  border:1px solid rgba(0,210,255,.18);
+  border-radius:999px;
+  background:rgba(0,87,255,.07);
+  color:#AEEBFF;
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+.auth-status-pill i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#57E389;
+  box-shadow:0 0 10px rgba(87,227,137,.65);
+}
+.auth-brand-panel h2{
+  margin:12px 0 5px;
+  font-size:clamp(2rem,6vw,2.65rem);
+}
+.auth-brand-panel h2 em{
+  font-style:normal;
+  color:#7FDBFF;
+  text-shadow:0 0 24px rgba(127,219,255,.2);
+}
+.auth-brand-panel .account-copy{
+  max-width:410px;
+  margin:0;
+  font-size:.78rem;
+  line-height:1.5;
+}
+.auth-card{
+  position:relative;
+  z-index:1;
+  padding:17px;
+  border:1px solid rgba(127,219,255,.14);
+  border-radius:20px;
+  background:
+    linear-gradient(180deg,rgba(14,23,43,.82),rgba(7,13,27,.72));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+.auth-card label{
+  color:#BDD0E6;
+}
+.auth-card input{
+  border-color:rgba(127,219,255,.16);
+  background:rgba(3,8,18,.82);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+}
+.auth-card input:hover{
+  border-color:rgba(127,219,255,.28);
+}
+.auth-primary-glow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  box-shadow:0 12px 30px rgba(47,128,237,.18),0 0 20px rgba(127,219,255,.06);
+}
+.auth-primary-glow span{
+  font-size:1.05rem;
+  transition:transform .18s ease;
+}
+.auth-primary-glow:hover span{
+  transform:translateX(3px);
+}
+.auth-forgot-link{
+  color:#9EC9E8;
+  font-size:.72rem;
+}
+.create-account-button{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  padding:9px 12px;
+  text-align:left;
+  border-color:rgba(0,210,255,.2);
+  background:linear-gradient(135deg,rgba(0,87,255,.09),rgba(10,20,38,.95));
+}
+.create-account-button:hover{
+  border-color:rgba(0,210,255,.42);
+  background:linear-gradient(135deg,rgba(0,87,255,.15),rgba(10,20,38,.98));
+}
+.create-account-icon{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(0,210,255,.2);
+  border-radius:12px;
+  background:rgba(0,210,255,.07);
+  color:#7FDBFF;
+  font-size:1.25rem;
+}
+.create-account-button>span:nth-child(2){
+  display:grid;
+  gap:2px;
+}
+.create-account-button strong{
+  color:#F7FAFF;
+  font-size:.8rem;
+}
+.create-account-button small{
+  color:#7F91AA;
+  font-size:.64rem;
+  font-weight:700;
+}
+.create-account-button>b{
+  color:#7FDBFF;
+  font-size:1rem;
+}
+#signupForm h3,
+#forgotPasswordForm h3,
+#recoveryPasswordForm h3{
+  margin:4px 0 1px;
+  font-size:1.45rem;
+  letter-spacing:-.025em;
+}
+
+@media(max-width:600px){
+  .account-dialog{
+    border-radius:24px;
+    border-color:rgba(0,210,255,.2);
+    background:
+      radial-gradient(circle at 50% -8%,rgba(0,87,255,.16),transparent 18rem),
+      #080E1B;
+  }
+  .auth-brand-panel{margin:-2px 0 12px}
+  .auth-brand-logo{width:160px;height:40px}
+  .auth-status-pill{margin-top:2px;padding:5px 8px;font-size:.53rem}
+  .auth-brand-panel h2{font-size:1.75rem;margin:8px 0 3px}
+  .auth-brand-panel .account-copy{font-size:.7rem;line-height:1.35}
+  .auth-card{padding:12px;border-radius:16px}
+  .create-account-button{grid-template-columns:34px minmax(0,1fr) auto;padding:7px 9px}
+  .create-account-icon{width:34px;height:34px;border-radius:10px}
+}
+@media(max-width:600px) and (max-height:740px){
+  .auth-brand-panel .account-copy{display:none}
+  .auth-brand-logo{width:142px;height:34px}
+  .auth-status-pill{display:none}
+  .auth-brand-panel h2{font-size:1.48rem;margin:5px 0 2px}
+  .auth-brand-panel{margin-bottom:8px}
+  .auth-card{padding:10px}
+}

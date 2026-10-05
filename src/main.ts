@@ -510,12 +510,15 @@ app.innerHTML = `
   <dialog id="accountDialog" class="account-dialog">
     <button id="closeAccountDialog" class="dialog-close" aria-label="Close">×</button>
 
-    <div id="signedOutView">
-      <span class="eyebrow">NEXUS IDENTITY</span>
-      <h2>Welcome back.</h2>
-      <p class="account-copy">Sign in with your Science By Hugs account.</p>
+    <div id="signedOutView" class="auth-shell">
+      <div class="auth-brand-panel">
+        <img class="auth-brand-logo" src="${nexusLogoUrl}" alt="Nexus — Science By Hugs" />
+        <span class="auth-status-pill"><i></i> SECURE CUSTOMER ACCESS</span>
+        <h2>Welcome to <em>Nexus.</em></h2>
+        <p class="account-copy">Your Science By Hugs account connects orders, invoices, rewards, and research access in one place.</p>
+      </div>
 
-      <form id="loginForm" class="auth-form">
+      <form id="loginForm" class="auth-form auth-card">
         <label>
           Email
           <input id="loginEmail" type="email" autocomplete="email" required />
@@ -524,17 +527,21 @@ app.innerHTML = `
           Password
           <input id="loginPassword" type="password" autocomplete="current-password" required />
         </label>
-        <button id="loginSubmit" class="auth-primary" type="submit">Sign In</button>
-        <button id="forgotPasswordButton" class="auth-link" type="button">Forgot password?</button>
-        <div class="auth-divider"><span>New to Nexus?</span></div>
-        <button id="createAccountButton" class="auth-secondary create-account-button" type="button">Create Account</button>
+        <button id="loginSubmit" class="auth-primary auth-primary-glow" type="submit">Sign In to Nexus <span aria-hidden="true">→</span></button>
+        <button id="forgotPasswordButton" class="auth-link auth-forgot-link" type="button">Forgot your password?</button>
+        <div class="auth-divider"><span>First time here?</span></div>
+        <button id="createAccountButton" class="auth-secondary create-account-button" type="button">
+          <span class="create-account-icon" aria-hidden="true">＋</span>
+          <span><strong>Create Account</strong><small>Join as a New Researcher</small></span>
+          <b aria-hidden="true">→</b>
+        </button>
         <div id="loginMessage" class="auth-message" aria-live="polite"></div>
       </form>
 
-      <form id="signupForm" class="auth-form recovery-form" hidden>
+      <form id="signupForm" class="auth-form recovery-form auth-card" hidden>
         <span class="eyebrow">CREATE NEXUS IDENTITY</span>
-        <h3>Create your account.</h3>
-        <p class="account-copy">Set up your Science By Hugs Nexus account to order, view activity, and manage your profile.</p>
+        <h3>Join the Nexus.</h3>
+        <p class="account-copy">Create your account and begin as a New Researcher.</p>
         <div class="account-name-grid">
           <label>
             First name
@@ -562,7 +569,7 @@ app.innerHTML = `
         <div id="signupMessage" class="auth-message" aria-live="polite"></div>
       </form>
 
-      <form id="forgotPasswordForm" class="auth-form recovery-form" hidden>
+      <form id="forgotPasswordForm" class="auth-form recovery-form auth-card" hidden>
         <span class="eyebrow">PASSWORD RECOVERY</span>
         <h3>Reset your password.</h3>
         <p class="account-copy">Enter the email connected to your Science By Hugs account.</p>
@@ -575,7 +582,7 @@ app.innerHTML = `
         <div id="forgotPasswordMessage" class="auth-message" aria-live="polite"></div>
       </form>
 
-      <form id="recoveryPasswordForm" class="auth-form recovery-form" hidden>
+      <form id="recoveryPasswordForm" class="auth-form recovery-form auth-card" hidden>
         <span id="passwordSetupEyebrow" class="eyebrow">SECURE RECOVERY</span>
         <h3 id="passwordSetupTitle">Choose a new password.</h3>
         <p id="passwordSetupCopy" class="account-copy">Create a secure password for your Science By Hugs account.</p>
