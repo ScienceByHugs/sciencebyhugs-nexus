@@ -2091,6 +2091,12 @@ function renderAccountHistory() {
 
         <div class="history-lines">${items || '<span class="history-muted">Item details unavailable.</span>'}</div>
 
+        ${(order.discount_total + order.shipping_discount_total) > 0 ? `
+          <div class="history-total history-discount-total">
+            <span>Discount${order.discount_code ? ` (${escapeHtml(order.discount_code)})` : ''}</span>
+            <strong>-${money(order.discount_total + order.shipping_discount_total)}</strong>
+          </div>
+        ` : ''}
         ${order.processing_fee_total > 0 ? `
           <div class="history-total">
             <span>PayPal/Venmo Processing Fee</span>
