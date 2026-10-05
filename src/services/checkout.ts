@@ -5,9 +5,12 @@ export type CheckoutOrderResult = {
   success: boolean
   orderId: string
   orderNumber: string
+  discountCode?: string | null
   totals: {
     subtotal: number
     discount: number
+    shippingDiscount?: number
+    totalSavings?: number
     shipping: number
     processingFee: number
     tax: number
