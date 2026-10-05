@@ -24,6 +24,7 @@ export async function requestInvoice(
     policyAcknowledged: boolean
     contactMethod?: string
     customerNotes?: string
+    discountCode?: string
   },
 ): Promise<InvoiceRequestResult> {
   const { data, error } = await supabase.functions.invoke('request-invoice', {
@@ -36,6 +37,7 @@ export async function requestInvoice(
       policyAcknowledged: options.policyAcknowledged,
       contactMethod: options.contactMethod || null,
       customerNotes: options.customerNotes || null,
+      discountCode: options.discountCode || null,
     },
   })
 
