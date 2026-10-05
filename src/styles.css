@@ -49,6 +49,8 @@ radial-gradient(circle at 8% 78%,#2F80ED 0 1px,transparent 1.3px);background-siz
 .auth-primary:disabled{opacity:.55;cursor:wait}
 .auth-secondary{margin-top:18px;border:1px solid var(--line);background:#0B1020;color:#fff}
 .auth-message{min-height:18px;color:#FFB15C;font-size:.78rem;line-height:1.4}
+.auth-divider{display:flex;align-items:center;gap:12px;margin:2px 0;color:var(--muted);font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.auth-divider::before,.auth-divider::after{content:"";height:1px;flex:1;background:var(--line)}
+.create-account-button{margin-top:0}
 .activation-note{margin-top:20px;padding:15px;border-radius:16px;border:1px solid var(--line);background:rgba(47,128,237,.05)}
 .activation-note strong{font-size:.82rem}
 .activation-note p{margin:6px 0 0;color:var(--muted);font-size:.76rem;line-height:1.5}
