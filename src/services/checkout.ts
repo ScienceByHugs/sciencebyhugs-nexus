@@ -21,6 +21,7 @@ export async function createCheckoutOrder(
     policyAcknowledged: boolean
     contactMethod?: string
     customerNotes?: string
+    discountCode?: string
     paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' | 'Zelle'
   },
 ): Promise<CheckoutOrderResult> {
@@ -34,6 +35,7 @@ export async function createCheckoutOrder(
       policyAcknowledged: options.policyAcknowledged,
       contactMethod: options.contactMethod || null,
       customerNotes: options.customerNotes || null,
+      discountCode: options.discountCode || null,
       paymentMethod: options.paymentMethod,
     },
   })

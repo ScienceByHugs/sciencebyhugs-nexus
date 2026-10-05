@@ -31,6 +31,7 @@ import {
   saveCart,
   type CartItem,
 } from './services/cart'
+import { validateDiscountCode, type DiscountValidation } from './services/discountCodes'
 import { requestInvoice } from './services/invoiceRequests'
 import { createCheckoutOrder, type CheckoutOrderResult } from './services/checkout'
 import { getMyOrderHistory, type NexusOrderHistory } from './services/accountHistory'
@@ -67,6 +68,8 @@ let accountHistory: NexusOrderHistory[] = []
 let cart: CartItem[] = loadCart()
 let activeCheckoutOrder: CheckoutOrderResult | null = null
 let activeCheckoutPaymentMethod: 'PayPal' | 'Venmo' | 'Apple Pay' | 'Zelle' | null = null
+let appliedDiscount: DiscountValidation | null = null
+let appliedDiscountCartSignature = ''
 const initialMode = new URLSearchParams(window.location.search).get('mode')
 let recoveryMode = initialMode === 'recovery'
 let inviteMode = initialMode === 'invite'
@@ -1428,24 +1431,58 @@ function isFoundingMember() {
   return currentProfile?.memberships?.name?.trim().toLowerCase() === 'founding member'
 }
 
-applyDiscountCodeButton.addEventListener('click', () => {
-  const code = discountCodeInput.value.trim().toUpperCase()
-  discountCodeInput.value = code
+const cartSignature = () =>
+  cart.map(item => `${item.id}:${item.quantity}`).sort().join('|')
 
+applyDiscountCodeButton.addEventListener('click', async () => {
+  const code = discountCodeInput.value.trim()
   if (!code) {
     discountCodeMessage.textContent = 'Enter a discount code first.'
     discountCodeInput.focus()
     return
   }
+  if (!currentProfile) {
+    discountCodeMessage.textContent = 'Sign in before applying a discount code.'
+    return
+  }
 
-  discountCodeMessage.textContent = 'Discount code validation will be available here shortly.'
+  applyDiscountCodeButton.disabled = true
+  discountCodeMessage.textContent = 'Checking code…'
+  try {
+    const baseTotals = calculateCart(cart, isFoundingMember())
+    const discount = await validateDiscountCode(code, baseTotals.subtotal, baseTotals.shipping)
+    appliedDiscount = discount
+    appliedDiscountCartSignature = cartSignature()
+    discountCodeInput.value = discount.code
+    discountCodeMessage.textContent = '✓ ' + discount.description + ' applied.'
+    updateCartUI()
+  } catch (error) {
+    appliedDiscount = null
+    appliedDiscountCartSignature = ''
+    discountCodeMessage.textContent =
+      error instanceof Error ? error.message : 'Discount code is not valid.'
+    updateCartUI()
+  } finally {
+    applyDiscountCodeButton.disabled = false
+  }
 })
 
 discountCodeInput.addEventListener('input', () => {
+  if (appliedDiscount && discountCodeInput.value.trim().toLowerCase() !== appliedDiscount.code.toLowerCase()) {
+    appliedDiscount = null
+    appliedDiscountCartSignature = ''
+    updateCartUI()
+  }
   discountCodeMessage.textContent = ''
 })
 
 function updateCartUI() {
+  if (appliedDiscount && appliedDiscountCartSignature && appliedDiscountCartSignature !== cartSignature()) {
+    appliedDiscount = null
+    appliedDiscountCartSignature = ''
+    discountCodeMessage.textContent = 'Cart changed. Reapply your discount code.'
+  }
+
   const quantity = cartQuantity(cart)
   cartCount.textContent = String(quantity)
   mobileCartCount.textContent = String(quantity)
@@ -1486,7 +1523,7 @@ function updateCartUI() {
     })
   })
 
-  const totals = calculateCart(cart, isFoundingMember())
+  const totals = calculateCart(cart, isFoundingMember(), appliedDiscount)
   document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(totals.subtotal)
   document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(totals.discount)
   document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(totals.shipping)
@@ -1575,6 +1612,7 @@ async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pa
     policyAcknowledged: policyAcknowledgment.checked,
     contactMethod: contactMethod.value,
     customerNotes: customerNotes.value.trim(),
+    discountCode: appliedDiscount?.code || '',
     paymentMethod,
   })
 
@@ -1604,6 +1642,10 @@ async function finishPayNow(
   cart = []
   policyAcknowledgment.checked = false
   customerNotes.value = ''
+  appliedDiscount = null
+  appliedDiscountCartSignature = ''
+  discountCodeInput.value = ''
+  discountCodeMessage.textContent = ''
   cartPayPanel.hidden = true
   cartZellePanel.hidden = true
   cartContent.hidden = true
@@ -1749,7 +1791,7 @@ async function setupCartPayNow() {
           // Mirror the server's wallet pricing here before Apple opens the sheet:
           // 5% processing fee on taxable merchandise, then 8% tax on
           // taxable merchandise + processing fee. Shipping is not taxed.
-          const preview = calculateCart(cart, isFoundingMember())
+          const preview = calculateCart(cart, isFoundingMember(), appliedDiscount)
           const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
           const taxableMerchandise = roundMoney(Math.max(0, preview.subtotal - preview.discount))
           const processingFee = roundMoney(taxableMerchandise * 0.05)
@@ -2741,12 +2783,17 @@ requestInvoiceButton.addEventListener('click', async () => {
       policyAcknowledged: true,
       contactMethod: contactMethod.value,
       customerNotes: customerNotes.value.trim(),
+      discountCode: appliedDiscount?.code || '',
     })
 
     clearCart()
     cart = []
     policyAcknowledgment.checked = false
     customerNotes.value = ''
+    appliedDiscount = null
+    appliedDiscountCartSignature = ''
+    discountCodeInput.value = ''
+    discountCodeMessage.textContent = ''
     updateCartUI()
 
     payNowSuccess.hidden = true

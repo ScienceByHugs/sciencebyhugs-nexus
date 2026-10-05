@@ -75,13 +75,18 @@ export function changeQuantity(cart: CartItem[], id: string, delta: number): Car
   return next
 }
 
-export function calculateCart(cart: CartItem[], foundingMember: boolean): CartTotals {
+export type AppliedDiscount = {
+  kind: 'free_shipping' | 'referral_bonus' | 'new_customer' | 'group_buy'
+  discountPercent?: number | null
+  shippingDiscount?: number | null
+}
+
+export function calculateCart(cart: CartItem[], foundingMember: boolean, appliedDiscount?: AppliedDiscount | null): CartTotals {
   const subtotal = cart.reduce(
     (total, item) => total + Number(item.price || 0) * Number(item.quantity || 0),
     0,
   )
 
-  const discount = 0
   const shippingSources = new Set(
     cart.map(item => item.shippingFrom?.trim()).filter(Boolean),
   )
@@ -93,7 +98,17 @@ export function calculateCart(cart: CartItem[], foundingMember: boolean): CartTo
     shipping += SHIPPING_RATES[source] || 0
   })
 
-  const tax = subtotal * 0.08
+  const percent = Number(appliedDiscount?.discountPercent || 0)
+  const discount = appliedDiscount && appliedDiscount.kind !== 'free_shipping'
+    ? Math.round((subtotal * percent / 100) * 100) / 100
+    : 0
+  const shippingDiscount = appliedDiscount?.kind === 'free_shipping'
+    ? Math.min(shipping, Number(appliedDiscount.shippingDiscount || 0))
+    : 0
+  shipping = Math.max(0, shipping - shippingDiscount)
+
+  const taxableMerchandise = Math.max(0, subtotal - discount)
+  const tax = taxableMerchandise * 0.08
   const total = subtotal - discount + shipping + tax
 
   return { subtotal, discount, shipping, tax, total }
