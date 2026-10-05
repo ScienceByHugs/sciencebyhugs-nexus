@@ -397,7 +397,7 @@ app.innerHTML = `
       <section class="checkout-panel">
         <div class="checkout-title">Order Summary</div>
         <div class="summary-row"><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
-        <div class="summary-row"><span>Discounts</span><strong id="cartDiscount">-$0.00</strong></div>
+        <div class="summary-row"><span id="cartDiscountLabel">Discounts</span><strong id="cartDiscount">-$0.00</strong></div>
         <div class="summary-row"><span>Shipping</span><strong id="cartShipping">$0.00</strong></div>
         <div class="summary-row"><span>Sales Tax (8%)</span><strong id="cartTax">$0.00</strong></div>
         <div class="summary-row"><span>PayPal/Venmo/Apple Pay Processing Fee (5%)</span><strong id="cartProcessingFee">$0.00</strong></div>
@@ -1525,7 +1525,9 @@ function updateCartUI() {
 
   const totals = calculateCart(cart, isFoundingMember(), appliedDiscount)
   document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(totals.subtotal)
-  document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(totals.discount)
+  const discountLabel = document.querySelector<HTMLElement>('#cartDiscountLabel')!
+  discountLabel.textContent = appliedDiscount ? `Discount (${appliedDiscount.code})` : 'Discounts'
+  document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(totals.totalSavings)
   document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(totals.shipping)
   document.querySelector<HTMLElement>('#cartTax')!.textContent = money(totals.tax)
   document.querySelector<HTMLElement>('#cartTotal')!.textContent = money(totals.total)
@@ -1619,7 +1621,10 @@ async function ensureCheckoutOrder(paymentMethod: 'PayPal' | 'Venmo' | 'Apple Pa
   activeCheckoutOrder = result
   activeCheckoutPaymentMethod = paymentMethod
   document.querySelector<HTMLElement>('#cartSubtotal')!.textContent = money(result.totals.subtotal)
-  document.querySelector<HTMLElement>('#cartDiscount')!.textContent = '-' + money(result.totals.discount)
+  document.querySelector<HTMLElement>('#cartDiscountLabel')!.textContent =
+    result.discountCode ? `Discount (${result.discountCode})` : 'Discounts'
+  document.querySelector<HTMLElement>('#cartDiscount')!.textContent =
+    '-' + money(result.totals.totalSavings ?? result.totals.discount)
   document.querySelector<HTMLElement>('#cartShipping')!.textContent = money(result.totals.shipping)
   document.querySelector<HTMLElement>('#cartTax')!.textContent = money(result.totals.tax)
   document.querySelector<HTMLElement>('#cartProcessingFee')!.textContent = money(result.totals.processingFee)
