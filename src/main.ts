@@ -1395,6 +1395,10 @@ function canViewRestrictedCatalog() {
   return membershipName === 'founding member' || membershipName === 'principal scientist'
 }
 
+function isFoundingMember() {
+  return currentProfile?.memberships?.name?.trim().toLowerCase() === 'founding member'
+}
+
 function updateCartUI() {
   const quantity = cartQuantity(cart)
   cartCount.textContent = String(quantity)
