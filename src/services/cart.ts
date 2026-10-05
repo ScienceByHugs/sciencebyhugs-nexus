@@ -77,8 +77,8 @@ export function changeQuantity(cart: CartItem[], id: string, delta: number): Car
 
 export type AppliedDiscount = {
   kind: 'free_shipping' | 'referral_bonus' | 'new_customer' | 'group_buy'
-  discountPercent?: number
-  shippingDiscount?: number
+  discountPercent?: number | null
+  shippingDiscount?: number | null
 }
 
 export function calculateCart(cart: CartItem[], foundingMember: boolean, appliedDiscount?: AppliedDiscount | null): CartTotals {
