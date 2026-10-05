@@ -11,6 +11,8 @@ export type CartItem = {
 export type CartTotals = {
   subtotal: number
   discount: number
+  shippingDiscount: number
+  totalSavings: number
   shipping: number
   tax: number
   total: number
@@ -111,7 +113,15 @@ export function calculateCart(cart: CartItem[], foundingMember: boolean, applied
   const tax = taxableMerchandise * 0.08
   const total = subtotal - discount + shipping + tax
 
-  return { subtotal, discount, shipping, tax, total }
+  return {
+    subtotal,
+    discount,
+    shippingDiscount,
+    totalSavings: Math.round((discount + shippingDiscount) * 100) / 100,
+    shipping,
+    tax,
+    total,
+  }
 }
 
 export function cartQuantity(cart: CartItem[]) {
