@@ -1265,13 +1265,13 @@ function visibleProducts() {
   return products.filter(product => {
     const category = product.product_categories?.name || 'Uncategorized'
     const normalizedCategory = category.trim().toLowerCase()
-    const foundingOnlyCategory =
+    const restrictedCategory =
       normalizedCategory.includes('oral') ||
       normalizedCategory.includes('inject')
 
     const accessMatch =
-      !foundingOnlyCategory ||
-      isFoundingMember()
+      !restrictedCategory ||
+      canViewRestrictedCatalog()
 
     const categoryMatch =
       selectedCategory === 'All' ||
@@ -1390,8 +1390,9 @@ function openProduct(id: string) {
   productDialog.showModal()
 }
 
-function isFoundingMember() {
-  return currentProfile?.memberships?.name?.trim().toLowerCase() === 'founding member'
+function canViewRestrictedCatalog() {
+  const membershipName = currentProfile?.memberships?.name?.trim().toLowerCase()
+  return membershipName === 'founding member' || membershipName === 'principal scientist'
 }
 
 function updateCartUI() {
