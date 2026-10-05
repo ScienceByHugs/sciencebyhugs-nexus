@@ -56,7 +56,7 @@ export async function signUp(input: {
 
   if (!firstName || !lastName) throw new Error('First and last name are required.')
   if (!email) throw new Error('Email is required.')
-  if (input.password.length < 10) throw new Error('Use at least 10 characters for your password.')
+  if (input.password.length < 8) throw new Error('Use at least 8 characters for your password.')
 
   const { data, error } = await supabase.auth.signUp({
     email,

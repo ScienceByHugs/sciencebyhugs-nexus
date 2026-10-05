@@ -551,11 +551,11 @@ app.innerHTML = `
         </label>
         <label>
           Password
-          <input id="signupPassword" type="password" autocomplete="new-password" minlength="10" required />
+          <input id="signupPassword" type="password" autocomplete="new-password" minlength="8" required />
         </label>
         <label>
           Confirm password
-          <input id="signupPasswordConfirm" type="password" autocomplete="new-password" minlength="10" required />
+          <input id="signupPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required />
         </label>
         <button id="signupSubmit" class="auth-primary" type="submit">Create Account</button>
         <button id="signupBack" class="auth-link" type="button">Back to sign in</button>
@@ -581,11 +581,11 @@ app.innerHTML = `
         <p id="passwordSetupCopy" class="account-copy">Create a secure password for your Science By Hugs account.</p>
         <label>
           New password
-          <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="10" required />
+          <input id="recoveryPassword" type="password" autocomplete="new-password" minlength="8" required />
         </label>
         <label>
           Confirm new password
-          <input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="10" required />
+          <input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" minlength="8" required />
         </label>
         ${marketingFields('activation')}
         <button id="recoveryPasswordSubmit" class="auth-primary" type="submit">Set New Password</button>
@@ -683,11 +683,11 @@ app.innerHTML = `
             </label>
             <label>
               New password
-              <input id="newPassword" type="password" autocomplete="new-password" minlength="10" required />
+              <input id="newPassword" type="password" autocomplete="new-password" minlength="8" required />
             </label>
             <label>
               Confirm new password
-              <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="10" required />
+              <input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" required />
             </label>
             <button id="changePasswordSubmit" class="auth-primary" type="submit">Change Password</button>
             <div id="changePasswordMessage" class="auth-message" aria-live="polite"></div>
@@ -2721,8 +2721,8 @@ signupForm.addEventListener('submit', async event => {
   event.preventDefault()
   signupMessage.textContent = ''
 
-  if (signupPassword.value.length < 10) {
-    signupMessage.textContent = 'Use at least 10 characters for your password.'
+  if (signupPassword.value.length < 8) {
+    signupMessage.textContent = 'Use at least 8 characters for your password.'
     return
   }
 
@@ -2796,8 +2796,8 @@ recoveryPasswordForm.addEventListener('submit', async event => {
   event.preventDefault()
   recoveryPasswordMessage.textContent = ''
 
-  if (recoveryPassword.value.length < 10) {
-    recoveryPasswordMessage.textContent = 'Use at least 10 characters.'
+  if (recoveryPassword.value.length < 8) {
+    recoveryPasswordMessage.textContent = 'Use at least 8 characters.'
     return
   }
 
@@ -2848,8 +2848,8 @@ changePasswordForm.addEventListener('submit', async event => {
   event.preventDefault()
   changePasswordMessage.textContent = ''
 
-  if (newPassword.value.length < 10) {
-    changePasswordMessage.textContent = 'Use at least 10 characters for the new password.'
+  if (newPassword.value.length < 8) {
+    changePasswordMessage.textContent = 'Use at least 8 characters for the new password.'
     return
   }
 
