@@ -42,6 +42,44 @@ export function hasMembershipBenefit(
   )
 }
 
+const NEXUS_SIGNUP_REDIRECT_URL = 'https://nexus.sciencebyhugs.com/'
+
+export async function signUp(input: {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+}) {
+  const firstName = input.firstName.trim()
+  const lastName = input.lastName.trim()
+  const email = input.email.trim().toLowerCase()
+
+  if (!firstName || !lastName) throw new Error('First and last name are required.')
+  if (!email) throw new Error('Email is required.')
+  if (input.password.length < 10) throw new Error('Use at least 10 characters for your password.')
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: input.password,
+    options: {
+      emailRedirectTo: NEXUS_SIGNUP_REDIRECT_URL,
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+      },
+    },
+  })
+
+  if (error) throw error
+
+  if (data.session) await claimExistingProfile()
+
+  return {
+    ...data,
+    confirmationRequired: !data.session,
+  }
+}
+
 export async function signIn(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: email.trim(),
