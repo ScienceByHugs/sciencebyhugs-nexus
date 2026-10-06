@@ -1301,9 +1301,10 @@ function visibleProducts() {
       normalizedCategory.includes('oral') ||
       normalizedCategory.includes('inject')
 
+    const privilegedCatalogAccess = canViewRestrictedCatalog()
     const accessMatch =
-      !restrictedCategory ||
-      canViewRestrictedCatalog()
+      (!product.core_hidden || privilegedCatalogAccess) &&
+      (!restrictedCategory || privilegedCatalogAccess)
 
     const categoryMatch =
       selectedCategory === 'All' ||
