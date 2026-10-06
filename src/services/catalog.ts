@@ -9,6 +9,7 @@ export type CatalogProduct = {
   image_url: string | null
   storefront_status: string | null
   featured: boolean
+  core_hidden: boolean
   shipping_from: string | null
   product_categories: { name: string } | null
 }
@@ -16,9 +17,8 @@ export type CatalogProduct = {
 export async function fetchCatalog(): Promise<CatalogProduct[]> {
   const { data, error } = await supabase
     .from('products')
-    .select('id,name,product_type,price,description,image_url,storefront_status,featured,shipping_from,product_categories(name)')
+    .select('id,name,product_type,price,description,image_url,storefront_status,featured,core_hidden,shipping_from,product_categories(name)')
     .eq('active', true)
-    .eq('core_hidden', false)
     .order('name')
 
   if (error) throw error
@@ -38,6 +38,7 @@ export async function fetchCatalog(): Promise<CatalogProduct[]> {
       image_url: product.image_url,
       storefront_status: product.storefront_status,
       featured: Boolean(product.featured),
+      core_hidden: Boolean(product.core_hidden),
       shipping_from: product.shipping_from,
       product_categories: category?.name ? { name: String(category.name) } : null,
     } satisfies CatalogProduct
